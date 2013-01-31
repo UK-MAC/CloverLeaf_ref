@@ -38,6 +38,7 @@ SUBROUTINE hydro
   
   REAL(KIND=8)    :: grind_time
   REAL(KIND=8)    :: step_time,step_grind
+  REAL(KIND=8)    :: first_step,second_step
 
   timerstart = timer()
 
@@ -83,7 +84,9 @@ SUBROUTINE hydro
         WRITE(g_out,*) 'Calculation complete'
         WRITE(g_out,*) 'Clover is finishing'
         WRITE(g_out,*) 'Wall clock ', timer() - timerstart
+        WRITE(g_out,*) 'First step overhead', first_step-second_step
         WRITE(    0,*) 'Wall clock ', timer() - timerstart
+        WRITE(    0,*) 'First step overhead', first_step-second_step
       ENDIF
 
       CALL clover_finalize
@@ -104,6 +107,13 @@ SUBROUTINE hydro
       WRITE(g_out,*)"Step time per cell    ",step_grind
 
      END IF
+
+     ! Sometimes there can be a significant start up cost that appears in the first step.
+     ! Sometimes it is due to the number of MPI tasks, or OpenCL kernel compilation.
+     ! On the short test runs, this can skew the results, so should be taken into account
+     !  in recorded run times.
+     IF(step.EQ.1) first_step=(timer() - step_time)
+     IF(step.EQ.2) second_step=(timer() - step_time)
 
   END DO
 
