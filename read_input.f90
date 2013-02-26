@@ -214,6 +214,9 @@ SUBROUTINE read_input()
             CASE("circle")
               states(state)%geometry=g_circ
               IF(parallel%boss)WRITE(g_out,"(1x,a25)")'state geometry circular'
+            CASE("point")
+              states(state)%geometry=g_point
+              IF(parallel%boss)WRITE(g_out,"(1x,a25)")'state geometry point'
             END SELECT
           END SELECT
         ENDDO
