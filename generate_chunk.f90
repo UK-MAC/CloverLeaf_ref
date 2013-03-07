@@ -70,6 +70,7 @@ SUBROUTINE generate_chunk(chunk)
                              state_radius,                          &
                              state_geometry,                        &
                              g_rect,                                &
-                             g_circ                                 )
+                             g_circ,                                &
+                             g_point)
 
 END SUBROUTINE generate_chunk

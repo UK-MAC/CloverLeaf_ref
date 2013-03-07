@@ -71,7 +71,9 @@ MODULE data_module
                                 ,DIVERG= 4
 
    INTEGER,                      PARAMETER :: g_rect=1 &
-                                ,g_circ=2
+                                ,g_circ=2 &
+                                ,g_point=3
+
 
    INTEGER         ::            g_in           & ! File for input data.
                                 ,g_out

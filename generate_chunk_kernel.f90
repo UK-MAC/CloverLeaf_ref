@@ -48,7 +48,8 @@ SUBROUTINE generate_chunk_kernel(x_min,x_max,y_min,y_max, &
                                  state_radius,            &
                                  state_geometry,          &
                                  g_rect,                  &
-                                 g_circ                   )
+                                 g_circ,                  &
+                                 g_point)
 
   IMPLICIT NONE
 
@@ -73,6 +74,7 @@ SUBROUTINE generate_chunk_kernel(x_min,x_max,y_min,y_max, &
   INTEGER     , DIMENSION(number_of_states) :: state_geometry
   INTEGER      :: g_rect
   INTEGER      :: g_circ
+  INTEGER      :: g_point
 
   REAL(KIND=8) :: radius,x_cent,y_cent
   INTEGER      :: state
@@ -136,6 +138,17 @@ SUBROUTINE generate_chunk_kernel(x_min,x_max,y_min,y_max, &
         ELSEIF(state_geometry(state).EQ.g_circ ) THEN
           radius=SQRT((cellx(j)-x_cent)*(cellx(j)-x_cent)+(celly(k)-y_cent)*(celly(k)-y_cent))
           IF(radius.LE.state_radius(state))THEN
+            energy0(j,k)=state_energy(state)
+            density0(j,k)=state_density(state)
+            DO kt=k,k+1
+              DO jt=j,j+1
+                xvel0(jt,kt)=state_xvel(state)
+                yvel0(jt,kt)=state_yvel(state)
+              ENDDO
+            ENDDO
+          ENDIF
+        ELSEIF(state_geometry(state).EQ.g_point) THEN
+          IF(vertexx(j).EQ.x_cent .AND. vertexy(k).EQ.y_cent) THEN
             energy0(j,k)=state_energy(state)
             density0(j,k)=state_density(state)
             DO kt=k,k+1
