@@ -17,7 +17,7 @@
 
 !>  @brief CloverLeaf top level program: Invokes the main cycle
 !>  @author Wayne Gaudin
-!>  @details CLoverLeaf in a proxy-app that solves the compressible Euler
+!>  @details CloverLeaf in a proxy-app that solves the compressible Euler
 !>  Equations using an explicit finite volume method on a Cartesian grid.
 !>  The grid is staggered with internal energy, density and pressure at cell
 !>  centres and velocities on cell vertices.
