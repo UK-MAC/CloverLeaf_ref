@@ -176,6 +176,7 @@ clover_leaf: c_lover *.f90 Makefile
 	viscosity_kernel_c.o            \
 	advec_mom_kernel_c.o            \
 	advec_cell_kernel_c.o           \
+	calc_dt_kernel_c.o		\
 	timer_c.o                       \
 	-o clover_leaf; echo $(MESSAGE)
 
@@ -190,6 +191,7 @@ c_lover: *.c Makefile
 	viscosity_kernel_c.c            \
 	advec_mom_kernel_c.c            \
 	advec_cell_kernel_c.c           \
+	calc_dt_kernel_c.c		\
 	timer_c.c
 
 clean:
