@@ -698,6 +698,40 @@ SUBROUTINE clover_min(value)
 
 END SUBROUTINE clover_min
 
+SUBROUTINE clover_max(value)
+
+  IMPLICIT NONE
+
+  REAL(KIND=8) :: value
+
+  REAL(KIND=8) :: maximum
+
+  INTEGER :: err
+
+  maximum=value
+
+  CALL MPI_ALLREDUCE(value,maximum,1,MPI_DOUBLE_PRECISION,MPI_MAX,MPI_COMM_WORLD,err)
+
+  value=maximum
+
+END SUBROUTINE clover_max
+
+SUBROUTINE clover_allgather(value,values)
+
+  IMPLICIT NONE
+
+  REAL(KIND=8) :: value
+
+  REAL(KIND=8) :: values(parallel%max_task)
+
+  INTEGER :: err
+
+  values(1)=value ! Just to ensure it will work in serial
+
+  CALL MPI_ALLGATHER(value,1,MPI_DOUBLE_PRECISION,values,1,MPI_DOUBLE_PRECISION,MPI_COMM_WORLD,err)
+
+END SUBROUTINE clover_allgather
+
 SUBROUTINE clover_check_error(error)
 
   IMPLICIT NONE

@@ -65,6 +65,20 @@ SUBROUTINE read_input()
   use_C_kernels=.FALSE.
   use_OA_kernels=.FALSE.
   use_vector_loops=.FALSE.
+  profiler_on=.FALSE.
+  profiler%timestep=0.0
+  profiler%acceleration=0.0
+  profiler%PdV=0.0
+  profiler%cell_advection=0.0
+  profiler%mom_advection=0.0
+  profiler%viscosity=0.0
+  profiler%ideal_gas=0.0
+  profiler%visit=0.0
+  profiler%summary=0.0
+  profiler%reset=0.0
+  profiler%revert=0.0
+  profiler%flux=0.0
+  profiler%halo_exchange=0.0
 
   IF(parallel%boss)WRITE(g_out,*) 'Reading input file'
   IF(parallel%boss)WRITE(g_out,*)
@@ -160,6 +174,9 @@ SUBROUTINE read_input()
         use_OA_kernels=.TRUE.
       CASE('use_vector_loops')
         use_vector_loops=.TRUE.
+      CASE('profiler_on')
+        profiler_on=.TRUE.
+        IF(parallel%boss)WRITE(g_out,"(1x,a25)")'Profiler on'
       CASE('test_problem')
         test_problem=parse_getival(parse_getword(.TRUE.))
         IF(parallel%boss)WRITE(g_out,"(1x,a25,i12)")'test_problem',test_problem

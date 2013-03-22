@@ -39,16 +39,21 @@ SUBROUTINE field_summary()
 
   INTEGER      :: c
 
+  REAL(KIND=8) :: kernel_time,timer
+
   IF(parallel%boss)THEN
     WRITE(g_out,*)
     WRITE(g_out,*) 'Time ',time
     WRITE(g_out,'(a13,7a16)')'           ','Volume','Mass','Density','Pressure','Internal Energy','Kinetic Energy','Total Energy'
   ENDIF
 
+  IF(profiler_on) kernel_time=timer()
   DO c=1,number_of_chunks
     CALL ideal_gas(c,.FALSE.)
   ENDDO
+  IF(profiler_on) profiler%ideal_gas=profiler%ideal_gas+(timer()-kernel_time)
 
+  IF(profiler_on) kernel_time=timer()
   DO c=1,number_of_chunks
     IF(chunks(c)%task.EQ.parallel%task) THEN
       CALL field_summary_kernel(chunks(c)%field%x_min,                   &
@@ -71,6 +76,7 @@ SUBROUTINE field_summary()
   CALL clover_sum(press)
   CALL clover_sum(ie)
   CALL clover_sum(ke)
+  IF(profiler_on) profiler%summary=profiler%summary+(timer()-kernel_time)
 
   IF(parallel%boss) THEN
 !$  IF(OMP_GET_THREAD_NUM().EQ.0) THEN

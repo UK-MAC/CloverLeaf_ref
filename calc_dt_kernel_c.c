@@ -134,7 +134,7 @@ void calc_dt_kernel_c_(int *xmin,int *xmax,int *ymin,int *ymax,
 
     }
   }
-/* Why no min for reductions in C!?!?!?!??!? */
+
 #pragma omp for private(j) reduction(min:dt_min_val)
   for (k=y_min;k<=y_max;k++) {
 #pragma ivdep
