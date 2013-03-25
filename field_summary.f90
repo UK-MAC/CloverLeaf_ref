@@ -54,21 +54,39 @@ SUBROUTINE field_summary()
   IF(profiler_on) profiler%ideal_gas=profiler%ideal_gas+(timer()-kernel_time)
 
   IF(profiler_on) kernel_time=timer()
-  DO c=1,number_of_chunks
-    IF(chunks(c)%task.EQ.parallel%task) THEN
-      CALL field_summary_kernel(chunks(c)%field%x_min,                   &
-                                chunks(c)%field%x_max,                   &
-                                chunks(c)%field%y_min,                   &
-                                chunks(c)%field%y_max,                   &
-                                chunks(c)%field%volume,                  &
-                                chunks(c)%field%density0,                &
-                                chunks(c)%field%energy0,                 &
-                                chunks(c)%field%pressure,                &
-                                chunks(c)%field%xvel0,                   &
-                                chunks(c)%field%yvel0,                   &
-                                vol,mass,ie,ke,press                     )
-    ENDIF
-  ENDDO
+  IF(use_fortran_kernels)THEN
+    DO c=1,number_of_chunks
+      IF(chunks(c)%task.EQ.parallel%task) THEN
+        CALL field_summary_kernel(chunks(c)%field%x_min,                   &
+                                  chunks(c)%field%x_max,                   &
+                                  chunks(c)%field%y_min,                   &
+                                  chunks(c)%field%y_max,                   &
+                                  chunks(c)%field%volume,                  &
+                                  chunks(c)%field%density0,                &
+                                  chunks(c)%field%energy0,                 &
+                                  chunks(c)%field%pressure,                &
+                                  chunks(c)%field%xvel0,                   &
+                                  chunks(c)%field%yvel0,                   &
+                                  vol,mass,ie,ke,press                     )
+      ENDIF
+    ENDDO
+  ELSEIF(use_C_kernels)THEN
+    DO c=1,number_of_chunks
+      IF(chunks(c)%task.EQ.parallel%task) THEN
+        CALL field_summary_kernel_c(chunks(c)%field%x_min,                 &
+                                  chunks(c)%field%x_max,                   &
+                                  chunks(c)%field%y_min,                   &
+                                  chunks(c)%field%y_max,                   &
+                                  chunks(c)%field%volume,                  &
+                                  chunks(c)%field%density0,                &
+                                  chunks(c)%field%energy0,                 &
+                                  chunks(c)%field%pressure,                &
+                                  chunks(c)%field%xvel0,                   &
+                                  chunks(c)%field%yvel0,                   &
+                                  vol,mass,ie,ke,press                     )
+      ENDIF
+    ENDDO
+  ENDIF
 
   ! For mpi I need a reduction here
   CALL clover_sum(vol)
