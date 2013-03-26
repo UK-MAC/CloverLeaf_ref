@@ -82,12 +82,11 @@ SUBROUTINE calc_dt_kernel(x_min,x_max,y_min,y_max,             &
 
   REAL(KIND=8)     :: div,dsx,dsy,dtut,dtvt,dtct,dtdivt,cc,dv1,dv2,jk_control
 
-!$OMP PARALLEL
-
   small=0
-
   dt_min_val = g_big
   jk_control=1.1
+
+!$OMP PARALLEL
 
 !$OMP DO PRIVATE(dsx,dsy,cc,dv1,dv2,div,dtct,dtut,dtvt,dtdivt)
   DO k=y_min,y_max

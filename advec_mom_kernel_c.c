@@ -167,7 +167,7 @@ void advec_mom_kernel_c_(int *xmin,int *xmax,int *ymin,int *ymax,
       }
     }
     if (vector==1) {
-#pragma omp for private(sigma,width,limiter,vdiffuw,vdiffdw,auw,adw,wind,sigma2,limiter2,vdiffuw2,vdiffdw2,auw2,wind2)
+#pragma omp for private(sigma,width,limiter,vdiffuw,vdiffdw,auw,adw,wind,sigma2,limiter2,vdiffuw2,vdiffdw2,auw2,wind2,j)
       for (k=y_min;k<=y_max+1;k++) {
 #pragma ivdep
         for (j=x_min-1;j<=x_max+1;j++) {
@@ -283,7 +283,7 @@ void advec_mom_kernel_c_(int *xmin,int *xmax,int *ymin,int *ymax,
       }
     }
     if (vector==1) {
-#pragma omp for private(sigma,width,limiter,vdiffuw,vdiffdw,auw,adw,wind,sigma2,limiter2,vdiffuw2,vdiffdw2,auw2,wind2)
+#pragma omp for private(sigma,width,limiter,vdiffuw,vdiffdw,auw,adw,wind,sigma2,limiter2,vdiffuw2,vdiffdw2,auw2,wind2,j)
       for (k=y_min-1;k<=y_max+1;k++) {
 #pragma ivdep
         for (j=x_min;j<=x_max+1;j++) {

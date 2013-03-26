@@ -88,7 +88,7 @@ CONTAINS
 
   INTEGER :: j,k
 
-!$OMP PARALLEL
+!$OMP PARALLEL PRIVATE(j)
 
   ! Update values in external halo cells based on depth and fields requested
   IF(fields(FIELD_DENSITY0).EQ.1) THEN

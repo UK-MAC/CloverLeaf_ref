@@ -83,13 +83,13 @@ void calc_dt_kernel_c_(int *xmin,int *xmax,int *ymin,int *ymax,
 
   double div,dsx,dsy,dtut,dtvt,dtct,dtdivt,cc,dv1,dv2,jk_control;
 
-#pragma omp parallel
- {
-
   small=0;
 
   dt_min_val = g_big;
   jk_control=1.1;
+
+#pragma omp parallel
+ {
 
 #pragma omp for private(dsx,dsy,cc,dv1,dv2,div,dtct,dtut,dtvt,dtdivt,j)
   for (k=y_min;k<=y_max;k++) {

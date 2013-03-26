@@ -497,10 +497,10 @@ SUBROUTINE clover_exchange_message(chunk,field,                            &
 
   ! Pack real data into buffers
   IF(parallel%task.EQ.chunks(chunk)%task) THEN
-!$OMP PARALLEL
     size=(1+(chunks(chunk)%field%y_max+y_inc+depth)-(chunks(chunk)%field%y_min-depth))*depth
+!$OMP PARALLEL
     IF(chunks(chunk)%chunk_neighbours(chunk_left).NE.external_face) THEN
-!$OMP DO
+!$OMP DO PRIVATE(index)
       DO k=chunks(chunk)%field%y_min-depth,chunks(chunk)%field%y_max+y_inc+depth
         DO j=1,depth
           index=j+(k+depth-1)*depth
@@ -510,7 +510,7 @@ SUBROUTINE clover_exchange_message(chunk,field,                            &
 !$OMP END DO
     ENDIF
     IF(chunks(chunk)%chunk_neighbours(chunk_right).NE.external_face) THEN
-!$OMP DO
+!$OMP DO PRIVATE(index)
       DO k=chunks(chunk)%field%y_min-depth,chunks(chunk)%field%y_max+y_inc+depth
         DO j=1,depth
           index=j+(k+depth-1)*depth
@@ -554,7 +554,7 @@ SUBROUTINE clover_exchange_message(chunk,field,                            &
   IF(parallel%task.EQ.chunks(chunk)%task) THEN
 !$OMP PARALLEL
     IF(chunks(chunk)%chunk_neighbours(chunk_left).NE.external_face) THEN
-!$OMP DO
+!$OMP DO PRIVATE(index)
       DO k=chunks(chunk)%field%y_min-depth,chunks(chunk)%field%y_max+y_inc+depth
         DO j=1,depth
           index=j+(k+depth-1)*depth
@@ -564,7 +564,7 @@ SUBROUTINE clover_exchange_message(chunk,field,                            &
 !$OMP END DO
     ENDIF
     IF(chunks(chunk)%chunk_neighbours(chunk_right).NE.external_face) THEN
-!$OMP DO
+!$OMP DO PRIVATE(index)
       DO k=chunks(chunk)%field%y_min-depth,chunks(chunk)%field%y_max+y_inc+depth
         DO j=1,depth
           index=j+(k+depth-1)*depth
@@ -580,11 +580,11 @@ SUBROUTINE clover_exchange_message(chunk,field,                            &
   message_count=0
 
   IF(parallel%task.EQ.chunks(chunk)%task) THEN
-!$OMP PARALLEL
     size=(1+(chunks(chunk)%field%x_max+x_inc+depth)-(chunks(chunk)%field%x_min-depth))*depth
+!$OMP PARALLEL
     IF(chunks(chunk)%chunk_neighbours(chunk_bottom).NE.external_face) THEN
       DO k=1,depth
-!$OMP DO
+!$OMP DO PRIVATE(index)
         DO j=chunks(chunk)%field%x_min-depth,chunks(chunk)%field%x_max+x_inc+depth
           index=j+depth+(k-1)*(chunks(chunk)%field%x_max+x_inc+(2*depth))
           bottom_snd_buffer(index)=field(j,chunks(chunk)%field%y_min+y_inc-1+k)
@@ -594,10 +594,12 @@ SUBROUTINE clover_exchange_message(chunk,field,                            &
     ENDIF
     IF(chunks(chunk)%chunk_neighbours(chunk_top).NE.external_face) THEN
       DO k=1,depth
+!$OMP DO PRIVATE(index)
         DO j=chunks(chunk)%field%x_min-depth,chunks(chunk)%field%x_max+x_inc+depth
           index=j+depth+(k-1)*(chunks(chunk)%field%x_max+x_inc+(2*depth))
           top_snd_buffer(index)=field(j,chunks(chunk)%field%y_max+1-k)
         ENDDO
+!$OMP END DO
       ENDDO
     ENDIF
 !$OMP END PARALLEL
@@ -637,7 +639,7 @@ SUBROUTINE clover_exchange_message(chunk,field,                            &
 !$OMP PARALLEL
     IF(chunks(chunk)%chunk_neighbours(chunk_bottom).NE.external_face) THEN
       DO k=1,depth
-!$OMP DO
+!$OMP DO PRIVATE(index)
         DO j=chunks(chunk)%field%x_min-depth,chunks(chunk)%field%x_max+x_inc+depth
           index=j+depth+(k-1)*(chunks(chunk)%field%x_max+x_inc+(2*depth))
           field(j,chunks(chunk)%field%y_min-k)=bottom_rcv_buffer(index)
@@ -647,7 +649,7 @@ SUBROUTINE clover_exchange_message(chunk,field,                            &
     ENDIF
     IF(chunks(chunk)%chunk_neighbours(chunk_top).NE.external_face) THEN
       DO k=1,depth
-!$OMP DO
+!$OMP DO PRIVATE(index)
         DO j=chunks(chunk)%field%x_min-depth,chunks(chunk)%field%x_max+x_inc+depth
           index=j+depth+(k-1)*(chunks(chunk)%field%x_max+x_inc+(2*depth))
           field(j,chunks(chunk)%field%y_max+y_inc+k)=top_rcv_buffer(index)

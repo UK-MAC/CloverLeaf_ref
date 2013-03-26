@@ -272,7 +272,7 @@ void update_halo_kernel_c_(int *xmin,int *xmax,int *ymin,int *ymax,
     }
 
     if(chunk_neighbours[FTNREF1D(CHUNK_TOP,1)]==EXTERNAL_FACE) {
-#pragma omp for private(j)
+#pragma omp for private(j,k)
       for (k=1;k<=depth;k++) {
 #pragma ivdep
         for (j=x_min-depth;j<=x_max+depth;j++) {
@@ -544,7 +544,7 @@ void update_halo_kernel_c_(int *xmin,int *xmax,int *ymin,int *ymax,
     }
     if(chunk_neighbours[FTNREF1D(CHUNK_RIGHT,1)]==EXTERNAL_FACE) {
 #pragma omp for private(j,k)
-      for (k=y_min-depth;k<=y_max+1+depth;k++) {
+      for (k=y_min-depth;k<=y_max+depth;k++) {
 #pragma ivdep
         for (j=1;j<=depth;j++) {
           vol_flux_x[FTNREF2D(x_max+1+j,k,x_max+5,x_min-2,y_min-2)]=-vol_flux_x[FTNREF2D(x_max+1-j,k,x_max+5,x_min-2,y_min-2)];
@@ -586,7 +586,7 @@ void update_halo_kernel_c_(int *xmin,int *xmax,int *ymin,int *ymax,
 
     if(chunk_neighbours[FTNREF1D(CHUNK_RIGHT,1)]==EXTERNAL_FACE) {
 #pragma omp for private(j,k)
-      for (k=y_min-depth;k<=y_max+1+depth;k++) {
+      for (k=y_min-depth;k<=y_max+depth;k++) {
 #pragma ivdep
         for (j=1;j<=depth;j++) {
           mass_flux_x[FTNREF2D(x_max+1+j,k,x_max+5,x_min-2,y_min-2)]=-mass_flux_x[FTNREF2D(x_max+1-j,k,x_max+5,x_min-2,y_min-2)];
