@@ -95,9 +95,9 @@ void update_halo_kernel_c_(int *xmin,int *xmax,int *ymin,int *ymax,
   if(fields[FTNREF1D(FIELD_DENSITY0,1)]==1) {
     if(chunk_neighbours[FTNREF1D(CHUNK_BOTTOM,1)]==EXTERNAL_FACE) {
 #pragma omp for private(j,k)
-      for (k=1;k<=depth;k++) {
+      for (j=x_min-depth;j<=x_max+depth;j++) {
 #pragma ivdep
-        for (j=x_min-depth;j<=x_max+depth;j++) {
+        for (k=1;k<=depth;k++) {
           density0[FTNREF2D(j  ,1-k,x_max+4,x_min-2,y_min-2)]=density0[FTNREF2D(j  ,0+k,x_max+4,x_min-2,y_min-2)];
 	}
       }
@@ -105,9 +105,9 @@ void update_halo_kernel_c_(int *xmin,int *xmax,int *ymin,int *ymax,
 
     if(chunk_neighbours[FTNREF1D(CHUNK_TOP,1)]==EXTERNAL_FACE) {
 #pragma omp for private(j,k)
-      for (k=1;k<=depth;k++) {
+      for (j=x_min-depth;j<=x_max+depth;j++) {
 #pragma ivdep
-        for (j=x_min-depth;j<=x_max+depth;j++) {
+        for (k=1;k<=depth;k++) {
           density0[FTNREF2D(j  ,y_max+k,x_max+4,x_min-2,y_min-2)]=density0[FTNREF2D(j  ,y_max+1-k,x_max+4,x_min-2,y_min-2)];
 	}
       }
@@ -137,9 +137,9 @@ void update_halo_kernel_c_(int *xmin,int *xmax,int *ymin,int *ymax,
   if(fields[FTNREF1D(FIELD_DENSITY1,1)]==1) {
     if(chunk_neighbours[FTNREF1D(CHUNK_BOTTOM,1)]==EXTERNAL_FACE) {
 #pragma omp for private(j,k)
-      for (k=1;k<=depth;k++) {
+      for (j=x_min-depth;j<=x_max+depth;j++) {
 #pragma ivdep
-        for (j=x_min-depth;j<=x_max+depth;j++) {
+        for (k=1;k<=depth;k++) {
           density1[FTNREF2D(j  ,1-k,x_max+4,x_min-2,y_min-2)]=density1[FTNREF2D(j  ,0+k,x_max+4,x_min-2,y_min-2)];
 	}
       }
@@ -147,9 +147,9 @@ void update_halo_kernel_c_(int *xmin,int *xmax,int *ymin,int *ymax,
 
     if(chunk_neighbours[FTNREF1D(CHUNK_TOP,1)]==EXTERNAL_FACE) {
 #pragma omp for private(j,k)
-      for (k=1;k<=depth;k++) {
+      for (j=x_min-depth;j<=x_max+depth;j++) {
 #pragma ivdep
-        for (j=x_min-depth;j<=x_max+depth;j++) {
+        for (k=1;k<=depth;k++) {
           density1[FTNREF2D(j  ,y_max+k,x_max+4,x_min-2,y_min-2)]=density1[FTNREF2D(j  ,y_max+1-k,x_max+4,x_min-2,y_min-2)];
 	}
       }
@@ -179,9 +179,9 @@ void update_halo_kernel_c_(int *xmin,int *xmax,int *ymin,int *ymax,
   if(fields[FTNREF1D(FIELD_ENERGY0,1)]==1) {
     if(chunk_neighbours[FTNREF1D(CHUNK_BOTTOM,1)]==EXTERNAL_FACE) {
 #pragma omp for private(j,k)
-      for (k=1;k<=depth;k++) {
+      for (j=x_min-depth;j<=x_max+depth;j++) {
 #pragma ivdep
-        for (j=x_min-depth;j<=x_max+depth;j++) {
+        for (k=1;k<=depth;k++) {
           energy0[FTNREF2D(j  ,1-k,x_max+4,x_min-2,y_min-2)]=energy0[FTNREF2D(j  ,0+k,x_max+4,x_min-2,y_min-2)];
 	}
       }
@@ -189,9 +189,9 @@ void update_halo_kernel_c_(int *xmin,int *xmax,int *ymin,int *ymax,
 
     if(chunk_neighbours[FTNREF1D(CHUNK_TOP,1)]==EXTERNAL_FACE) {
 #pragma omp for private(j,k)
-      for (k=1;k<=depth;k++) {
+      for (j=x_min-depth;j<=x_max+depth;j++) {
 #pragma ivdep
-        for (j=x_min-depth;j<=x_max+depth;j++) {
+        for (k=1;k<=depth;k++) {
           energy0[FTNREF2D(j  ,y_max+k,x_max+4,x_min-2,y_min-2)]=energy0[FTNREF2D(j  ,y_max+1-k,x_max+4,x_min-2,y_min-2)];
 	}
       }
@@ -221,9 +221,9 @@ void update_halo_kernel_c_(int *xmin,int *xmax,int *ymin,int *ymax,
   if(fields[FTNREF1D(FIELD_ENERGY1,1)]==1) {
     if(chunk_neighbours[FTNREF1D(CHUNK_BOTTOM,1)]==EXTERNAL_FACE) {
 #pragma omp for private(j,k)
-      for (k=1;k<=depth;k++) {
+      for (j=x_min-depth;j<=x_max+depth;j++) {
 #pragma ivdep
-        for (j=x_min-depth;j<=x_max+depth;j++) {
+        for (k=1;k<=depth;k++) {
           energy1[FTNREF2D(j  ,1-k,x_max+4,x_min-2,y_min-2)]=energy1[FTNREF2D(j  ,0+k,x_max+4,x_min-2,y_min-2)];
 	}
       }
@@ -231,9 +231,9 @@ void update_halo_kernel_c_(int *xmin,int *xmax,int *ymin,int *ymax,
 
     if(chunk_neighbours[FTNREF1D(CHUNK_TOP,1)]==EXTERNAL_FACE) {
 #pragma omp for private(j,k)
-      for (k=1;k<=depth;k++) {
+      for (j=x_min-depth;j<=x_max+depth;j++) {
 #pragma ivdep
-        for (j=x_min-depth;j<=x_max+depth;j++) {
+        for (k=1;k<=depth;k++) {
           energy1[FTNREF2D(j  ,y_max+k,x_max+4,x_min-2,y_min-2)]=energy1[FTNREF2D(j  ,y_max+1-k,x_max+4,x_min-2,y_min-2)];
 	}
       }
@@ -263,9 +263,9 @@ void update_halo_kernel_c_(int *xmin,int *xmax,int *ymin,int *ymax,
   if(fields[FTNREF1D(FIELD_PRESSURE,1)]==1) {
     if(chunk_neighbours[FTNREF1D(CHUNK_BOTTOM,1)]==EXTERNAL_FACE) {
 #pragma omp for private(j,k)
-      for (k=1;k<=depth;k++) {
+      for (j=x_min-depth;j<=x_max+depth;j++) {
 #pragma ivdep
-        for (j=x_min-depth;j<=x_max+depth;j++) {
+        for (k=1;k<=depth;k++) {
           pressure[FTNREF2D(j  ,1-k,x_max+4,x_min-2,y_min-2)]=pressure[FTNREF2D(j  ,0+k,x_max+4,x_min-2,y_min-2)];
 	}
       }
@@ -273,9 +273,9 @@ void update_halo_kernel_c_(int *xmin,int *xmax,int *ymin,int *ymax,
 
     if(chunk_neighbours[FTNREF1D(CHUNK_TOP,1)]==EXTERNAL_FACE) {
 #pragma omp for private(j,k)
-      for (k=1;k<=depth;k++) {
+      for (j=x_min-depth;j<=x_max+depth;j++) {
 #pragma ivdep
-        for (j=x_min-depth;j<=x_max+depth;j++) {
+        for (k=1;k<=depth;k++) {
           pressure[FTNREF2D(j  ,y_max+k,x_max+4,x_min-2,y_min-2)]=pressure[FTNREF2D(j  ,y_max+1-k,x_max+4,x_min-2,y_min-2)];
 	}
       }
@@ -305,9 +305,9 @@ void update_halo_kernel_c_(int *xmin,int *xmax,int *ymin,int *ymax,
   if(fields[FTNREF1D(FIELD_VISCOSITY,1)]==1) {
     if(chunk_neighbours[FTNREF1D(CHUNK_BOTTOM,1)]==EXTERNAL_FACE) {
 #pragma omp for private(j,k)
-      for (k=1;k<=depth;k++) {
+      for (j=x_min-depth;j<=x_max+depth;j++) {
 #pragma ivdep
-        for (j=x_min-depth;j<=x_max+depth;j++) {
+        for (k=1;k<=depth;k++) {
           viscosity[FTNREF2D(j  ,1-k,x_max+4,x_min-2,y_min-2)]=viscosity[FTNREF2D(j  ,0+k,x_max+4,x_min-2,y_min-2)];
 	}
       }
@@ -315,9 +315,9 @@ void update_halo_kernel_c_(int *xmin,int *xmax,int *ymin,int *ymax,
 
     if(chunk_neighbours[FTNREF1D(CHUNK_TOP,1)]==EXTERNAL_FACE) {
 #pragma omp for private(j,k)
-      for (k=1;k<=depth;k++) {
+      for (j=x_min-depth;j<=x_max+depth;j++) {
 #pragma ivdep
-        for (j=x_min-depth;j<=x_max+depth;j++) {
+        for (k=1;k<=depth;k++) {
           viscosity[FTNREF2D(j  ,y_max+k,x_max+4,x_min-2,y_min-2)]=viscosity[FTNREF2D(j  ,y_max+1-k,x_max+4,x_min-2,y_min-2)];
 	}
       }
@@ -347,9 +347,9 @@ void update_halo_kernel_c_(int *xmin,int *xmax,int *ymin,int *ymax,
   if(fields[FTNREF1D(FIELD_XVEL0,1)]==1) {
     if(chunk_neighbours[FTNREF1D(CHUNK_BOTTOM,1)]==EXTERNAL_FACE) {
 #pragma omp for private(j,k)
-      for (k=1;k<=depth;k++) {
+      for (j=x_min-depth;j<=x_max+1+depth;j++) {
 #pragma ivdep
-        for (j=x_min-depth;j<=x_max+1+depth;j++) {
+        for (k=1;k<=depth;k++) {
           xvel0[FTNREF2D(j  ,1-k,x_max+5,x_min-2,y_min-2)]=xvel0[FTNREF2D(j  ,1+k,x_max+5,x_min-2,y_min-2)];
 	}
       }
@@ -357,9 +357,9 @@ void update_halo_kernel_c_(int *xmin,int *xmax,int *ymin,int *ymax,
 
     if(chunk_neighbours[FTNREF1D(CHUNK_TOP,1)]==EXTERNAL_FACE) {
 #pragma omp for private(j,k)
-      for (k=1;k<=depth;k++) {
+      for (j=x_min-depth;j<=x_max+1+depth;j++) {
 #pragma ivdep
-        for (j=x_min-depth;j<=x_max+1+depth;j++) {
+        for (k=1;k<=depth;k++) {
           xvel0[FTNREF2D(j  ,y_max+1+k,x_max+5,x_min-2,y_min-2)]=xvel0[FTNREF2D(j  ,y_max+1-k,x_max+5,x_min-2,y_min-2)];
 	}
       }
@@ -389,9 +389,9 @@ void update_halo_kernel_c_(int *xmin,int *xmax,int *ymin,int *ymax,
   if(fields[FTNREF1D(FIELD_XVEL1,1)]==1) {
     if(chunk_neighbours[FTNREF1D(CHUNK_BOTTOM,1)]==EXTERNAL_FACE) {
 #pragma omp for private(j,k)
-      for (k=1;k<=depth;k++) {
+      for (j=x_min-depth;j<=x_max+1+depth;j++) {
 #pragma ivdep
-        for (j=x_min-depth;j<=x_max+1+depth;j++) {
+        for (k=1;k<=depth;k++) {
           xvel1[FTNREF2D(j  ,1-k,x_max+5,x_min-2,y_min-2)]=xvel1[FTNREF2D(j  ,1+k,x_max+5,x_min-2,y_min-2)];
 	}
       }
@@ -399,9 +399,9 @@ void update_halo_kernel_c_(int *xmin,int *xmax,int *ymin,int *ymax,
 
     if(chunk_neighbours[FTNREF1D(CHUNK_TOP,1)]==EXTERNAL_FACE) {
 #pragma omp for private(j,k)
-      for (k=1;k<=depth;k++) {
+      for (j=x_min-depth;j<=x_max+1+depth;j++) {
 #pragma ivdep
-        for (j=x_min-depth;j<=x_max+1+depth;j++) {
+        for (k=1;k<=depth;k++) {
           xvel1[FTNREF2D(j  ,y_max+1+k,x_max+5,x_min-2,y_min-2)]=xvel1[FTNREF2D(j  ,y_max+1-k,x_max+5,x_min-2,y_min-2)];
 	}
       }
@@ -431,9 +431,9 @@ void update_halo_kernel_c_(int *xmin,int *xmax,int *ymin,int *ymax,
   if(fields[FTNREF1D(FIELD_YVEL0,1)]==1) {
     if(chunk_neighbours[FTNREF1D(CHUNK_BOTTOM,1)]==EXTERNAL_FACE) {
 #pragma omp for private(j,k)
-      for (k=1;k<=depth;k++) {
+      for (j=x_min-depth;j<=x_max+1+depth;j++) {
 #pragma ivdep
-        for (j=x_min-depth;j<=x_max+1+depth;j++) {
+        for (k=1;k<=depth;k++) {
           yvel0[FTNREF2D(j  ,1-k,x_max+5,x_min-2,y_min-2)]=-yvel0[FTNREF2D(j  ,1+k,x_max+5,x_min-2,y_min-2)];
 	}
       }
@@ -441,9 +441,9 @@ void update_halo_kernel_c_(int *xmin,int *xmax,int *ymin,int *ymax,
 
     if(chunk_neighbours[FTNREF1D(CHUNK_TOP,1)]==EXTERNAL_FACE) {
 #pragma omp for private(j,k)
-      for (k=1;k<=depth;k++) {
+      for (j=x_min-depth;j<=x_max+1+depth;j++) {
 #pragma ivdep
-        for (j=x_min-depth;j<=x_max+1+depth;j++) {
+        for (k=1;k<=depth;k++) {
           yvel0[FTNREF2D(j  ,y_max+1+k,x_max+5,x_min-2,y_min-2)]=-yvel0[FTNREF2D(j  ,y_max+1-k,x_max+5,x_min-2,y_min-2)];
 	}
       }
@@ -473,9 +473,9 @@ void update_halo_kernel_c_(int *xmin,int *xmax,int *ymin,int *ymax,
   if(fields[FTNREF1D(FIELD_YVEL1,1)]==1) {
     if(chunk_neighbours[FTNREF1D(CHUNK_BOTTOM,1)]==EXTERNAL_FACE) {
 #pragma omp for private(j,k)
-      for (k=1;k<=depth;k++) {
+      for (j=x_min-depth;j<=x_max+1+depth;j++) {
 #pragma ivdep
-        for (j=x_min-depth;j<=x_max+1+depth;j++) {
+        for (k=1;k<=depth;k++) {
           yvel1[FTNREF2D(j  ,1-k,x_max+5,x_min-2,y_min-2)]=-yvel1[FTNREF2D(j  ,1+k,x_max+5,x_min-2,y_min-2)];
 	}
       }
@@ -483,9 +483,9 @@ void update_halo_kernel_c_(int *xmin,int *xmax,int *ymin,int *ymax,
 
     if(chunk_neighbours[FTNREF1D(CHUNK_TOP,1)]==EXTERNAL_FACE) {
 #pragma omp for private(j,k)
-      for (k=1;k<=depth;k++) {
+      for (j=x_min-depth;j<=x_max+1+depth;j++) {
 #pragma ivdep
-        for (j=x_min-depth;j<=x_max+1+depth;j++) {
+        for (k=1;k<=depth;k++) {
           yvel1[FTNREF2D(j  ,y_max+1+k,x_max+5,x_min-2,y_min-2)]=-yvel1[FTNREF2D(j  ,y_max+1-k,x_max+5,x_min-2,y_min-2)];
 	}
       }
@@ -515,9 +515,9 @@ void update_halo_kernel_c_(int *xmin,int *xmax,int *ymin,int *ymax,
   if(fields[FTNREF1D(FIELD_VOL_FLUX_X,1)]==1) {
     if(chunk_neighbours[FTNREF1D(CHUNK_BOTTOM,1)]==EXTERNAL_FACE) {
 #pragma omp for private(j,k)
-      for (k=1;k<=depth;k++) {
+      for (j=x_min-depth;j<=x_max+1+depth;j++) {
 #pragma ivdep
-        for (j=x_min-depth;j<=x_max+1+depth;j++) {
+        for (k=1;k<=depth;k++) {
           vol_flux_x[FTNREF2D(j  ,1-k,x_max+5,x_min-2,y_min-2)]=vol_flux_x[FTNREF2D(j  ,1+k,x_max+5,x_min-2,y_min-2)];
 	}
       }
@@ -525,9 +525,9 @@ void update_halo_kernel_c_(int *xmin,int *xmax,int *ymin,int *ymax,
 
     if(chunk_neighbours[FTNREF1D(CHUNK_TOP,1)]==EXTERNAL_FACE) {
 #pragma omp for private(j,k)
-      for (k=1;k<=depth;k++) {
+      for (j=x_min-depth;j<=x_max+1+depth;j++) {
 #pragma ivdep
-        for (j=x_min-depth;j<=x_max+1+depth;j++) {
+        for (k=1;k<=depth;k++) {
           vol_flux_x[FTNREF2D(j  ,y_max+k,x_max+5,x_min-2,y_min-2)]=vol_flux_x[FTNREF2D(j  ,y_max-k,x_max+5,x_min-2,y_min-2)];
 	}
       }
@@ -556,9 +556,9 @@ void update_halo_kernel_c_(int *xmin,int *xmax,int *ymin,int *ymax,
   if(fields[FTNREF1D(FIELD_MASS_FLUX_X,1)]==1) {
     if(chunk_neighbours[FTNREF1D(CHUNK_BOTTOM,1)]==EXTERNAL_FACE) {
 #pragma omp for private(j,k)
-      for (k=1;k<=depth;k++) {
+      for (j=x_min-depth;j<=x_max+1+depth;j++) {
 #pragma ivdep
-        for (j=x_min-depth;j<=x_max+1+depth;j++) {
+        for (k=1;k<=depth;k++) {
           mass_flux_x[FTNREF2D(j  ,1-k,x_max+5,x_min-2,y_min-2)]=mass_flux_x[FTNREF2D(j  ,1+k,x_max+5,x_min-2,y_min-2)];
 	}
       }
@@ -566,9 +566,9 @@ void update_halo_kernel_c_(int *xmin,int *xmax,int *ymin,int *ymax,
 
     if(chunk_neighbours[FTNREF1D(CHUNK_TOP,1)]==EXTERNAL_FACE) {
 #pragma omp for private(j,k)
-      for (k=1;k<=depth;k++) {
+      for (j=x_min-depth;j<=x_max+1+depth;j++) {
 #pragma ivdep
-        for (j=x_min-depth;j<=x_max+1+depth;j++) {
+        for (k=1;k<=depth;k++) {
           mass_flux_x[FTNREF2D(j  ,y_max+k,x_max+5,x_min-2,y_min-2)]=mass_flux_x[FTNREF2D(j  ,y_max-k,x_max+5,x_min-2,y_min-2)];
 	}
       }
@@ -598,9 +598,9 @@ void update_halo_kernel_c_(int *xmin,int *xmax,int *ymin,int *ymax,
   if(fields[FTNREF1D(FIELD_VOL_FLUX_Y,1)]==1) {
     if(chunk_neighbours[FTNREF1D(CHUNK_BOTTOM,1)]==EXTERNAL_FACE) {
 #pragma omp for private(j,k)
-      for (k=1;k<=depth;k++) {
+      for (j=x_min-depth;j<=x_max+depth;j++) {
 #pragma ivdep
-        for (j=x_min-depth;j<=x_max+depth;j++) {
+        for (k=1;k<=depth;k++) {
           vol_flux_y[FTNREF2D(j  ,1-k,x_max+4,x_min-2,y_min-2)]=-vol_flux_y[FTNREF2D(j  ,1+k,x_max+4,x_min-2,y_min-2)];
 	}
       }
@@ -608,9 +608,9 @@ void update_halo_kernel_c_(int *xmin,int *xmax,int *ymin,int *ymax,
 
     if(chunk_neighbours[FTNREF1D(CHUNK_TOP,1)]==EXTERNAL_FACE) {
 #pragma omp for private(j,k)
-      for (k=1;k<=depth;k++) {
+      for (j=x_min-depth;j<=x_max+depth;j++) {
 #pragma ivdep
-        for (j=x_min-depth;j<=x_max+depth;j++) {
+        for (k=1;k<=depth;k++) {
           vol_flux_y[FTNREF2D(j  ,y_max+k+1,x_max+4,x_min-2,y_min-2)]=-vol_flux_y[FTNREF2D(j  ,y_max+1-k,x_max+4,x_min-2,y_min-2)];
 	}
       }
@@ -640,9 +640,9 @@ void update_halo_kernel_c_(int *xmin,int *xmax,int *ymin,int *ymax,
   if(fields[FTNREF1D(FIELD_MASS_FLUX_Y,1)]==1) {
     if(chunk_neighbours[FTNREF1D(CHUNK_BOTTOM,1)]==EXTERNAL_FACE) {
 #pragma omp for private(j,k)
-      for (k=1;k<=depth;k++) {
+      for (j=x_min-depth;j<=x_max+depth;j++) {
 #pragma ivdep
-        for (j=x_min-depth;j<=x_max+depth;j++) {
+        for (k=1;k<=depth;k++) {
           mass_flux_y[FTNREF2D(j  ,1-k,x_max+4,x_min-2,y_min-2)]=-mass_flux_y[FTNREF2D(j  ,1+k,x_max+4,x_min-2,y_min-2)];
 	}
       }
@@ -650,9 +650,9 @@ void update_halo_kernel_c_(int *xmin,int *xmax,int *ymin,int *ymax,
 
     if(chunk_neighbours[FTNREF1D(CHUNK_TOP,1)]==EXTERNAL_FACE) {
 #pragma omp for private(j,k)
-      for (k=1;k<=depth;k++) {
+      for (j=x_min-depth;j<=x_max+depth;j++) {
 #pragma ivdep
-        for (j=x_min-depth;j<=x_max+depth;j++) {
+        for (k=1;k<=depth;k++) {
           mass_flux_y[FTNREF2D(j  ,y_max+k+1,x_max+4,x_min-2,y_min-2)]=-mass_flux_y[FTNREF2D(j  ,y_max+1-k,x_max+4,x_min-2,y_min-2)];
 	}
       }

@@ -1,136 +1,208 @@
-SUBROUTINE pack_left_right_buffers
+/*Crown Copyright 2012 AWE.
+*
+* This file is part of CloverLeaf.
+*
+* CloverLeaf is free software: you can redistribute it and/or modify it under 
+* the terms of the GNU General Public License as published by the 
+* Free Software Foundation, either version 3 of the License, or (at your option) 
+* any later version.
+*
+* CloverLeaf is distributed in the hope that it will be useful, but 
+* WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or 
+* FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more 
+* details.
+*
+* You should have received a copy of the GNU General Public License along with 
+* CloverLeaf. If not, see http://www.gnu.org/licenses/. */
 
-  ! These array modifications still need to be added on, plus the donor data location changes as in update_halo
-  IF(field_type.EQ.CELL_DATA) THEN
-    x_inc=0
-    y_inc=0
-  ENDIF
-  IF(field_type.EQ.VERTEX_DATA) THEN
-    x_inc=1
-    y_inc=1
-  ENDIF
-  IF(field_type.EQ.X_FACE_DATA) THEN
-    x_inc=1
-    y_inc=0
-  ENDIF
-  IF(field_type.EQ.Y_FACE_DATA) THEN
-    x_inc=0
-    y_inc=1
-  ENDIF
+/**
+ *  @brief C mpi buffer packing kernel
+ *  @author Wayne Gaudin
+ *  @details Packs/unpacks mpi send and receive buffers
+ */
 
-  ! Pack real data into buffers
-  IF(parallel%task.EQ.chunks(chunk)%task) THEN
-    size=(1+(chunks(chunk)%field%y_max+y_inc+depth)-(chunks(chunk)%field%y_min-depth))*depth
+#include <stdio.h>
+#include <stdlib.h>
+#include "ftocmacros.h"
+#include <math.h>
+
+void pack_left_right_buffers_c_(int *xmin,int *xmax,int *ymin,int *ymax,
+                                int *chnk_lft,int *chnk_rght,int *xtrnl_fc,
+                                int *xinc,int *yinc,int *dpth,int *sz,
+                                double *field, double *left_snd_buffer, double *right_snd_buffer)
+
+{
+  int x_min=*xmin;
+  int x_max=*xmax;
+  int y_min=*ymin;
+  int y_max=*ymax;
+  int chunk_left=*chnk_lft;
+  int chunk_right=*chnk_rght;
+  int external_face=*xtrnl_fc;
+  int x_inc=*xinc;
+  int y_inc=*yinc;
+  int depth=*dpth;
+  int size=*sz;
+
+  int j,k,index;
+
+#pragma omp parallel
+ {
+
+  if(chunk_left!=external_face) {
+#pragma omp for private(j,k,index)
+    for (k=y_min-depth;k<=y_max+y_inc+depth;k++) {
+#pragma ivdep
+      for (j=1;j<=depth;j++) {
+        index=j+(k+depth-1)*depth;
+        left_snd_buffer[FTNREF1D(index,1)]=field[FTNREF2D(x_min+x_inc-1+j,k,x_max+4+x_inc,x_min-2,y_min-2)];
+      }
+    }
+  }
+  if(chunk_right!=external_face) {
+#pragma omp for private(j,k,index)
+    for (k=y_min-depth;k<=y_max+y_inc+depth;k++) {
+      for (j=1;j<=depth;j++) {
+        index=j+(k+depth-1)*depth;
+        right_snd_buffer[FTNREF1D(index,1)]=field[FTNREF2D(x_max+1-j,k,x_max+4+x_inc,x_min-2,y_min-2)];
+      }
+    }
+  }
+
+ }
+
+}
+
+void unpack_left_right_buffers_c_(int *xmin,int *xmax,int *ymin,int *ymax,
+                                  int *chnk_lft,int *chnk_rght,int *xtrnl_fc,
+                                  int *xinc,int *yinc,int *dpth,int *sz,
+                                  double *field, double *left_rcv_buffer, double *right_rcv_buffer)
+
+{
+  int x_min=*xmin;
+  int x_max=*xmax;
+  int y_min=*ymin;
+  int y_max=*ymax;
+  int chunk_left=*chnk_lft;
+  int chunk_right=*chnk_rght;
+  int external_face=*xtrnl_fc;
+  int x_inc=*xinc;
+  int y_inc=*yinc;
+  int depth=*dpth;
+  int size=*sz;
+
+  int j,k,index;
+
+#pragma omp parallel
+ {
+
+  if(chunk_left!=external_face) {
+#pragma omp for private(j,k,index)
+    for (k=y_min-depth;k<=y_max+y_inc+depth;k++) {
+#pragma ivdep
+      for (j=1;j<=depth;j++) {
+        index=j+(k+depth-1)*depth;
+        field[FTNREF2D(x_min-j,k,x_max+4+x_inc,x_min-2,y_min-2)]=left_rcv_buffer[FTNREF1D(index,1)];
+      }
+    }
+  }
+  if(chunk_right!=external_face) {
+#pragma omp for private(j,k,index)
+    for (k=y_min-depth;k<=y_max+y_inc+depth;k++) {
+      for (j=1;j<=depth;j++) {
+        index=j+(k+depth-1)*depth;
+        field[FTNREF2D(x_max+1+j,k,x_max+4+x_inc,x_min-2,y_min-2)]=right_rcv_buffer[FTNREF1D(index,1)];
+      }
+    }
+  }
+
+ }
+
+}
+
+/*
+
+SUBROUTINE pack_top_bottom_buffers(x_min,x_max,y_min,y_max,              &
+                                   chunk_bottom,chunk_top,external_face, &
+                                   x_inc,y_inc,depth,size,               &
+                                   field,bottom_snd_buffer,top_snd_buffer)
+
+  IMPLICIT NONE
+
+  INTEGER      :: x_min,x_max,y_min,y_max
+  INTEGER      :: chunk_bottom,chunk_top,external_face
+  INTEGER      :: x_inc,y_inc,depth,size
+
+  REAL(KIND=8) :: field(-1:,-1:) ! This seems to work for any type of mesh data
+  REAL(KIND=8) :: bottom_snd_buffer(:),top_snd_buffer(:)
+
+  INTEGER      :: j,k,index
+
 !$OMP PARALLEL
-    IF(chunks(chunk)%chunk_neighbours(chunk_left).NE.external_face) THEN
+  IF(chunk_bottom.NE.external_face) THEN
+    DO k=1,depth
 !$OMP DO PRIVATE(index)
-      DO k=chunks(chunk)%field%y_min-depth,chunks(chunk)%field%y_max+y_inc+depth
-        DO j=1,depth
-          index=j+(k+depth-1)*depth
-          left_snd_buffer(index)=field(chunks(chunk)%field%x_min+x_inc-1+j,k)
-        ENDDO
+      DO j=x_min-depth,x_max+x_inc+depth
+        index=j+depth+(k-1)*(x_max+x_inc+(2*depth))
+        bottom_snd_buffer(index)=field(j,y_min+y_inc-1+k)
       ENDDO
 !$OMP END DO
-    ENDIF
-    IF(chunks(chunk)%chunk_neighbours(chunk_right).NE.external_face) THEN
-!$OMP DO PRIVATE(index)
-      DO k=chunks(chunk)%field%y_min-depth,chunks(chunk)%field%y_max+y_inc+depth
-        DO j=1,depth
-          index=j+(k+depth-1)*depth
-          right_snd_buffer(index)=field(chunks(chunk)%field%x_max+1-j,k)
-        ENDDO
-      ENDDO
-!$OMP END DO
-    ENDIF
-!$OMP END PARALLEL
-
-END SUBROUTINE pack_left_right_buffers
-
-SUBROUTINE unpack_left_right_buffers
-
- ! Unpack buffers in halo cells
-  IF(parallel%task.EQ.chunks(chunk)%task) THEN
-!$OMP PARALLEL
-    IF(chunks(chunk)%chunk_neighbours(chunk_left).NE.external_face) THEN
-!$OMP DO PRIVATE(index)
-      DO k=chunks(chunk)%field%y_min-depth,chunks(chunk)%field%y_max+y_inc+depth
-        DO j=1,depth
-          index=j+(k+depth-1)*depth
-          field(chunks(chunk)%field%x_min-j,k)=left_rcv_buffer(index)
-        ENDDO
-      ENDDO
-!$OMP END DO
-    ENDIF
-    IF(chunks(chunk)%chunk_neighbours(chunk_right).NE.external_face) THEN
-!$OMP DO PRIVATE(index)
-      DO k=chunks(chunk)%field%y_min-depth,chunks(chunk)%field%y_max+y_inc+depth
-        DO j=1,depth
-          index=j+(k+depth-1)*depth
-          field(chunks(chunk)%field%x_max+x_inc+j,k)=right_rcv_buffer(index)
-        ENDDO
-      ENDDO
-!$OMP END DO
-    ENDIF
-!$OMP END PARALLEL
+    ENDDO
   ENDIF
-
-END SUBROUTINE unpack_left_right_buffers
-
-SUBROUTINE pack_top_bottom_buffers
-
-  IF(parallel%task.EQ.chunks(chunk)%task) THEN
-    size=(1+(chunks(chunk)%field%x_max+x_inc+depth)-(chunks(chunk)%field%x_min-depth))*depth
-!$OMP PARALLEL
-    IF(chunks(chunk)%chunk_neighbours(chunk_bottom).NE.external_face) THEN
-      DO k=1,depth
+  IF(chunk_top.NE.external_face) THEN
+    DO k=1,depth
 !$OMP DO PRIVATE(index)
-        DO j=chunks(chunk)%field%x_min-depth,chunks(chunk)%field%x_max+x_inc+depth
-          index=j+depth+(k-1)*(chunks(chunk)%field%x_max+x_inc+(2*depth))
-          bottom_snd_buffer(index)=field(j,chunks(chunk)%field%y_min+y_inc-1+k)
-        ENDDO
-!$OMP END DO
+      DO j=x_min-depth,x_max+x_inc+depth
+        index=j+depth+(k-1)*(x_max+x_inc+(2*depth))
+        top_snd_buffer(index)=field(j,y_max+1-k)
       ENDDO
-    ENDIF
-    IF(chunks(chunk)%chunk_neighbours(chunk_top).NE.external_face) THEN
-      DO k=1,depth
-!$OMP DO PRIVATE(index)
-        DO j=chunks(chunk)%field%x_min-depth,chunks(chunk)%field%x_max+x_inc+depth
-          index=j+depth+(k-1)*(chunks(chunk)%field%x_max+x_inc+(2*depth))
-          top_snd_buffer(index)=field(j,chunks(chunk)%field%y_max+1-k)
-        ENDDO
 !$OMP END DO
-      ENDDO
-    ENDIF
+    ENDDO
+  ENDIF
 !$OMP END PARALLEL
 
 END SUBROUTINE pack_top_bottom_buffers
 
-SUBROUTINE unpack_top_bottom_buffers
+SUBROUTINE unpack_top_bottom_buffers(x_min,x_max,y_min,y_max,             &
+                                    chunk_bottom,chunk_top,external_face, &
+                                    x_inc,y_inc,depth,size,               &
+                                    field,bottom_rcv_buffer,top_rcv_buffer)
 
-  ! Unpack buffers in halo cells
-  IF(parallel%task.EQ.chunks(chunk)%task) THEN
+  IMPLICIT NONE
+
+  INTEGER      :: x_min,x_max,y_min,y_max
+  INTEGER      :: chunk_bottom,chunk_top,external_face
+  INTEGER      :: x_inc,y_inc,depth,size
+
+  REAL(KIND=8) :: field(-1:,-1:) ! This seems to work for any type of mesh data
+  REAL(KIND=8) :: bottom_rcv_buffer(:),top_rcv_buffer(:)
+
+  INTEGER      :: j,k,index
+
 !$OMP PARALLEL
-    IF(chunks(chunk)%chunk_neighbours(chunk_bottom).NE.external_face) THEN
-      DO k=1,depth
+  IF(chunk_bottom.NE.external_face) THEN
+    DO k=1,depth
 !$OMP DO PRIVATE(index)
-        DO j=chunks(chunk)%field%x_min-depth,chunks(chunk)%field%x_max+x_inc+depth
-          index=j+depth+(k-1)*(chunks(chunk)%field%x_max+x_inc+(2*depth))
-          field(j,chunks(chunk)%field%y_min-k)=bottom_rcv_buffer(index)
-        ENDDO
-!$OMP END DO
+      DO j=x_min-depth,x_max+x_inc+depth
+        index=j+depth+(k-1)*(x_max+x_inc+(2*depth))
+        field(j,y_min-k)=bottom_rcv_buffer(index)
       ENDDO
-    ENDIF
-    IF(chunks(chunk)%chunk_neighbours(chunk_top).NE.external_face) THEN
-      DO k=1,depth
-!$OMP DO PRIVATE(index)
-        DO j=chunks(chunk)%field%x_min-depth,chunks(chunk)%field%x_max+x_inc+depth
-          index=j+depth+(k-1)*(chunks(chunk)%field%x_max+x_inc+(2*depth))
-          field(j,chunks(chunk)%field%y_max+y_inc+k)=top_rcv_buffer(index)
-        ENDDO
 !$OMP END DO
-      ENDDO
-    ENDIF
-!$OMP END PARALLEL
+    ENDDO
   ENDIF
+  IF(chunk_top.NE.external_face) THEN
+    DO k=1,depth
+!$OMP DO PRIVATE(index)
+      DO j=x_min-depth,x_max+x_inc+depth
+        index=j+depth+(k-1)*(x_max+x_inc+(2*depth))
+        field(j,y_max+y_inc+k)=top_rcv_buffer(index)
+      ENDDO
+!$OMP END DO
+    ENDDO
+  ENDIF
+!$OMP END PARALLEL
 
 END SUBROUTINE unpack_top_bottom_buffers
+
+END MODULE pack_kernel_module
+*/
