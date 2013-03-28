@@ -62,6 +62,7 @@ void pack_left_right_buffers_c_(int *xmin,int *xmax,int *ymin,int *ymax,
   if(chunk_right!=external_face) {
 #pragma omp for private(j,k,index)
     for (k=y_min-depth;k<=y_max+y_inc+depth;k++) {
+#pragma ivdep
       for (j=1;j<=depth;j++) {
         index=j+(k+depth-1)*depth;
         right_snd_buffer[FTNREF1D(index,1)]=field[FTNREF2D(x_max+1-j,k,x_max+4+x_inc,x_min-2,y_min-2)];
@@ -109,9 +110,10 @@ void unpack_left_right_buffers_c_(int *xmin,int *xmax,int *ymin,int *ymax,
   if(chunk_right!=external_face) {
 #pragma omp for private(j,k,index)
     for (k=y_min-depth;k<=y_max+y_inc+depth;k++) {
+#pragma ivdep
       for (j=1;j<=depth;j++) {
         index=j+(k+depth-1)*depth;
-        field[FTNREF2D(x_max+1+j,k,x_max+4+x_inc,x_min-2,y_min-2)]=right_rcv_buffer[FTNREF1D(index,1)];
+        field[FTNREF2D(x_max+x_inc+j,k,x_max+4+x_inc,x_min-2,y_min-2)]=right_rcv_buffer[FTNREF1D(index,1)];
       }
     }
   }
@@ -120,89 +122,95 @@ void unpack_left_right_buffers_c_(int *xmin,int *xmax,int *ymin,int *ymax,
 
 }
 
-/*
+void pack_top_bottom_buffers_c_(int *xmin,int *xmax,int *ymin,int *ymax,
+                                int *chnk_bttm,int *chnk_tp,int *xtrnl_fc,
+                                int *xinc,int *yinc,int *dpth,int *sz,
+                                double *field, double *bottom_snd_buffer, double *top_snd_buffer)
 
-SUBROUTINE pack_top_bottom_buffers(x_min,x_max,y_min,y_max,              &
-                                   chunk_bottom,chunk_top,external_face, &
-                                   x_inc,y_inc,depth,size,               &
-                                   field,bottom_snd_buffer,top_snd_buffer)
+{
+  int x_min=*xmin;
+  int x_max=*xmax;
+  int y_min=*ymin;
+  int y_max=*ymax;
+  int chunk_top=*chnk_tp;
+  int chunk_bottom=*chnk_bttm;
+  int external_face=*xtrnl_fc;
+  int x_inc=*xinc;
+  int y_inc=*yinc;
+  int depth=*dpth;
+  int size=*sz;
 
-  IMPLICIT NONE
+  int j,k,index;
 
-  INTEGER      :: x_min,x_max,y_min,y_max
-  INTEGER      :: chunk_bottom,chunk_top,external_face
-  INTEGER      :: x_inc,y_inc,depth,size
+#pragma omp parallel
+ {
 
-  REAL(KIND=8) :: field(-1:,-1:) ! This seems to work for any type of mesh data
-  REAL(KIND=8) :: bottom_snd_buffer(:),top_snd_buffer(:)
+  if(chunk_bottom!=external_face) {
+    for (k=1;k<=depth;k++) {
+#pragma omp for private(j,index)
+      for (j=x_min-depth;j<=x_max+x_inc+depth;j++) {
+        index=j+depth+(k-1)*(x_max+x_inc+(2*depth));
+        bottom_snd_buffer[FTNREF1D(index,1)]=field[FTNREF2D(j,y_min+y_inc-1+k,x_max+4+x_inc,x_min-2,y_min-2)];
+      }
+    }
+  }
+  if(chunk_top!=external_face) {
+    for (k=1;k<=depth;k++) {
+#pragma omp for private(j,index)
+      for (j=x_min-depth;j<=x_max+x_inc+depth;j++) {
+        index=j+depth+(k-1)*(x_max+x_inc+(2*depth));
+        top_snd_buffer[FTNREF1D(index,1)]=field[FTNREF2D(j,y_max+1-k,x_max+4+x_inc,x_min-2,y_min-2)];
+      }
+    }
+  }
 
-  INTEGER      :: j,k,index
+ }
 
-!$OMP PARALLEL
-  IF(chunk_bottom.NE.external_face) THEN
-    DO k=1,depth
-!$OMP DO PRIVATE(index)
-      DO j=x_min-depth,x_max+x_inc+depth
-        index=j+depth+(k-1)*(x_max+x_inc+(2*depth))
-        bottom_snd_buffer(index)=field(j,y_min+y_inc-1+k)
-      ENDDO
-!$OMP END DO
-    ENDDO
-  ENDIF
-  IF(chunk_top.NE.external_face) THEN
-    DO k=1,depth
-!$OMP DO PRIVATE(index)
-      DO j=x_min-depth,x_max+x_inc+depth
-        index=j+depth+(k-1)*(x_max+x_inc+(2*depth))
-        top_snd_buffer(index)=field(j,y_max+1-k)
-      ENDDO
-!$OMP END DO
-    ENDDO
-  ENDIF
-!$OMP END PARALLEL
+}
 
-END SUBROUTINE pack_top_bottom_buffers
+void unpack_top_bottom_buffers_c_(int *xmin,int *xmax,int *ymin,int *ymax,
+                                  int *chnk_bttm,int *chnk_tp,int *xtrnl_fc,
+                                  int *xinc,int *yinc,int *dpth,int *sz,
+                                  double *field, double *bottom_rcv_buffer, double *top_rcv_buffer)
 
-SUBROUTINE unpack_top_bottom_buffers(x_min,x_max,y_min,y_max,             &
-                                    chunk_bottom,chunk_top,external_face, &
-                                    x_inc,y_inc,depth,size,               &
-                                    field,bottom_rcv_buffer,top_rcv_buffer)
+{
+  int x_min=*xmin;
+  int x_max=*xmax;
+  int y_min=*ymin;
+  int y_max=*ymax;
+  int chunk_top=*chnk_tp;
+  int chunk_bottom=*chnk_bttm;
+  int external_face=*xtrnl_fc;
+  int x_inc=*xinc;
+  int y_inc=*yinc;
+  int depth=*dpth;
+  int size=*sz;
 
-  IMPLICIT NONE
+  int j,k,index;
 
-  INTEGER      :: x_min,x_max,y_min,y_max
-  INTEGER      :: chunk_bottom,chunk_top,external_face
-  INTEGER      :: x_inc,y_inc,depth,size
+#pragma omp parallel
+ {
 
-  REAL(KIND=8) :: field(-1:,-1:) ! This seems to work for any type of mesh data
-  REAL(KIND=8) :: bottom_rcv_buffer(:),top_rcv_buffer(:)
+  if(chunk_bottom!=external_face) {
+    for (k=1;k<=depth;k++) {
+#pragma omp for private(j,index)
+      for (j=x_min-depth;j<=x_max+x_inc+depth;j++) {
+        index=j+depth+(k-1)*(x_max+x_inc+(2*depth));
+        field[FTNREF2D(j,y_min-k,x_max+4+x_inc,x_min-2,y_min-2)]=bottom_rcv_buffer[FTNREF1D(index,1)];
+      }
+    }
+  }
+  if(chunk_top!=external_face) {
+    for (k=1;k<=depth;k++) {
+#pragma omp for private(j,index)
+      for (j=x_min-depth;j<=x_max+x_inc+depth;j++) {
+        index=j+depth+(k-1)*(x_max+x_inc+(2*depth));
+        field[FTNREF2D(j,y_max+y_inc+k,x_max+4+x_inc,x_min-2,y_min-2)]=top_rcv_buffer[FTNREF1D(index,1)];
+      }
+    }
+  }
 
-  INTEGER      :: j,k,index
+ }
 
-!$OMP PARALLEL
-  IF(chunk_bottom.NE.external_face) THEN
-    DO k=1,depth
-!$OMP DO PRIVATE(index)
-      DO j=x_min-depth,x_max+x_inc+depth
-        index=j+depth+(k-1)*(x_max+x_inc+(2*depth))
-        field(j,y_min-k)=bottom_rcv_buffer(index)
-      ENDDO
-!$OMP END DO
-    ENDDO
-  ENDIF
-  IF(chunk_top.NE.external_face) THEN
-    DO k=1,depth
-!$OMP DO PRIVATE(index)
-      DO j=x_min-depth,x_max+x_inc+depth
-        index=j+depth+(k-1)*(x_max+x_inc+(2*depth))
-        field(j,y_max+y_inc+k)=top_rcv_buffer(index)
-      ENDDO
-!$OMP END DO
-    ENDDO
-  ENDIF
-!$OMP END PARALLEL
+}
 
-END SUBROUTINE unpack_top_bottom_buffers
-
-END MODULE pack_kernel_module
-*/

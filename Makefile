@@ -126,6 +126,7 @@ clover_leaf: c_lover *.f90 Makefile
 	$(MPI_COMPILER) $(FLAGS)	\
 	data.f90			\
 	definitions.f90			\
+	pack_kernel.f90			\
 	clover.f90			\
 	report.f90			\
 	timer.f90			\
@@ -180,6 +181,7 @@ clover_leaf: c_lover *.f90 Makefile
 	field_summary_kernel_c.o	\
 	update_halo_kernel_c.o		\
 	timer_c.o                       \
+	pack_kernel_c.o			\
 	-o clover_leaf; echo $(MESSAGE)
 
 c_lover: *.c Makefile
@@ -196,6 +198,7 @@ c_lover: *.c Makefile
 	calc_dt_kernel_c.c		\
 	field_summary_kernel_c.c	\
 	update_halo_kernel_c.c		\
+	pack_kernel_c.c			\
 	timer_c.c
 
 clean:
