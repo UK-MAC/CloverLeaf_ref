@@ -123,8 +123,8 @@ SUBROUTINE generate_chunk_kernel(x_min,x_max,y_min,y_max, &
     DO k=y_min-2,y_max+2
       DO j=x_min-2,x_max+2
         IF(state_geometry(state).EQ.g_rect ) THEN
-          IF(vertexx(j).GE.state_xmin(state).AND.vertexx(j).LT.state_xmax(state)) THEN
-            IF(vertexy(k).GE.state_ymin(state).AND.vertexy(k).LT.state_ymax(state)) THEN
+          IF(vertexx(j+1).GE.state_xmin(state).AND.vertexx(j).LT.state_xmax(state)) THEN
+            IF(vertexy(k+1).GE.state_ymin(state).AND.vertexy(k).LT.state_ymax(state)) THEN
               energy0(j,k)=state_energy(state)
               density0(j,k)=state_density(state)
               DO kt=k,k+1

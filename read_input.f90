@@ -29,7 +29,9 @@ SUBROUTINE read_input()
 
   IMPLICIT NONE
 
-  INTEGER            :: state,stat,state_max
+  INTEGER            :: state,stat,state_max,n
+
+  REAL(KIND=8) :: dx,dy
 
   CHARACTER(LEN=500) :: word
 
@@ -255,5 +257,20 @@ SUBROUTINE read_input()
     WRITE(g_out,*) 'Input read finished.'
     WRITE(g_out,*)
   ENDIF
+
+  ! If a state boundary falls exactly on a cell boundary then round off can
+  ! cause the state to be put one cell further that expected. This is compiler
+  ! /system dependent. To avoid this, a state boundary is reduced/increased by a 100th
+  ! of a cell width so it lies well with in the intended cell.
+  ! Because a cell is either full or empty of a specified state, this small
+  ! modification to the state extents does not change the answers.
+  dx=(grid%xmax-grid%xmin)/float(grid%x_cells)
+  dy=(grid%ymax-grid%ymin)/float(grid%y_cells)
+  DO n=2,number_of_states
+    states(n)%xmin=states(n)%xmin+(dx/100.0)
+    states(n)%ymin=states(n)%ymin+(dy/100.0)
+    states(n)%xmax=states(n)%xmax-(dx/100.0)
+    states(n)%ymax=states(n)%ymax-(dy/100.0)
+  ENDDO
 
 END SUBROUTINE read_input

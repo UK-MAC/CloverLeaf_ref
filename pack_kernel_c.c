@@ -142,7 +142,7 @@ void pack_top_bottom_buffers_c_(int *xmin,int *xmax,int *ymin,int *ymax,
 
   int j,k,index;
 
-#pragma omp parallel
+//#pragma omp parallel
  {
 
   if(chunk_bottom!=external_face) {
@@ -188,7 +188,7 @@ void unpack_top_bottom_buffers_c_(int *xmin,int *xmax,int *ymin,int *ymax,
 
   int j,k,index;
 
-#pragma omp parallel
+//#pragma omp parallel
  {
 
   if(chunk_bottom!=external_face) {

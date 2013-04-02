@@ -182,6 +182,8 @@ clover_leaf: c_lover *.f90 Makefile
 	update_halo_kernel_c.o		\
 	timer_c.o                       \
 	pack_kernel_c.o			\
+	generate_chunk_kernel_c.o	\
+	initialise_chunk_kernel_c.o	\
 	-o clover_leaf; echo $(MESSAGE)
 
 c_lover: *.c Makefile
@@ -199,6 +201,8 @@ c_lover: *.c Makefile
 	field_summary_kernel_c.c	\
 	update_halo_kernel_c.c		\
 	pack_kernel_c.c			\
+	generate_chunk_kernel_c.c	\
+	initialise_chunk_kernel_c.c	\
 	timer_c.c
 
 clean:
