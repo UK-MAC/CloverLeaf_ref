@@ -48,7 +48,7 @@ void viscosity_kernel_c_(int *xmin,int *xmax,int *ymin,int *ymax,
 	
 #pragma omp parallel	
  {
-#pragma omp for private(ugrad,vgrad,div,strain2,pgradx,pgrady,pgradx2,pgrady2,limiter,pgrad,xgrad,ygrad,grad,grad2,j)
+#pragma omp for private(ugrad,vgrad,div,strain2,pgradx,pgrady,pgradx2,pgrady2,limiter,pgrad,xgrad,ygrad,grad,grad2,j,k)
   for (k=y_min;k<=y_max;k++) {
 #pragma ivdep
     for (j=x_min;j<=x_max;j++) {
