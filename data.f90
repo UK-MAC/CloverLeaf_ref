@@ -59,7 +59,7 @@ MODULE data_module
                                 ,NUM_FIELDS       =15
 
    INTEGER,         PARAMETER :: CELL_DATA     = 1,        &
-                                 VERTEX_DATA   = 3,        &
+                                 VERTEX_DATA   = 2,        &
                                  X_FACE_DATA   = 3,        &
                                  y_FACE_DATA   = 4
 
