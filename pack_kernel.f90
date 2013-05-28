@@ -58,7 +58,7 @@ SUBROUTINE clover_pack_message_left(x_min,x_max,y_min,y_max,field,              
     y_inc=1
   ENDIF
 
-!$OMP PARALLEL DO PRIVATE(index,j,k)
+!$OMP PARALLEL DO PRIVATE(index)
   DO k=y_min-depth,y_max+y_inc+depth
     DO j=1,depth
       index=buffer_offset + j+(k+depth-1)*depth
@@ -84,7 +84,7 @@ SUBROUTINE clover_unpack_message_left(x_min,x_max,y_min,y_max,field,            
   INTEGER      :: depth,field_type,x_min,x_max,y_min,y_max
   INTEGER      :: j,k,x_inc,y_inc,index,buffer_offset
 
-  ! Pack 
+  ! Unpack 
 
   ! These array modifications still need to be added on, plus the donor data location changes as in update_halo
   IF(field_type.EQ.CELL_DATA) THEN
@@ -104,7 +104,7 @@ SUBROUTINE clover_unpack_message_left(x_min,x_max,y_min,y_max,field,            
     y_inc=1
   ENDIF
 
-!$OMP PARALLEL DO PRIVATE(index,j,k)
+!$OMP PARALLEL DO PRIVATE(index)
   DO k=y_min-depth,y_max+y_inc+depth
     DO j=1,depth
       index= buffer_offset + j+(k+depth-1)*depth
@@ -176,7 +176,7 @@ SUBROUTINE clover_unpack_message_right(x_min,x_max,y_min,y_max,field,           
   INTEGER      :: depth,field_type,x_min,x_max,y_min,y_max
   INTEGER      :: j,k,x_inc,y_inc,index,buffer_offset
 
-  ! Pack 
+  ! Unpack 
 
   ! These array modifications still need to be added on, plus the donor data location changes as in update_halo
   IF(field_type.EQ.CELL_DATA) THEN
@@ -196,7 +196,7 @@ SUBROUTINE clover_unpack_message_right(x_min,x_max,y_min,y_max,field,           
     y_inc=1
   ENDIF
 
-!$OMP PARALLEL DO PRIVATE(index,j,k)
+!$OMP PARALLEL DO PRIVATE(index)
   DO k=y_min-depth,y_max+y_inc+depth
     DO j=1,depth
       index= buffer_offset + j+(k+depth-1)*depth
@@ -242,14 +242,14 @@ SUBROUTINE clover_pack_message_top(x_min,x_max,y_min,y_max,field,               
     y_inc=1
   ENDIF
 
-!$OMP PARALLEL DO PRIVATE(index,j,k)
   DO k=1,depth
+!$OMP PARALLEL DO PRIVATE(index)
     DO j=x_min-depth,x_max+x_inc+depth
       index= buffer_offset + j+depth+(k-1)*(x_max+x_inc+(2*depth))
       top_snd_buffer(index)=field(j,y_max+1-k)
     ENDDO
-  ENDDO
 !$OMP END PARALLEL DO
+  ENDDO
 
 END SUBROUTINE clover_pack_message_top
 
@@ -268,7 +268,7 @@ SUBROUTINE clover_unpack_message_top(x_min,x_max,y_min,y_max,field,             
   INTEGER      :: depth,field_type,x_min,x_max,y_min,y_max
   INTEGER      :: j,k,x_inc,y_inc,index,buffer_offset
 
-  ! Pack 
+  ! Unpack 
 
   ! These array modifications still need to be added on, plus the donor data location changes as in update_halo
   IF(field_type.EQ.CELL_DATA) THEN
@@ -288,14 +288,14 @@ SUBROUTINE clover_unpack_message_top(x_min,x_max,y_min,y_max,field,             
     y_inc=1
   ENDIF
 
-!$OMP PARALLEL DO PRIVATE(index,j,k)
   DO k=1,depth
+!$OMP PARALLEL DO PRIVATE(index)
     DO j=x_min-depth,x_max+x_inc+depth
       index= buffer_offset + j + depth+(k-1)*(x_max+x_inc+(2*depth))
       field(j,y_max+y_inc+k)=top_rcv_buffer(index)
     ENDDO
-  ENDDO
 !$OMP END PARALLEL DO
+  ENDDO
 
 END SUBROUTINE clover_unpack_message_top
 
@@ -334,7 +334,7 @@ SUBROUTINE clover_pack_message_bottom(x_min,x_max,y_min,y_max,field,            
     y_inc=1
   ENDIF
 
-!$OMP PARALLEL DO PRIVATE(index,j,k)
+!$OMP PARALLEL DO PRIVATE(index)
   DO k=1,depth
     DO j=x_min-depth,x_max+x_inc+depth
       index= buffer_offset + j+depth+(k-1)*(x_max+x_inc+(2*depth))
@@ -360,7 +360,7 @@ SUBROUTINE clover_unpack_message_bottom(x_min,x_max,y_min,y_max,field,          
   INTEGER      :: depth,field_type,x_min,x_max,y_min,y_max
   INTEGER      :: j,k,x_inc,y_inc,index,buffer_offset
 
-  ! Pack 
+  ! Unpack 
 
   ! These array modifications still need to be added on, plus the donor data location changes as in update_halo
   IF(field_type.EQ.CELL_DATA) THEN
@@ -380,14 +380,14 @@ SUBROUTINE clover_unpack_message_bottom(x_min,x_max,y_min,y_max,field,          
     y_inc=1
   ENDIF
 
-!$OMP PARALLEL DO PRIVATE(index,j,k)
   DO k=1,depth
+!$OMP PARALLEL DO PRIVATE(index)
     DO j=x_min-depth,x_max+x_inc+depth
       index= buffer_offset + j+depth+(k-1)*(x_max+x_inc+(2*depth))
       field(j,y_min-k)=bottom_rcv_buffer(index)
     ENDDO
-  ENDDO
 !$OMP END PARALLEL DO
+  ENDDO
 
 END SUBROUTINE clover_unpack_message_bottom
 
