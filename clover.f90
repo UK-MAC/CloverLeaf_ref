@@ -208,20 +208,20 @@ SUBROUTINE clover_allocate_buffers(chunk)
   !  all allocated
   IF(parallel%task.EQ.chunks(chunk)%task)THEN
     !IF(chunks(chunk)%chunk_neighbours(chunk_left).NE.external_face) THEN
-      ALLOCATE(chunks(chunk)%left_snd_buffer(2*(chunks(chunk)%field%y_max+5)))
-      ALLOCATE(chunks(chunk)%left_rcv_buffer(2*(chunks(chunk)%field%y_max+5)))
+      ALLOCATE(chunks(chunk)%left_snd_buffer(10*2*(chunks(chunk)%field%y_max+5)))
+      ALLOCATE(chunks(chunk)%left_rcv_buffer(10*2*(chunks(chunk)%field%y_max+5)))
     !ENDIF
     !IF(chunks(chunk)%chunk_neighbours(chunk_right).NE.external_face) THEN
-      ALLOCATE(chunks(chunk)%right_snd_buffer(2*(chunks(chunk)%field%y_max+5)))
-      ALLOCATE(chunks(chunk)%right_rcv_buffer(2*(chunks(chunk)%field%y_max+5)))
+      ALLOCATE(chunks(chunk)%right_snd_buffer(10*2*(chunks(chunk)%field%y_max+5)))
+      ALLOCATE(chunks(chunk)%right_rcv_buffer(10*2*(chunks(chunk)%field%y_max+5)))
     !ENDIF
     !IF(chunks(chunk)%chunk_neighbours(chunk_bottom).NE.external_face) THEN
-      ALLOCATE(chunks(chunk)%bottom_snd_buffer(2*(chunks(chunk)%field%x_max+5)))
-      ALLOCATE(chunks(chunk)%bottom_rcv_buffer(2*(chunks(chunk)%field%x_max+5)))
+      ALLOCATE(chunks(chunk)%bottom_snd_buffer(10*2*(chunks(chunk)%field%x_max+5)))
+      ALLOCATE(chunks(chunk)%bottom_rcv_buffer(10*2*(chunks(chunk)%field%x_max+5)))
     !ENDIF
     !IF(chunks(chunk)%chunk_neighbours(chunk_top).NE.external_face) THEN
-      ALLOCATE(chunks(chunk)%top_snd_buffer(2*(chunks(chunk)%field%x_max+5)))
-      ALLOCATE(chunks(chunk)%top_rcv_buffer(2*(chunks(chunk)%field%x_max+5)))
+      ALLOCATE(chunks(chunk)%top_snd_buffer(10*2*(chunks(chunk)%field%x_max+5)))
+      ALLOCATE(chunks(chunk)%top_rcv_buffer(10*2*(chunks(chunk)%field%x_max+5)))
     !ENDIF
   ENDIF
 
@@ -229,210 +229,1637 @@ END SUBROUTINE clover_allocate_buffers
 
 SUBROUTINE clover_exchange(fields,depth)
 
-  IMPLICIT NONE
+    IMPLICIT NONE
 
-  INTEGER      :: fields(:),depth
+    INTEGER      :: fields(:),depth, chunk
+    INTEGER      :: left_right_offset(15),bottom_top_offset(15)
+    INTEGER      :: request(4)
+    INTEGER      :: message_count,err
+    INTEGER      :: status(MPI_STATUS_SIZE,4)
+    INTEGER      :: end_pack_index_left_right, end_pack_index_bottom_top,field
 
-  ! Assuming 1 patch per task, this will be changed
-  ! Also, not packing all fields for each communication, doing one at a time
+    ! Assuming 1 patch per task, this will be changed
 
-  IF(fields(FIELD_DENSITY0).EQ.1) THEN
-    CALL clover_exchange_message(parallel%task+1,chunks(parallel%task+1)%field%density0,      &
-                                 chunks(parallel%task+1)%left_snd_buffer,                      &
-                                 chunks(parallel%task+1)%left_rcv_buffer,                      &
-                                 chunks(parallel%task+1)%right_snd_buffer,                     &
-                                 chunks(parallel%task+1)%right_rcv_buffer,                     &
-                                 chunks(parallel%task+1)%bottom_snd_buffer,                    &
-                                 chunks(parallel%task+1)%bottom_rcv_buffer,                    &
-                                 chunks(parallel%task+1)%top_snd_buffer,                       &
-                                 chunks(parallel%task+1)%top_rcv_buffer,                       &
-                                 depth,CELL_DATA)
-  ENDIF
+    request=0
+    message_count=0
 
-  IF(fields(FIELD_DENSITY1).EQ.1) THEN
-    CALL clover_exchange_message(parallel%task+1,chunks(parallel%task+1)%field%density1,      &
-                                 chunks(parallel%task+1)%left_snd_buffer,                      &
-                                 chunks(parallel%task+1)%left_rcv_buffer,                      &
-                                 chunks(parallel%task+1)%right_snd_buffer,                     &
-                                 chunks(parallel%task+1)%right_rcv_buffer,                     &
-                                 chunks(parallel%task+1)%bottom_snd_buffer,                    &
-                                 chunks(parallel%task+1)%bottom_rcv_buffer,                    &
-                                 chunks(parallel%task+1)%top_snd_buffer,                       &
-                                 chunks(parallel%task+1)%top_rcv_buffer,                       &
-                                 depth,CELL_DATA)
-  ENDIF
+    chunk = parallel%task+1 
 
-  IF(fields(FIELD_ENERGY0).EQ.1) THEN
-    CALL clover_exchange_message(parallel%task+1,chunks(parallel%task+1)%field%energy0,       &
-                                 chunks(parallel%task+1)%left_snd_buffer,                      &
-                                 chunks(parallel%task+1)%left_rcv_buffer,                      &
-                                 chunks(parallel%task+1)%right_snd_buffer,                     &
-                                 chunks(parallel%task+1)%right_rcv_buffer,                     &
-                                 chunks(parallel%task+1)%bottom_snd_buffer,                    &
-                                 chunks(parallel%task+1)%bottom_rcv_buffer,                    &
-                                 chunks(parallel%task+1)%top_snd_buffer,                       &
-                                 chunks(parallel%task+1)%top_rcv_buffer,                       &
-                                 depth,CELL_DATA)
-  ENDIF
+    end_pack_index_left_right=0
+    end_pack_index_bottom_top=0
+    DO field=1,15
+      IF(fields(field).EQ.1) THEN
+        left_right_offset(field)=end_pack_index_left_right
+        bottom_top_offset(field)=end_pack_index_bottom_top
+        end_pack_index_left_right=end_pack_index_left_right+depth*(chunks(chunk)%field%y_max+5)
+        end_pack_index_bottom_top=end_pack_index_bottom_top+depth*(chunks(chunk)%field%x_max+5)
+      ENDIF
+    ENDDO
 
-  IF(fields(FIELD_ENERGY1).EQ.1) THEN
-    CALL clover_exchange_message(parallel%task+1,chunks(parallel%task+1)%field%energy1,       &
-                                 chunks(parallel%task+1)%left_snd_buffer,                      &
-                                 chunks(parallel%task+1)%left_rcv_buffer,                      &
-                                 chunks(parallel%task+1)%right_snd_buffer,                     &
-                                 chunks(parallel%task+1)%right_rcv_buffer,                     &
-                                 chunks(parallel%task+1)%bottom_snd_buffer,                    &
-                                 chunks(parallel%task+1)%bottom_rcv_buffer,                    &
-                                 chunks(parallel%task+1)%top_snd_buffer,                       &
-                                 chunks(parallel%task+1)%top_rcv_buffer,                       &
-                                 depth,CELL_DATA)
-  ENDIF
+    IF(chunks(chunk)%chunk_neighbours(chunk_left).NE.external_face) THEN
+      ! do left exchanges
+      CALL clover_pack_left(chunk, fields, depth, left_right_offset)
 
-  IF(fields(FIELD_PRESSURE).EQ.1) THEN
-    CALL clover_exchange_message(parallel%task+1,chunks(parallel%task+1)%field%pressure,      &
-                                 chunks(parallel%task+1)%left_snd_buffer,                      &
-                                 chunks(parallel%task+1)%left_rcv_buffer,                      &
-                                 chunks(parallel%task+1)%right_snd_buffer,                     &
-                                 chunks(parallel%task+1)%right_rcv_buffer,                     &
-                                 chunks(parallel%task+1)%bottom_snd_buffer,                    &
-                                 chunks(parallel%task+1)%bottom_rcv_buffer,                    &
-                                 chunks(parallel%task+1)%top_snd_buffer,                       &
-                                 chunks(parallel%task+1)%top_rcv_buffer,                       &
-                                 depth,CELL_DATA)
-  ENDIF
+      !send and recv messagse to the left
+      CALL clover_send_recv_message_left(chunks(chunk)%left_snd_buffer,                      &
+                                         chunks(chunk)%left_rcv_buffer,                      &
+                                         chunk,end_pack_index_left_right,                    &
+                                         1, 2,                                               &
+                                         request(message_count+1), request(message_count+2))
+      message_count = message_count + 2
+    ENDIF
 
-  IF(fields(FIELD_VISCOSITY).EQ.1) THEN
-    CALL clover_exchange_message(parallel%task+1,chunks(parallel%task+1)%field%viscosity,     &
-                                 chunks(parallel%task+1)%left_snd_buffer,                      &
-                                 chunks(parallel%task+1)%left_rcv_buffer,                      &
-                                 chunks(parallel%task+1)%right_snd_buffer,                     &
-                                 chunks(parallel%task+1)%right_rcv_buffer,                     &
-                                 chunks(parallel%task+1)%bottom_snd_buffer,                    &
-                                 chunks(parallel%task+1)%bottom_rcv_buffer,                    &
-                                 chunks(parallel%task+1)%top_snd_buffer,                       &
-                                 chunks(parallel%task+1)%top_rcv_buffer,                       &
-                                 depth,CELL_DATA)
-  ENDIF
+    IF(chunks(chunk)%chunk_neighbours(chunk_right).NE.external_face) THEN
+      ! do right exchanges
+      CALL clover_pack_right(chunk, fields, depth, left_right_offset)
 
-  IF(fields(FIELD_SOUNDSPEED).EQ.1) THEN
-    CALL clover_exchange_message(parallel%task+1,chunks(parallel%task+1)%field%soundspeed,    &
-                                 chunks(parallel%task+1)%left_snd_buffer,                      &
-                                 chunks(parallel%task+1)%left_rcv_buffer,                      &
-                                 chunks(parallel%task+1)%right_snd_buffer,                     &
-                                 chunks(parallel%task+1)%right_rcv_buffer,                     &
-                                 chunks(parallel%task+1)%bottom_snd_buffer,                    &
-                                 chunks(parallel%task+1)%bottom_rcv_buffer,                    &
-                                 chunks(parallel%task+1)%top_snd_buffer,                       &
-                                 chunks(parallel%task+1)%top_rcv_buffer,                       &
-                                 depth,CELL_DATA)
-  ENDIF
+      !send message to the right
+      CALL clover_send_recv_message_right(chunks(chunk)%right_snd_buffer,                     &
+                                          chunks(chunk)%right_rcv_buffer,                     &
+                                          chunk,end_pack_index_left_right,                    &
+                                          2, 1,                                               &
+                                          request(message_count+1), request(message_count+2))
+      message_count = message_count + 2
+    ENDIF
 
-  IF(fields(FIELD_XVEL0).EQ.1) THEN
-    CALL clover_exchange_message(parallel%task+1,chunks(parallel%task+1)%field%xvel0,         &
-                                 chunks(parallel%task+1)%left_snd_buffer,                      &
-                                 chunks(parallel%task+1)%left_rcv_buffer,                      &
-                                 chunks(parallel%task+1)%right_snd_buffer,                     &
-                                 chunks(parallel%task+1)%right_rcv_buffer,                     &
-                                 chunks(parallel%task+1)%bottom_snd_buffer,                    &
-                                 chunks(parallel%task+1)%bottom_rcv_buffer,                    &
-                                 chunks(parallel%task+1)%top_snd_buffer,                       &
-                                 chunks(parallel%task+1)%top_rcv_buffer,                       &
-                                 depth,VERTEX_DATA)
-  ENDIF
+    !make a call to wait / sync
+    CALL MPI_WAITALL(message_count,request,status,err)
 
-  IF(fields(FIELD_XVEL1).EQ.1) THEN
-    CALL clover_exchange_message(parallel%task+1,chunks(parallel%task+1)%field%xvel1,         &
-                                 chunks(parallel%task+1)%left_snd_buffer,                      &
-                                 chunks(parallel%task+1)%left_rcv_buffer,                      &
-                                 chunks(parallel%task+1)%right_snd_buffer,                     &
-                                 chunks(parallel%task+1)%right_rcv_buffer,                     &
-                                 chunks(parallel%task+1)%bottom_snd_buffer,                    &
-                                 chunks(parallel%task+1)%bottom_rcv_buffer,                    &
-                                 chunks(parallel%task+1)%top_snd_buffer,                       &
-                                 chunks(parallel%task+1)%top_rcv_buffer,                       &
-                                 depth,VERTEX_DATA)
-  ENDIF
+    !unpack in left direction
+    IF(chunks(chunk)%chunk_neighbours(chunk_left).NE.external_face) THEN
+      CALL clover_unpack_left(fields, chunk, depth,                      &
+                              chunks(chunk)%left_rcv_buffer,             &
+                              left_right_offset)                  
+    ENDIF
 
-  IF(fields(FIELD_YVEL0).EQ.1) THEN
-    CALL clover_exchange_message(parallel%task+1,chunks(parallel%task+1)%field%yvel0,         &
-                                 chunks(parallel%task+1)%left_snd_buffer,                      &
-                                 chunks(parallel%task+1)%left_rcv_buffer,                      &
-                                 chunks(parallel%task+1)%right_snd_buffer,                     &
-                                 chunks(parallel%task+1)%right_rcv_buffer,                     &
-                                 chunks(parallel%task+1)%bottom_snd_buffer,                    &
-                                 chunks(parallel%task+1)%bottom_rcv_buffer,                    &
-                                 chunks(parallel%task+1)%top_snd_buffer,                       &
-                                 chunks(parallel%task+1)%top_rcv_buffer,                       &
-                                 depth,VERTEX_DATA)
-  ENDIF
 
-  IF(fields(FIELD_YVEL1).EQ.1) THEN
-    CALL clover_exchange_message(parallel%task+1,chunks(parallel%task+1)%field%yvel1,         &
-                                 chunks(parallel%task+1)%left_snd_buffer,                      &
-                                 chunks(parallel%task+1)%left_rcv_buffer,                      &
-                                 chunks(parallel%task+1)%right_snd_buffer,                     &
-                                 chunks(parallel%task+1)%right_rcv_buffer,                     &
-                                 chunks(parallel%task+1)%bottom_snd_buffer,                    &
-                                 chunks(parallel%task+1)%bottom_rcv_buffer,                    &
-                                 chunks(parallel%task+1)%top_snd_buffer,                       &
-                                 chunks(parallel%task+1)%top_rcv_buffer,                       &
-                                 depth,VERTEX_DATA)
-  ENDIF
+    !unpack in right direction
+    IF(chunks(chunk)%chunk_neighbours(chunk_right).NE.external_face) THEN
+      CALL clover_unpack_right(fields, chunk, depth,                     &
+                               chunks(chunk)%right_rcv_buffer,           &
+                               left_right_offset)
+    ENDIF
 
-  IF(fields(FIELD_VOL_FLUX_X).EQ.1) THEN
-    CALL clover_exchange_message(parallel%task+1,chunks(parallel%task+1)%field%vol_flux_x,    &
-                                 chunks(parallel%task+1)%left_snd_buffer,                      &
-                                 chunks(parallel%task+1)%left_rcv_buffer,                      &
-                                 chunks(parallel%task+1)%right_snd_buffer,                     &
-                                 chunks(parallel%task+1)%right_rcv_buffer,                     &
-                                 chunks(parallel%task+1)%bottom_snd_buffer,                    &
-                                 chunks(parallel%task+1)%bottom_rcv_buffer,                    &
-                                 chunks(parallel%task+1)%top_snd_buffer,                       &
-                                 chunks(parallel%task+1)%top_rcv_buffer,                       &
-                                 depth,X_FACE_DATA)
-  ENDIF
+    message_count = 0
+    request = 0
 
-  IF(fields(FIELD_VOL_FLUX_Y).EQ.1) THEN
-    CALL clover_exchange_message(parallel%task+1,chunks(parallel%task+1)%field%vol_flux_y,    &
-                                 chunks(parallel%task+1)%left_snd_buffer,                      &
-                                 chunks(parallel%task+1)%left_rcv_buffer,                      &
-                                 chunks(parallel%task+1)%right_snd_buffer,                     &
-                                 chunks(parallel%task+1)%right_rcv_buffer,                     &
-                                 chunks(parallel%task+1)%bottom_snd_buffer,                    &
-                                 chunks(parallel%task+1)%bottom_rcv_buffer,                    &
-                                 chunks(parallel%task+1)%top_snd_buffer,                       &
-                                 chunks(parallel%task+1)%top_rcv_buffer,                       &
-                                 depth,Y_FACE_DATA)
-  ENDIF
+    IF(chunks(chunk)%chunk_neighbours(chunk_bottom).NE.external_face) THEN
+      ! do bottom exchanges
+      CALL clover_pack_bottom(chunk, fields, depth, bottom_top_offset)
 
-  IF(fields(FIELD_MASS_FLUX_X).EQ.1) THEN
-    CALL clover_exchange_message(parallel%task+1,chunks(parallel%task+1)%field%mass_flux_x,   &
-                                 chunks(parallel%task+1)%left_snd_buffer,                      &
-                                 chunks(parallel%task+1)%left_rcv_buffer,                      &
-                                 chunks(parallel%task+1)%right_snd_buffer,                     &
-                                 chunks(parallel%task+1)%right_rcv_buffer,                     &
-                                 chunks(parallel%task+1)%bottom_snd_buffer,                    &
-                                 chunks(parallel%task+1)%bottom_rcv_buffer,                    &
-                                 chunks(parallel%task+1)%top_snd_buffer,                       &
-                                 chunks(parallel%task+1)%top_rcv_buffer,                       &
-                                 depth,X_FACE_DATA)
-  ENDIF
+      !send message downwards
+      CALL clover_send_recv_message_bottom(chunks(chunk)%bottom_snd_buffer,                     &
+                                           chunks(chunk)%bottom_rcv_buffer,                     &
+                                           chunk,end_pack_index_bottom_top,                     &
+                                           3, 4,                                                &
+                                           request(message_count+1), request(message_count+2))
+      message_count = message_count + 2
+    ENDIF
 
-  IF(fields(FIELD_MASS_FLUX_Y).EQ.1) THEN
-    CALL clover_exchange_message(parallel%task+1,chunks(parallel%task+1)%field%mass_flux_y,   &
-                                 chunks(parallel%task+1)%left_snd_buffer,                      &
-                                 chunks(parallel%task+1)%left_rcv_buffer,                      &
-                                 chunks(parallel%task+1)%right_snd_buffer,                     &
-                                 chunks(parallel%task+1)%right_rcv_buffer,                     &
-                                 chunks(parallel%task+1)%bottom_snd_buffer,                    &
-                                 chunks(parallel%task+1)%bottom_rcv_buffer,                    &
-                                 chunks(parallel%task+1)%top_snd_buffer,                       &
-                                 chunks(parallel%task+1)%top_rcv_buffer,                       &
-                                 depth,Y_FACE_DATA)
-  ENDIF
+    IF(chunks(chunk)%chunk_neighbours(chunk_top).NE.external_face) THEN
+      ! do top exchanges
+      CALL clover_pack_top(chunk, fields, depth, bottom_top_offset)
 
+      !send message upwards
+      CALL clover_send_recv_message_top(chunks(chunk)%top_snd_buffer,                           &
+                                        chunks(chunk)%top_rcv_buffer,                           &
+                                        chunk,end_pack_index_bottom_top,                        &
+                                        4, 3,                                                   &
+                                        request(message_count+1), request(message_count+2))
+      message_count = message_count + 2
+    ENDIF
+
+    !need to make a call to wait / sync
+    CALL MPI_WAITALL(message_count,request,status,err)
+
+    !unpack in top direction
+    IF( chunks(chunk)%chunk_neighbours(chunk_top).NE.external_face ) THEN
+      CALL clover_unpack_top(fields, chunk, depth,                       &
+                             chunks(chunk)%top_rcv_buffer,               &
+                             bottom_top_offset)
+    ENDIF
+
+    !unpack in bottom direction
+    IF(chunks(chunk)%chunk_neighbours(chunk_bottom).NE.external_face) THEN
+      CALL clover_unpack_bottom(fields, chunk, depth,                   &
+                               chunks(chunk)%bottom_rcv_buffer,         &
+                               bottom_top_offset)
+    ENDIF
 
 END SUBROUTINE clover_exchange
+
+SUBROUTINE clover_pack_left(chunk, fields, depth, left_right_offset)
+
+  USE pack_kernel_module
+
+  IMPLICIT NONE
+
+  INTEGER      :: fields(:),depth, chunk
+  INTEGER      :: left_right_offset(:)
+
+  IF(fields(FIELD_DENSITY0).EQ.1) THEN
+    CALL clover_pack_message_left(chunks(chunk)%field%x_min,                    &
+                                  chunks(chunk)%field%x_max,                    &
+                                  chunks(chunk)%field%y_min,                    &
+                                  chunks(chunk)%field%y_max,                    &
+                                  chunks(chunk)%field%density0,                 &
+                                  chunks(chunk)%left_snd_buffer,                &
+                                  CELL_DATA,VERTEX_DATA,X_FACE_DATA,Y_FACE_DATA,&
+                                  depth, CELL_DATA,                             &
+                                  left_right_offset(FIELD_DENSITY0))
+  ENDIF
+  IF(fields(FIELD_DENSITY1).EQ.1) THEN
+    CALL clover_pack_message_left(chunks(chunk)%field%x_min,                    &
+                                  chunks(chunk)%field%x_max,                    &
+                                  chunks(chunk)%field%y_min,                    &
+                                  chunks(chunk)%field%y_max,                    &
+                                  chunks(chunk)%field%density1,                 &
+                                  chunks(chunk)%left_snd_buffer,                &
+                                  CELL_DATA,VERTEX_DATA,X_FACE_DATA,Y_FACE_DATA,&
+                                  depth, CELL_DATA,                             &
+                                  left_right_offset(FIELD_DENSITY1))
+  ENDIF
+  IF(fields(FIELD_ENERGY0).EQ.1) THEN
+    CALL clover_pack_message_left(chunks(chunk)%field%x_min,                    &
+                                  chunks(chunk)%field%x_max,                    &
+                                  chunks(chunk)%field%y_min,                    &
+                                  chunks(chunk)%field%y_max,                    &
+                                  chunks(chunk)%field%energy0,                  &
+                                  chunks(chunk)%left_snd_buffer,                &
+                                  CELL_DATA,VERTEX_DATA,X_FACE_DATA,Y_FACE_DATA,&
+                                  depth, CELL_DATA,                             &
+                                  left_right_offset(FIELD_ENERGY0))
+  ENDIF
+  IF(fields(FIELD_ENERGY1).EQ.1) THEN
+    CALL clover_pack_message_left(chunks(chunk)%field%x_min,                    &
+                                  chunks(chunk)%field%x_max,                    &
+                                  chunks(chunk)%field%y_min,                    &
+                                  chunks(chunk)%field%y_max,                    &
+                                  chunks(chunk)%field%energy1,                  &
+                                  chunks(chunk)%left_snd_buffer,                &
+                                  CELL_DATA,VERTEX_DATA,X_FACE_DATA,Y_FACE_DATA,&
+                                  depth, CELL_DATA,                             &
+                                  left_right_offset(FIELD_ENERGY1))
+  ENDIF
+  IF(fields(FIELD_PRESSURE).EQ.1) THEN
+    CALL clover_pack_message_left(chunks(chunk)%field%x_min,                    &
+                                  chunks(chunk)%field%x_max,                    &
+                                  chunks(chunk)%field%y_min,                    &
+                                  chunks(chunk)%field%y_max,                    &
+                                  chunks(chunk)%field%pressure,                 &
+                                  chunks(chunk)%left_snd_buffer,                &
+                                  CELL_DATA,VERTEX_DATA,X_FACE_DATA,Y_FACE_DATA,&
+                                  depth, CELL_DATA,                             &
+                                  left_right_offset(FIELD_PRESSURE))
+  ENDIF
+  IF(fields(FIELD_VISCOSITY).EQ.1) THEN
+    CALL clover_pack_message_left(chunks(chunk)%field%x_min,                    &
+                                  chunks(chunk)%field%x_max,                    &
+                                  chunks(chunk)%field%y_min,                    &
+                                  chunks(chunk)%field%y_max,                    &
+                                  chunks(chunk)%field%viscosity,                &
+                                  chunks(chunk)%left_snd_buffer,                &
+                                  CELL_DATA,VERTEX_DATA,X_FACE_DATA,Y_FACE_DATA,&
+                                  depth, CELL_DATA,                             &
+                                  left_right_offset(FIELD_VISCOSITY))
+  ENDIF
+  IF(fields(FIELD_SOUNDSPEED).EQ.1) THEN
+    CALL clover_pack_message_left(chunks(chunk)%field%x_min,                    &
+                                  chunks(chunk)%field%x_max,                    &
+                                  chunks(chunk)%field%y_min,                    &
+                                  chunks(chunk)%field%y_max,                    &
+                                  chunks(chunk)%field%soundspeed,               &
+                                  chunks(chunk)%left_snd_buffer,                &
+                                  CELL_DATA,VERTEX_DATA,X_FACE_DATA,Y_FACE_DATA,&
+                                  depth, CELL_DATA,                             &
+                                  left_right_offset(FIELD_SOUNDSPEED))
+  ENDIF
+  IF(fields(FIELD_XVEL0).EQ.1) THEN
+    CALL clover_pack_message_left(chunks(chunk)%field%x_min,                    &
+                                  chunks(chunk)%field%x_max,                    &
+                                  chunks(chunk)%field%y_min,                    &
+                                  chunks(chunk)%field%y_max,                    &
+                                  chunks(chunk)%field%xvel0,                    &
+                                  chunks(chunk)%left_snd_buffer,                &
+                                  CELL_DATA,VERTEX_DATA,X_FACE_DATA,Y_FACE_DATA,&
+                                  depth, VERTEX_DATA,                           &
+                                  left_right_offset(FIELD_XVEL0))
+  ENDIF
+  IF(fields(FIELD_XVEL1).EQ.1) THEN
+    CALL clover_pack_message_left(chunks(chunk)%field%x_min,                    &
+                                  chunks(chunk)%field%x_max,                    &
+                                  chunks(chunk)%field%y_min,                    &
+                                  chunks(chunk)%field%y_max,                    &
+                                  chunks(chunk)%field%xvel1,                    &
+                                  chunks(chunk)%left_snd_buffer,                &
+                                  CELL_DATA,VERTEX_DATA,X_FACE_DATA,Y_FACE_DATA,&
+                                  depth, VERTEX_DATA,                           &
+                                  left_right_offset(FIELD_XVEL1))
+  ENDIF
+  IF(fields(FIELD_YVEL0).EQ.1) THEN
+    CALL clover_pack_message_left(chunks(chunk)%field%x_min,                    &
+                                  chunks(chunk)%field%x_max,                    &
+                                  chunks(chunk)%field%y_min,                    &
+                                  chunks(chunk)%field%y_max,                    &
+                                  chunks(chunk)%field%yvel0,                    &
+                                  chunks(chunk)%left_snd_buffer,                &
+                                  CELL_DATA,VERTEX_DATA,X_FACE_DATA,Y_FACE_DATA,&
+                                  depth, VERTEX_DATA,                           &
+                                  left_right_offset(FIELD_YVEL0))
+  ENDIF
+  IF(fields(FIELD_YVEL1).EQ.1) THEN
+    CALL clover_pack_message_left(chunks(chunk)%field%x_min,                    &
+                                  chunks(chunk)%field%x_max,                    &
+                                  chunks(chunk)%field%y_min,                    &
+                                  chunks(chunk)%field%y_max,                    &
+                                  chunks(chunk)%field%yvel1,                    &
+                                  chunks(chunk)%left_snd_buffer,                &
+                                  CELL_DATA,VERTEX_DATA,X_FACE_DATA,Y_FACE_DATA,&
+                                  depth, VERTEX_DATA,                           &
+                                  left_right_offset(FIELD_YVEL1))
+  ENDIF
+  IF(fields(FIELD_VOL_FLUX_X).EQ.1) THEN
+    CALL clover_pack_message_left(chunks(chunk)%field%x_min,                    &
+                                  chunks(chunk)%field%x_max,                    &
+                                  chunks(chunk)%field%y_min,                    &
+                                  chunks(chunk)%field%y_max,                    &
+                                  chunks(chunk)%field%vol_flux_x,               &
+                                  chunks(chunk)%left_snd_buffer,                &
+                                  CELL_DATA,VERTEX_DATA,X_FACE_DATA,Y_FACE_DATA,&
+                                  depth, X_FACE_DATA,                           &
+                                  left_right_offset(FIELD_VOL_FLUX_X))
+  ENDIF
+  IF(fields(FIELD_VOL_FLUX_Y).EQ.1) THEN
+    CALL clover_pack_message_left(chunks(chunk)%field%x_min,                    &
+                                  chunks(chunk)%field%x_max,                    &
+                                  chunks(chunk)%field%y_min,                    &
+                                  chunks(chunk)%field%y_max,                    &
+                                  chunks(chunk)%field%vol_flux_y,               &
+                                  chunks(chunk)%left_snd_buffer,                &
+                                  CELL_DATA,VERTEX_DATA,X_FACE_DATA,Y_FACE_DATA,&
+                                  depth, Y_FACE_DATA,                           &
+                                  left_right_offset(FIELD_VOL_FLUX_Y))
+  ENDIF
+  IF(fields(FIELD_MASS_FLUX_X).EQ.1) THEN
+    CALL clover_pack_message_left(chunks(chunk)%field%x_min,                    &
+                                  chunks(chunk)%field%x_max,                    &
+                                  chunks(chunk)%field%y_min,                    &
+                                  chunks(chunk)%field%y_max,                    &
+                                  chunks(chunk)%field%mass_flux_x,              &
+                                  chunks(chunk)%left_snd_buffer,                &
+                                  CELL_DATA,VERTEX_DATA,X_FACE_DATA,Y_FACE_DATA,&
+                                  depth, X_FACE_DATA,                           &
+                                  left_right_offset(FIELD_MASS_FLUX_X))
+  ENDIF
+  IF(fields(FIELD_MASS_FLUX_Y).EQ.1) THEN
+    CALL clover_pack_message_left(chunks(chunk)%field%x_min,                    &
+                                  chunks(chunk)%field%x_max,                    &
+                                  chunks(chunk)%field%y_min,                    &
+                                  chunks(chunk)%field%y_max,                    &
+                                  chunks(chunk)%field%mass_flux_y,              &
+                                  chunks(chunk)%left_snd_buffer,                &
+                                  CELL_DATA,VERTEX_DATA,X_FACE_DATA,Y_FACE_DATA,&
+                                  depth, Y_FACE_DATA,                           &
+                                  left_right_offset(FIELD_MASS_FLUX_Y))
+  ENDIF
+
+END SUBROUTINE clover_pack_left
+
+SUBROUTINE clover_send_recv_message_left(left_snd_buffer, left_rcv_buffer,      &
+                                         chunk, total_size,                     &
+                                         tag_send, tag_recv,                    &
+                                         req_send, req_recv)
+
+  REAL(KIND=8)    :: left_snd_buffer(:), left_rcv_buffer(:)
+  INTEGER         :: left_task
+  INTEGER         :: chunk
+  INTEGER         :: total_size, tag_send, tag_recv, err
+  INTEGER         :: req_send, req_recv
+
+  left_task =chunks(chunks(chunk)%chunk_neighbours(chunk_left))%task
+
+  CALL MPI_ISEND(left_snd_buffer,total_size,MPI_DOUBLE_PRECISION,left_task,tag_send &
+                ,MPI_COMM_WORLD,req_send,err)
+
+  CALL MPI_IRECV(left_rcv_buffer,total_size,MPI_DOUBLE_PRECISION,left_task,tag_recv &
+                ,MPI_COMM_WORLD,req_recv,err)
+
+END SUBROUTINE clover_send_recv_message_left
+
+SUBROUTINE clover_unpack_left(fields, chunk, depth,                         &
+                              left_rcv_buffer,                              &
+                              left_right_offset)
+
+  USE pack_kernel_module
+
+  IMPLICIT NONE
+
+  INTEGER         :: fields(:), chunk, depth
+  INTEGER         :: left_right_offset(:)
+  REAL(KIND=8)    :: left_rcv_buffer(:)
+
+
+  IF(fields(FIELD_DENSITY0).EQ.1) THEN
+    CALL clover_unpack_message_left(chunks(chunk)%field%x_min,                    &
+                                    chunks(chunk)%field%x_max,                    &
+                                    chunks(chunk)%field%y_min,                    &
+                                    chunks(chunk)%field%y_max,                    &
+                                    chunks(chunk)%field%density0,                 &
+                                    chunks(chunk)%left_rcv_buffer,                &
+                                    CELL_DATA,VERTEX_DATA,X_FACE_DATA,Y_FACE_DATA,&
+                                    depth, CELL_DATA,                             &
+                                    left_right_offset(FIELD_DENSITY0))
+  ENDIF
+  IF(fields(FIELD_DENSITY1).EQ.1) THEN
+    CALL clover_unpack_message_left(chunks(chunk)%field%x_min,                    &
+                                    chunks(chunk)%field%x_max,                    &
+                                    chunks(chunk)%field%y_min,                    &
+                                    chunks(chunk)%field%y_max,                    &
+                                    chunks(chunk)%field%density1,                 &
+                                    chunks(chunk)%left_rcv_buffer,                &
+                                    CELL_DATA,VERTEX_DATA,X_FACE_DATA,Y_FACE_DATA,&
+                                    depth, CELL_DATA,                             &
+                                    left_right_offset(FIELD_DENSITY1))
+  ENDIF
+  IF(fields(FIELD_ENERGY0).EQ.1) THEN
+    CALL clover_unpack_message_left(chunks(chunk)%field%x_min,                    &
+                                    chunks(chunk)%field%x_max,                    &
+                                    chunks(chunk)%field%y_min,                    &
+                                    chunks(chunk)%field%y_max,                    &
+                                    chunks(chunk)%field%energy0,                  &
+                                    chunks(chunk)%left_rcv_buffer,                &
+                                    CELL_DATA,VERTEX_DATA,X_FACE_DATA,Y_FACE_DATA,&
+                                    depth, CELL_DATA,                             &
+                                    left_right_offset(FIELD_ENERGY0))
+  ENDIF
+  IF(fields(FIELD_ENERGY1).EQ.1) THEN
+    CALL clover_unpack_message_left(chunks(chunk)%field%x_min,                    &
+                                    chunks(chunk)%field%x_max,                    &
+                                    chunks(chunk)%field%y_min,                    &
+                                    chunks(chunk)%field%y_max,                    &
+                                    chunks(chunk)%field%energy1,                  &
+                                    chunks(chunk)%left_rcv_buffer,                &
+                                    CELL_DATA,VERTEX_DATA,X_FACE_DATA,Y_FACE_DATA,&
+                                    depth, CELL_DATA,                             &
+                                    left_right_offset(FIELD_ENERGY1))
+  ENDIF
+  IF(fields(FIELD_PRESSURE).EQ.1) THEN
+    CALL clover_unpack_message_left(chunks(chunk)%field%x_min,                    &
+                                    chunks(chunk)%field%x_max,                    &
+                                    chunks(chunk)%field%y_min,                    &
+                                    chunks(chunk)%field%y_max,                    &
+                                    chunks(chunk)%field%pressure,                 &
+                                    chunks(chunk)%left_rcv_buffer,                &
+                                    CELL_DATA,VERTEX_DATA,X_FACE_DATA,Y_FACE_DATA,&
+                                    depth, CELL_DATA,                             &
+                                    left_right_offset(FIELD_PRESSURE))
+  ENDIF
+  IF(fields(FIELD_VISCOSITY).EQ.1) THEN
+    CALL clover_unpack_message_left(chunks(chunk)%field%x_min,                    &
+                                    chunks(chunk)%field%x_max,                    &
+                                    chunks(chunk)%field%y_min,                    &
+                                    chunks(chunk)%field%y_max,                    &
+                                    chunks(chunk)%field%viscosity,                &
+                                    chunks(chunk)%left_rcv_buffer,                &
+                                    CELL_DATA,VERTEX_DATA,X_FACE_DATA,Y_FACE_DATA,&
+                                    depth, CELL_DATA,                             &
+                                    left_right_offset(FIELD_VISCOSITY))
+  ENDIF
+  IF(fields(FIELD_SOUNDSPEED).EQ.1) THEN
+    CALL clover_unpack_message_left(chunks(chunk)%field%x_min,                    &
+                                    chunks(chunk)%field%x_max,                    &
+                                    chunks(chunk)%field%y_min,                    &
+                                    chunks(chunk)%field%y_max,                    &
+                                    chunks(chunk)%field%soundspeed,               &
+                                    chunks(chunk)%left_rcv_buffer,                &
+                                    CELL_DATA,VERTEX_DATA,X_FACE_DATA,Y_FACE_DATA,&
+                                    depth, CELL_DATA,                             &
+                                    left_right_offset(FIELD_SOUNDSPEED))
+  ENDIF
+  IF(fields(FIELD_XVEL0).EQ.1) THEN
+    CALL clover_unpack_message_left(chunks(chunk)%field%x_min,                    &
+                                    chunks(chunk)%field%x_max,                    &
+                                    chunks(chunk)%field%y_min,                    &
+                                    chunks(chunk)%field%y_max,                    &
+                                    chunks(chunk)%field%xvel0,                    &
+                                    chunks(chunk)%left_rcv_buffer,                &
+                                    CELL_DATA,VERTEX_DATA,X_FACE_DATA,Y_FACE_DATA,&
+                                    depth, VERTEX_DATA,                           &
+                                    left_right_offset(FIELD_XVEL0))
+  ENDIF
+  IF(fields(FIELD_XVEL1).EQ.1) THEN
+    CALL clover_unpack_message_left(chunks(chunk)%field%x_min,                    &
+                                    chunks(chunk)%field%x_max,                    &
+                                    chunks(chunk)%field%y_min,                    &
+                                    chunks(chunk)%field%y_max,                    &
+                                    chunks(chunk)%field%xvel1,                    &
+                                    chunks(chunk)%left_rcv_buffer,                &
+                                    CELL_DATA,VERTEX_DATA,X_FACE_DATA,Y_FACE_DATA,&
+                                    depth, VERTEX_DATA,                           &
+                                    left_right_offset(FIELD_XVEL1))
+  ENDIF
+  IF(fields(FIELD_YVEL0).EQ.1) THEN
+    CALL clover_unpack_message_left(chunks(chunk)%field%x_min,                    &
+                                    chunks(chunk)%field%x_max,                    &
+                                    chunks(chunk)%field%y_min,                    &
+                                    chunks(chunk)%field%y_max,                    &
+                                    chunks(chunk)%field%yvel0,                    &
+                                    chunks(chunk)%left_rcv_buffer,                &
+                                    CELL_DATA,VERTEX_DATA,X_FACE_DATA,Y_FACE_DATA,&
+                                    depth, VERTEX_DATA,                           &
+                                    left_right_offset(FIELD_YVEL0))
+  ENDIF
+  IF(fields(FIELD_YVEL1).EQ.1) THEN
+    CALL clover_unpack_message_left(chunks(chunk)%field%x_min,                    &
+                                    chunks(chunk)%field%x_max,                    &
+                                    chunks(chunk)%field%y_min,                    &
+                                    chunks(chunk)%field%y_max,                    &
+                                    chunks(chunk)%field%yvel1,                    &
+                                    chunks(chunk)%left_rcv_buffer,                &
+                                    CELL_DATA,VERTEX_DATA,X_FACE_DATA,Y_FACE_DATA,&
+                                    depth, VERTEX_DATA,                           &
+                                    left_right_offset(FIELD_YVEL1))
+  ENDIF
+  IF(fields(FIELD_VOL_FLUX_X).EQ.1) THEN
+    CALL clover_unpack_message_left(chunks(chunk)%field%x_min,                    &
+                                    chunks(chunk)%field%x_max,                    &
+                                    chunks(chunk)%field%y_min,                    &
+                                    chunks(chunk)%field%y_max,                    &
+                                    chunks(chunk)%field%vol_flux_x,               &
+                                    chunks(chunk)%left_rcv_buffer,                &
+                                    CELL_DATA,VERTEX_DATA,X_FACE_DATA,Y_FACE_DATA,&
+                                    depth, X_FACE_DATA,                           &
+                                    left_right_offset(FIELD_VOL_FLUX_X))
+  ENDIF
+  IF(fields(FIELD_VOL_FLUX_Y).EQ.1) THEN
+    CALL clover_unpack_message_left(chunks(chunk)%field%x_min,                    &
+                                    chunks(chunk)%field%x_max,                    &
+                                    chunks(chunk)%field%y_min,                    &
+                                    chunks(chunk)%field%y_max,                    &
+                                    chunks(chunk)%field%vol_flux_y,               &
+                                    chunks(chunk)%left_rcv_buffer,                &
+                                    CELL_DATA,VERTEX_DATA,X_FACE_DATA,Y_FACE_DATA,&
+                                    depth, Y_FACE_DATA,                           &
+                                    left_right_offset(FIELD_VOL_FLUX_Y))
+  ENDIF
+  IF(fields(FIELD_MASS_FLUX_X).EQ.1) THEN
+    CALL clover_unpack_message_left(chunks(chunk)%field%x_min,                    &
+                                    chunks(chunk)%field%x_max,                    &
+                                    chunks(chunk)%field%y_min,                    &
+                                    chunks(chunk)%field%y_max,                    &
+                                    chunks(chunk)%field%mass_flux_x,              &
+                                    chunks(chunk)%left_rcv_buffer,                &
+                                    CELL_DATA,VERTEX_DATA,X_FACE_DATA,Y_FACE_DATA,&
+                                    depth, X_FACE_DATA,                           &
+                                    left_right_offset(FIELD_MASS_FLUX_X))
+  ENDIF
+  IF(fields(FIELD_MASS_FLUX_Y).EQ.1) THEN
+    CALL clover_unpack_message_left(chunks(chunk)%field%x_min,                    &
+                                    chunks(chunk)%field%x_max,                    &
+                                    chunks(chunk)%field%y_min,                    &
+                                    chunks(chunk)%field%y_max,                    &
+                                    chunks(chunk)%field%mass_flux_y,              &
+                                    chunks(chunk)%left_rcv_buffer,                &
+                                    CELL_DATA,VERTEX_DATA,X_FACE_DATA,Y_FACE_DATA,&
+                                    depth, Y_FACE_DATA,                           &
+                                    left_right_offset(FIELD_MASS_FLUX_Y))
+  ENDIF
+
+END SUBROUTINE clover_unpack_left
+
+SUBROUTINE clover_pack_right(chunk, fields, depth, left_right_offset)
+
+  USE pack_kernel_module
+
+  IMPLICIT NONE
+
+  INTEGER        :: chunk, fields(:), depth, tot_packr, left_right_offset(:)
+
+  IF(fields(FIELD_DENSITY0).EQ.1) THEN
+    CALL clover_pack_message_right(chunks(chunk)%field%x_min,                    &
+                                   chunks(chunk)%field%x_max,                    &
+                                   chunks(chunk)%field%y_min,                    &
+                                   chunks(chunk)%field%y_max,                    &
+                                   chunks(chunk)%field%density0,                 &
+                                   chunks(chunk)%right_snd_buffer,               &
+                                   CELL_DATA,VERTEX_DATA,X_FACE_DATA,Y_FACE_DATA,&
+                                   depth, CELL_DATA,                             &
+                                   left_right_offset(FIELD_DENSITY0))
+  ENDIF
+  IF(fields(FIELD_DENSITY1).EQ.1) THEN
+    CALL clover_pack_message_right(chunks(chunk)%field%x_min,                    &
+                                   chunks(chunk)%field%x_max,                    &
+                                   chunks(chunk)%field%y_min,                    &
+                                   chunks(chunk)%field%y_max,                    &
+                                   chunks(chunk)%field%density1,                 &
+                                   chunks(chunk)%right_snd_buffer,               &
+                                   CELL_DATA,VERTEX_DATA,X_FACE_DATA,Y_FACE_DATA,&
+                                   depth, CELL_DATA,                             &
+                                   left_right_offset(FIELD_DENSITY1))
+  ENDIF
+  IF(fields(FIELD_ENERGY0).EQ.1) THEN
+    CALL clover_pack_message_right(chunks(chunk)%field%x_min,                    &
+                                   chunks(chunk)%field%x_max,                    &
+                                   chunks(chunk)%field%y_min,                    &
+                                   chunks(chunk)%field%y_max,                    &
+                                   chunks(chunk)%field%energy0,                  &
+                                   chunks(chunk)%right_snd_buffer,               &
+                                   CELL_DATA,VERTEX_DATA,X_FACE_DATA,Y_FACE_DATA,&
+                                   depth, CELL_DATA,                             &
+                                   left_right_offset(FIELD_ENERGY0))
+  ENDIF
+  IF(fields(FIELD_ENERGY1).EQ.1) THEN
+    CALL clover_pack_message_right(chunks(chunk)%field%x_min,                    &
+                                   chunks(chunk)%field%x_max,                    &
+                                   chunks(chunk)%field%y_min,                    &
+                                   chunks(chunk)%field%y_max,                    &
+                                   chunks(chunk)%field%energy1,                  &
+                                   chunks(chunk)%right_snd_buffer,               &
+                                   CELL_DATA,VERTEX_DATA,X_FACE_DATA,Y_FACE_DATA,&
+                                   depth, CELL_DATA,                             &
+                                   left_right_offset(FIELD_ENERGY1))
+  ENDIF
+  IF(fields(FIELD_PRESSURE).EQ.1) THEN
+    CALL clover_pack_message_right(chunks(chunk)%field%x_min,                    &
+                                   chunks(chunk)%field%x_max,                    &
+                                   chunks(chunk)%field%y_min,                    &
+                                   chunks(chunk)%field%y_max,                    &
+                                   chunks(chunk)%field%pressure,                 &
+                                   chunks(chunk)%right_snd_buffer,               &
+                                   CELL_DATA,VERTEX_DATA,X_FACE_DATA,Y_FACE_DATA,&
+                                   depth, CELL_DATA,                             &
+                                   left_right_offset(FIELD_PRESSURE))
+  ENDIF
+  IF(fields(FIELD_VISCOSITY).EQ.1) THEN
+    CALL clover_pack_message_right(chunks(chunk)%field%x_min,                    &
+                                   chunks(chunk)%field%x_max,                    &
+                                   chunks(chunk)%field%y_min,                    &
+                                   chunks(chunk)%field%y_max,                    &
+                                   chunks(chunk)%field%viscosity,                &
+                                   chunks(chunk)%right_snd_buffer,               &
+                                   CELL_DATA,VERTEX_DATA,X_FACE_DATA,Y_FACE_DATA,&
+                                   depth, CELL_DATA,                             &
+                                   left_right_offset(FIELD_VISCOSITY))
+  ENDIF
+  IF(fields(FIELD_SOUNDSPEED).EQ.1) THEN
+    CALL clover_pack_message_right(chunks(chunk)%field%x_min,                    &
+                                   chunks(chunk)%field%x_max,                    &
+                                   chunks(chunk)%field%y_min,                    &
+                                   chunks(chunk)%field%y_max,                    &
+                                   chunks(chunk)%field%soundspeed,               &
+                                   chunks(chunk)%right_snd_buffer,               &
+                                   CELL_DATA,VERTEX_DATA,X_FACE_DATA,Y_FACE_DATA,&
+                                   depth, CELL_DATA,                             &
+                                   left_right_offset(FIELD_SOUNDSPEED))
+  ENDIF
+  IF(fields(FIELD_XVEL0).EQ.1) THEN
+    CALL clover_pack_message_right(chunks(chunk)%field%x_min,                    &
+                                   chunks(chunk)%field%x_max,                    &
+                                   chunks(chunk)%field%y_min,                    &
+                                   chunks(chunk)%field%y_max,                    &
+                                   chunks(chunk)%field%xvel0,                    &
+                                   chunks(chunk)%right_snd_buffer,               &
+                                   CELL_DATA,VERTEX_DATA,X_FACE_DATA,Y_FACE_DATA,&
+                                   depth, VERTEX_DATA,                           &
+                                   left_right_offset(FIELD_XVEL0))
+  ENDIF
+  IF(fields(FIELD_XVEL1).EQ.1) THEN
+    CALL clover_pack_message_right(chunks(chunk)%field%x_min,                    &
+                                   chunks(chunk)%field%x_max,                    &
+                                   chunks(chunk)%field%y_min,                    &
+                                   chunks(chunk)%field%y_max,                    &
+                                   chunks(chunk)%field%xvel1,                    &
+                                   chunks(chunk)%right_snd_buffer,               &
+                                   CELL_DATA,VERTEX_DATA,X_FACE_DATA,Y_FACE_DATA,&
+                                   depth, VERTEX_DATA,                           &
+                                   left_right_offset(FIELD_XVEL1))
+  ENDIF
+  IF(fields(FIELD_YVEL0).EQ.1) THEN
+    CALL clover_pack_message_right(chunks(chunk)%field%x_min,                    &
+                                   chunks(chunk)%field%x_max,                    &
+                                   chunks(chunk)%field%y_min,                    &
+                                   chunks(chunk)%field%y_max,                    &
+                                   chunks(chunk)%field%yvel0,                    &
+                                   chunks(chunk)%right_snd_buffer,               &
+                                   CELL_DATA,VERTEX_DATA,X_FACE_DATA,Y_FACE_DATA,&
+                                   depth, VERTEX_DATA,                           &
+                                   left_right_offset(FIELD_YVEL0))
+  ENDIF
+  IF(fields(FIELD_YVEL1).EQ.1) THEN
+    CALL clover_pack_message_right(chunks(chunk)%field%x_min,                    &
+                                   chunks(chunk)%field%x_max,                    &
+                                   chunks(chunk)%field%y_min,                    &
+                                   chunks(chunk)%field%y_max,                    &
+                                   chunks(chunk)%field%yvel1,                    &
+                                   chunks(chunk)%right_snd_buffer,               &
+                                   CELL_DATA,VERTEX_DATA,X_FACE_DATA,Y_FACE_DATA,&
+                                   depth, VERTEX_DATA,                           &
+                                   left_right_offset(FIELD_YVEL1))
+  ENDIF
+  IF(fields(FIELD_VOL_FLUX_X).EQ.1) THEN
+    CALL clover_pack_message_right(chunks(chunk)%field%x_min,                    &
+                                   chunks(chunk)%field%x_max,                    &
+                                   chunks(chunk)%field%y_min,                    &
+                                   chunks(chunk)%field%y_max,                    &
+                                   chunks(chunk)%field%vol_flux_x,               &
+                                   chunks(chunk)%right_snd_buffer,               &
+                                   CELL_DATA,VERTEX_DATA,X_FACE_DATA,Y_FACE_DATA,&
+                                   depth, X_FACE_DATA,                           &
+                                   left_right_offset(FIELD_VOL_FLUX_X))
+  ENDIF
+  IF(fields(FIELD_VOL_FLUX_Y).EQ.1) THEN
+    CALL clover_pack_message_right(chunks(chunk)%field%x_min,                    &
+                                   chunks(chunk)%field%x_max,                    &
+                                   chunks(chunk)%field%y_min,                    &
+                                   chunks(chunk)%field%y_max,                    &
+                                   chunks(chunk)%field%vol_flux_y,               &
+                                   chunks(chunk)%right_snd_buffer,               &
+                                   CELL_DATA,VERTEX_DATA,X_FACE_DATA,Y_FACE_DATA,&
+                                   depth, Y_FACE_DATA,                           &
+                                   left_right_offset(FIELD_VOL_FLUX_Y))
+  ENDIF
+  IF(fields(FIELD_MASS_FLUX_X).EQ.1) THEN
+    CALL clover_pack_message_right(chunks(chunk)%field%x_min,                    &
+                                   chunks(chunk)%field%x_max,                    &
+                                   chunks(chunk)%field%y_min,                    &
+                                   chunks(chunk)%field%y_max,                    &
+                                   chunks(chunk)%field%mass_flux_x,              &
+                                   chunks(chunk)%right_snd_buffer,               &
+                                   CELL_DATA,VERTEX_DATA,X_FACE_DATA,Y_FACE_DATA,&
+                                   depth, X_FACE_DATA,                           &
+                                   left_right_offset(FIELD_MASS_FLUX_X))
+  ENDIF
+  IF(fields(FIELD_MASS_FLUX_Y).EQ.1) THEN
+    CALL clover_pack_message_right(chunks(chunk)%field%x_min,                    &
+                                   chunks(chunk)%field%x_max,                    &
+                                   chunks(chunk)%field%y_min,                    &
+                                   chunks(chunk)%field%y_max,                    &
+                                   chunks(chunk)%field%mass_flux_y,              &
+                                   chunks(chunk)%right_snd_buffer,               &
+                                   CELL_DATA,VERTEX_DATA,X_FACE_DATA,Y_FACE_DATA,&
+                                   depth, Y_FACE_DATA,                           &
+                                   left_right_offset(FIELD_MASS_FLUX_Y))
+  ENDIF
+
+END SUBROUTINE clover_pack_right
+
+SUBROUTINE clover_send_recv_message_right(right_snd_buffer, right_rcv_buffer,   &
+                                          chunk, total_size,                    &
+                                          tag_send, tag_recv,                   &
+                                          req_send, req_recv)
+
+  IMPLICIT NONE
+
+  REAL(KIND=8) :: right_snd_buffer(:), right_rcv_buffer(:)
+  INTEGER      :: right_task
+  INTEGER      :: chunk
+  INTEGER      :: total_size, tag_send, tag_recv, err
+  INTEGER      :: req_send, req_recv
+
+  right_task=chunks(chunks(chunk)%chunk_neighbours(chunk_right))%task
+
+  CALL MPI_ISEND(right_snd_buffer,total_size,MPI_DOUBLE_PRECISION,right_task,tag_send, &
+                 MPI_COMM_WORLD,req_send,err)
+
+  CALL MPI_IRECV(right_rcv_buffer,total_size,MPI_DOUBLE_PRECISION,right_task,tag_recv, &
+                 MPI_COMM_WORLD,req_recv,err)
+
+END SUBROUTINE clover_send_recv_message_right
+
+SUBROUTINE clover_unpack_right(fields, chunk, depth,                          &
+                               right_rcv_buffer,                              &
+                               left_right_offset)
+
+  USE pack_kernel_module
+
+  IMPLICIT NONE
+
+  INTEGER         :: fields(:), chunk, total_in_right_buff, depth, left_right_offset(:)
+  REAL(KIND=8)    :: right_rcv_buffer(:)
+
+  IF(fields(FIELD_DENSITY0).EQ.1) THEN
+    CALL clover_unpack_message_right(chunks(chunk)%field%x_min,                    &
+                                     chunks(chunk)%field%x_max,                    &
+                                     chunks(chunk)%field%y_min,                    &
+                                     chunks(chunk)%field%y_max,                    &
+                                     chunks(chunk)%field%density0,                 &
+                                     chunks(chunk)%right_rcv_buffer,               &
+                                     CELL_DATA,VERTEX_DATA,X_FACE_DATA,Y_FACE_DATA,&
+                                     depth, CELL_DATA,                             &
+                                     left_right_offset(FIELD_DENSITY0))
+  ENDIF
+  IF(fields(FIELD_DENSITY1).EQ.1) THEN
+    CALL clover_unpack_message_right(chunks(chunk)%field%x_min,                    &
+                                     chunks(chunk)%field%x_max,                    &
+                                     chunks(chunk)%field%y_min,                    &
+                                     chunks(chunk)%field%y_max,                    &
+                                     chunks(chunk)%field%density1,                 &
+                                     chunks(chunk)%right_rcv_buffer,               &
+                                     CELL_DATA,VERTEX_DATA,X_FACE_DATA,Y_FACE_DATA,&
+                                     depth, CELL_DATA,                             &
+                                     left_right_offset(FIELD_DENSITY1))
+  ENDIF
+  IF(fields(FIELD_ENERGY0).EQ.1) THEN
+    CALL clover_unpack_message_right(chunks(chunk)%field%x_min,                    &
+                                     chunks(chunk)%field%x_max,                    &
+                                     chunks(chunk)%field%y_min,                    &
+                                     chunks(chunk)%field%y_max,                    &
+                                     chunks(chunk)%field%energy0,                  &
+                                     chunks(chunk)%right_rcv_buffer,               &
+                                     CELL_DATA,VERTEX_DATA,X_FACE_DATA,Y_FACE_DATA,&
+                                     depth, CELL_DATA,                             &
+                                     left_right_offset(FIELD_ENERGY0))
+  ENDIF
+  IF(fields(FIELD_ENERGY1).EQ.1) THEN
+    CALL clover_unpack_message_right(chunks(chunk)%field%x_min,                    &
+                                     chunks(chunk)%field%x_max,                    &
+                                     chunks(chunk)%field%y_min,                    &
+                                     chunks(chunk)%field%y_max,                    &
+                                     chunks(chunk)%field%energy1,                  &
+                                     chunks(chunk)%right_rcv_buffer,               &
+                                     CELL_DATA,VERTEX_DATA,X_FACE_DATA,Y_FACE_DATA,&
+                                     depth, CELL_DATA,                             &
+                                     left_right_offset(FIELD_ENERGY1))
+  ENDIF
+  IF(fields(FIELD_PRESSURE).EQ.1) THEN
+    CALL clover_unpack_message_right(chunks(chunk)%field%x_min,                    &
+                                     chunks(chunk)%field%x_max,                    &
+                                     chunks(chunk)%field%y_min,                    &
+                                     chunks(chunk)%field%y_max,                    &
+                                     chunks(chunk)%field%pressure,                 &
+                                     chunks(chunk)%right_rcv_buffer,               &
+                                     CELL_DATA,VERTEX_DATA,X_FACE_DATA,Y_FACE_DATA,&
+                                     depth, CELL_DATA,                             &
+                                     left_right_offset(FIELD_PRESSURE))
+  ENDIF
+  IF(fields(FIELD_VISCOSITY).EQ.1) THEN
+    CALL clover_unpack_message_right(chunks(chunk)%field%x_min,                    &
+                                     chunks(chunk)%field%x_max,                    &
+                                     chunks(chunk)%field%y_min,                    &
+                                     chunks(chunk)%field%y_max,                    &
+                                     chunks(chunk)%field%viscosity,                &
+                                     chunks(chunk)%right_rcv_buffer,               &
+                                     CELL_DATA,VERTEX_DATA,X_FACE_DATA,Y_FACE_DATA,&
+                                     depth, CELL_DATA,                             &
+                                     left_right_offset(FIELD_VISCOSITY))
+  ENDIF
+  IF(fields(FIELD_SOUNDSPEED).EQ.1) THEN
+    CALL clover_unpack_message_right(chunks(chunk)%field%x_min,                    &
+                                     chunks(chunk)%field%x_max,                    &
+                                     chunks(chunk)%field%y_min,                    &
+                                     chunks(chunk)%field%y_max,                    &
+                                     chunks(chunk)%field%soundspeed,               &
+                                     chunks(chunk)%right_rcv_buffer,               &
+                                     CELL_DATA,VERTEX_DATA,X_FACE_DATA,Y_FACE_DATA,&
+                                     depth, CELL_DATA,                             &
+                                     left_right_offset(FIELD_SOUNDSPEED))
+  ENDIF
+  IF(fields(FIELD_XVEL0).EQ.1) THEN
+    CALL clover_unpack_message_right(chunks(chunk)%field%x_min,                    &
+                                     chunks(chunk)%field%x_max,                    &
+                                     chunks(chunk)%field%y_min,                    &
+                                     chunks(chunk)%field%y_max,                    &
+                                     chunks(chunk)%field%xvel0,                    &
+                                     chunks(chunk)%right_rcv_buffer,               &
+                                     CELL_DATA,VERTEX_DATA,X_FACE_DATA,Y_FACE_DATA,&
+                                     depth, VERTEX_DATA,                           &
+                                     left_right_offset(FIELD_XVEL0))
+  ENDIF
+  IF(fields(FIELD_XVEL1).EQ.1) THEN
+    CALL clover_unpack_message_right(chunks(chunk)%field%x_min,                    &
+                                     chunks(chunk)%field%x_max,                    &
+                                     chunks(chunk)%field%y_min,                    &
+                                     chunks(chunk)%field%y_max,                    &
+                                     chunks(chunk)%field%xvel1,                    &
+                                     chunks(chunk)%right_rcv_buffer,               &
+                                     CELL_DATA,VERTEX_DATA,X_FACE_DATA,Y_FACE_DATA,&
+                                     depth, VERTEX_DATA,                           &
+                                     left_right_offset(FIELD_XVEL1))
+  ENDIF
+  IF(fields(FIELD_YVEL0).EQ.1) THEN
+    CALL clover_unpack_message_right(chunks(chunk)%field%x_min,                    &
+                                     chunks(chunk)%field%x_max,                    &
+                                     chunks(chunk)%field%y_min,                    &
+                                     chunks(chunk)%field%y_max,                    &
+                                     chunks(chunk)%field%yvel0,                    &
+                                     chunks(chunk)%right_rcv_buffer,               &
+                                     CELL_DATA,VERTEX_DATA,X_FACE_DATA,Y_FACE_DATA,&
+                                     depth, VERTEX_DATA,                           &
+                                     left_right_offset(FIELD_YVEL0))
+  ENDIF
+  IF(fields(FIELD_YVEL1).EQ.1) THEN
+    CALL clover_unpack_message_right(chunks(chunk)%field%x_min,                    &
+                                     chunks(chunk)%field%x_max,                    &
+                                     chunks(chunk)%field%y_min,                    &
+                                     chunks(chunk)%field%y_max,                    &
+                                     chunks(chunk)%field%yvel1,                    &
+                                     chunks(chunk)%right_rcv_buffer,               &
+                                     CELL_DATA,VERTEX_DATA,X_FACE_DATA,Y_FACE_DATA,&
+                                     depth, VERTEX_DATA,                           &
+                                     left_right_offset(FIELD_YVEL1))
+  ENDIF
+  IF(fields(FIELD_VOL_FLUX_X).EQ.1) THEN
+    CALL clover_unpack_message_right(chunks(chunk)%field%x_min,                    &
+                                     chunks(chunk)%field%x_max,                    &
+                                     chunks(chunk)%field%y_min,                    &
+                                     chunks(chunk)%field%y_max,                    &
+                                     chunks(chunk)%field%vol_flux_x,               &
+                                     chunks(chunk)%right_rcv_buffer,               &
+                                     CELL_DATA,VERTEX_DATA,X_FACE_DATA,Y_FACE_DATA,&
+                                     depth, X_FACE_DATA,                           &
+                                     left_right_offset(FIELD_VOL_FLUX_X))
+  ENDIF
+  IF(fields(FIELD_VOL_FLUX_Y).EQ.1) THEN
+    CALL clover_unpack_message_right(chunks(chunk)%field%x_min,                    &
+                                     chunks(chunk)%field%x_max,                    &
+                                     chunks(chunk)%field%y_min,                    &
+                                     chunks(chunk)%field%y_max,                    &
+                                     chunks(chunk)%field%vol_flux_y,               &
+                                     chunks(chunk)%right_rcv_buffer,               &
+                                     CELL_DATA,VERTEX_DATA,X_FACE_DATA,Y_FACE_DATA,&
+                                     depth, Y_FACE_DATA,                           &
+                                     left_right_offset(FIELD_VOL_FLUX_Y))
+  ENDIF
+  IF(fields(FIELD_MASS_FLUX_X).EQ.1) THEN
+    CALL clover_unpack_message_right(chunks(chunk)%field%x_min,                    &
+                                     chunks(chunk)%field%x_max,                    &
+                                     chunks(chunk)%field%y_min,                    &
+                                     chunks(chunk)%field%y_max,                    &
+                                     chunks(chunk)%field%mass_flux_x,              &
+                                     chunks(chunk)%right_rcv_buffer,               &
+                                     CELL_DATA,VERTEX_DATA,X_FACE_DATA,Y_FACE_DATA,&
+                                     depth, X_FACE_DATA,                           &
+                                     left_right_offset(FIELD_MASS_FLUX_X))
+  ENDIF
+  IF(fields(FIELD_MASS_FLUX_Y).EQ.1) THEN
+    CALL clover_unpack_message_right(chunks(chunk)%field%x_min,                    &
+                                     chunks(chunk)%field%x_max,                    &
+                                     chunks(chunk)%field%y_min,                    &
+                                     chunks(chunk)%field%y_max,                    &
+                                     chunks(chunk)%field%mass_flux_y,              &
+                                     chunks(chunk)%right_rcv_buffer,               &
+                                     CELL_DATA,VERTEX_DATA,X_FACE_DATA,Y_FACE_DATA,&
+                                     depth, Y_FACE_DATA,                           &
+                                     left_right_offset(FIELD_MASS_FLUX_Y))
+  ENDIF
+
+END SUBROUTINE clover_unpack_right
+
+SUBROUTINE clover_pack_top(chunk, fields, depth, bottom_top_offset)
+
+  USE pack_kernel_module
+
+  IMPLICIT NONE
+
+  INTEGER        :: chunk, fields(:), depth, bottom_top_offset(:)
+
+  IF(fields(FIELD_DENSITY0).EQ.1) THEN
+    CALL clover_pack_message_top(chunks(chunk)%field%x_min,                    &
+                                 chunks(chunk)%field%x_max,                    &
+                                 chunks(chunk)%field%y_min,                    &
+                                 chunks(chunk)%field%y_max,                    &
+                                 chunks(chunk)%field%density0,                 &
+                                 chunks(chunk)%top_snd_buffer,                 &
+                                 CELL_DATA,VERTEX_DATA,X_FACE_DATA,Y_FACE_DATA,&
+                                 depth, CELL_DATA,                             &
+                                 bottom_top_offset(FIELD_DENSITY0))
+  ENDIF
+  IF(fields(FIELD_DENSITY1).EQ.1) THEN
+    CALL clover_pack_message_top(chunks(chunk)%field%x_min,                    &
+                                 chunks(chunk)%field%x_max,                    &
+                                 chunks(chunk)%field%y_min,                    &
+                                 chunks(chunk)%field%y_max,                    &
+                                 chunks(chunk)%field%density1,                 &
+                                 chunks(chunk)%top_snd_buffer,                 &
+                                 CELL_DATA,VERTEX_DATA,X_FACE_DATA,Y_FACE_DATA,&
+                                 depth, CELL_DATA,                             &
+                                 bottom_top_offset(FIELD_DENSITY1))
+  ENDIF
+  IF(fields(FIELD_ENERGY0).EQ.1) THEN
+    CALL clover_pack_message_top(chunks(chunk)%field%x_min,                    &
+                                 chunks(chunk)%field%x_max,                    &
+                                 chunks(chunk)%field%y_min,                    &
+                                 chunks(chunk)%field%y_max,                    &
+                                 chunks(chunk)%field%energy0,                  &
+                                 chunks(chunk)%top_snd_buffer,                 &
+                                 CELL_DATA,VERTEX_DATA,X_FACE_DATA,Y_FACE_DATA,&
+                                 depth, CELL_DATA,                             &
+                                 bottom_top_offset(FIELD_ENERGY0))
+  ENDIF
+  IF(fields(FIELD_ENERGY1).EQ.1) THEN
+    CALL clover_pack_message_top(chunks(chunk)%field%x_min,                    &
+                                 chunks(chunk)%field%x_max,                    &
+                                 chunks(chunk)%field%y_min,                    &
+                                 chunks(chunk)%field%y_max,                    &
+                                 chunks(chunk)%field%energy1,                  &
+                                 chunks(chunk)%top_snd_buffer,                 &
+                                 CELL_DATA,VERTEX_DATA,X_FACE_DATA,Y_FACE_DATA,&
+                                 depth, CELL_DATA,                             &
+                                 bottom_top_offset(FIELD_ENERGY1))
+  ENDIF
+  IF(fields(FIELD_PRESSURE).EQ.1) THEN
+    CALL clover_pack_message_top(chunks(chunk)%field%x_min,                    &
+                                 chunks(chunk)%field%x_max,                    &
+                                 chunks(chunk)%field%y_min,                    &
+                                 chunks(chunk)%field%y_max,                    &
+                                 chunks(chunk)%field%pressure,                 &
+                                 chunks(chunk)%top_snd_buffer,                 &
+                                 CELL_DATA,VERTEX_DATA,X_FACE_DATA,Y_FACE_DATA,&
+                                 depth, CELL_DATA,                             &
+                                 bottom_top_offset(FIELD_PRESSURE))
+  ENDIF
+  IF(fields(FIELD_VISCOSITY).EQ.1) THEN
+    CALL clover_pack_message_top(chunks(chunk)%field%x_min,                    &
+                                 chunks(chunk)%field%x_max,                    &
+                                 chunks(chunk)%field%y_min,                    &
+                                 chunks(chunk)%field%y_max,                    &
+                                 chunks(chunk)%field%viscosity,                &
+                                 chunks(chunk)%top_snd_buffer,                 &
+                                 CELL_DATA,VERTEX_DATA,X_FACE_DATA,Y_FACE_DATA,&
+                                 depth, CELL_DATA,                             &
+                                 bottom_top_offset(FIELD_VISCOSITY))
+  ENDIF
+  IF(fields(FIELD_SOUNDSPEED).EQ.1) THEN
+    CALL clover_pack_message_top(chunks(chunk)%field%x_min,                    &
+                                 chunks(chunk)%field%x_max,                    &
+                                 chunks(chunk)%field%y_min,                    &
+                                 chunks(chunk)%field%y_max,                    &
+                                 chunks(chunk)%field%soundspeed,               &
+                                 chunks(chunk)%top_snd_buffer,                 &
+                                 CELL_DATA,VERTEX_DATA,X_FACE_DATA,Y_FACE_DATA,&
+                                 depth, CELL_DATA,                             &
+                                 bottom_top_offset(FIELD_SOUNDSPEED))
+  ENDIF
+  IF(fields(FIELD_XVEL0).EQ.1) THEN
+    CALL clover_pack_message_top(chunks(chunk)%field%x_min,                    &
+                                 chunks(chunk)%field%x_max,                    &
+                                 chunks(chunk)%field%y_min,                    &
+                                 chunks(chunk)%field%y_max,                    &
+                                 chunks(chunk)%field%xvel0,                    &
+                                 chunks(chunk)%top_snd_buffer,                 &
+                                 CELL_DATA,VERTEX_DATA,X_FACE_DATA,Y_FACE_DATA,&
+                                 depth, VERTEX_DATA,                           &
+                                 bottom_top_offset(FIELD_XVEL0))
+  ENDIF
+  IF(fields(FIELD_XVEL1).EQ.1) THEN
+    CALL clover_pack_message_top(chunks(chunk)%field%x_min,                    &
+                                 chunks(chunk)%field%x_max,                    &
+                                 chunks(chunk)%field%y_min,                    &
+                                 chunks(chunk)%field%y_max,                    &
+                                 chunks(chunk)%field%xvel1,                    &
+                                 chunks(chunk)%top_snd_buffer,                 &
+                                 CELL_DATA,VERTEX_DATA,X_FACE_DATA,Y_FACE_DATA,&
+                                 depth, VERTEX_DATA,                           &
+                                 bottom_top_offset(FIELD_XVEL1))
+  ENDIF
+  IF(fields(FIELD_YVEL0).EQ.1) THEN
+    CALL clover_pack_message_top(chunks(chunk)%field%x_min,                    &
+                                 chunks(chunk)%field%x_max,                    &
+                                 chunks(chunk)%field%y_min,                    &
+                                 chunks(chunk)%field%y_max,                    &
+                                 chunks(chunk)%field%yvel0,                    &
+                                 chunks(chunk)%top_snd_buffer,                 &
+                                 CELL_DATA,VERTEX_DATA,X_FACE_DATA,Y_FACE_DATA,&
+                                 depth, VERTEX_DATA,                           &
+                                 bottom_top_offset(FIELD_YVEL0))
+  ENDIF
+  IF(fields(FIELD_YVEL1).EQ.1) THEN
+    CALL clover_pack_message_top(chunks(chunk)%field%x_min,                    &
+                                 chunks(chunk)%field%x_max,                    &
+                                 chunks(chunk)%field%y_min,                    &
+                                 chunks(chunk)%field%y_max,                    &
+                                 chunks(chunk)%field%yvel1,                    &
+                                 chunks(chunk)%top_snd_buffer,                 &
+                                 CELL_DATA,VERTEX_DATA,X_FACE_DATA,Y_FACE_DATA,&
+                                 depth, VERTEX_DATA,                           &
+                                 bottom_top_offset(FIELD_YVEL1))
+  ENDIF
+  IF(fields(FIELD_VOL_FLUX_X).EQ.1) THEN
+    CALL clover_pack_message_top(chunks(chunk)%field%x_min,                    &
+                                 chunks(chunk)%field%x_max,                    &
+                                 chunks(chunk)%field%y_min,                    &
+                                 chunks(chunk)%field%y_max,                    &
+                                 chunks(chunk)%field%vol_flux_x,               &
+                                 chunks(chunk)%top_snd_buffer,                 &
+                                 CELL_DATA,VERTEX_DATA,X_FACE_DATA,Y_FACE_DATA,&
+                                 depth, X_FACE_DATA,                           &
+                                 bottom_top_offset(FIELD_VOL_FLUX_X))
+  ENDIF
+  IF(fields(FIELD_VOL_FLUX_Y).EQ.1) THEN
+    CALL clover_pack_message_top(chunks(chunk)%field%x_min,                    &
+                                 chunks(chunk)%field%x_max,                    &
+                                 chunks(chunk)%field%y_min,                    &
+                                 chunks(chunk)%field%y_max,                    &
+                                 chunks(chunk)%field%vol_flux_y,               &
+                                 chunks(chunk)%top_snd_buffer,                 &
+                                 CELL_DATA,VERTEX_DATA,X_FACE_DATA,Y_FACE_DATA,&
+                                 depth, Y_FACE_DATA,                           &
+                                 bottom_top_offset(FIELD_VOL_FLUX_Y))
+  ENDIF
+  IF(fields(FIELD_MASS_FLUX_X).EQ.1) THEN
+    CALL clover_pack_message_top(chunks(chunk)%field%x_min,                    &
+                                 chunks(chunk)%field%x_max,                    &
+                                 chunks(chunk)%field%y_min,                    &
+                                 chunks(chunk)%field%y_max,                    &
+                                 chunks(chunk)%field%mass_flux_x,              &
+                                 chunks(chunk)%top_snd_buffer,                 &
+                                 CELL_DATA,VERTEX_DATA,X_FACE_DATA,Y_FACE_DATA,&
+                                 depth, X_FACE_DATA,                           &
+                                 bottom_top_offset(FIELD_MASS_FLUX_X))
+  ENDIF
+  IF(fields(FIELD_MASS_FLUX_Y).EQ.1) THEN
+    CALL clover_pack_message_top(chunks(chunk)%field%x_min,                    &
+                                 chunks(chunk)%field%x_max,                    &
+                                 chunks(chunk)%field%y_min,                    &
+                                 chunks(chunk)%field%y_max,                    &
+                                 chunks(chunk)%field%mass_flux_y,              &
+                                 chunks(chunk)%top_snd_buffer,                 &
+                                 CELL_DATA,VERTEX_DATA,X_FACE_DATA,Y_FACE_DATA,&
+                                 depth, Y_FACE_DATA,                           &
+                                 bottom_top_offset(FIELD_MASS_FLUX_Y))
+  ENDIF
+
+END SUBROUTINE clover_pack_top
+
+SUBROUTINE clover_send_recv_message_top(top_snd_buffer, top_rcv_buffer,     &
+                                        chunk, total_size,                  &
+                                        tag_send, tag_recv,                 &
+                                        req_send, req_recv)
+
+  IMPLICIT NONE
+
+  REAL(KIND=8) :: top_snd_buffer(:), top_rcv_buffer(:)
+  INTEGER      :: top_task
+  INTEGER      :: chunk
+  INTEGER      :: total_size, tag_send, tag_recv, err
+  INTEGER      :: req_send, req_recv
+
+    top_task=chunks(chunks(chunk)%chunk_neighbours(chunk_top))%task
+
+  CALL MPI_ISEND(top_snd_buffer,total_size,MPI_DOUBLE_PRECISION,top_task,tag_send, &
+                 MPI_COMM_WORLD,req_send,err)
+
+  CALL MPI_IRECV(top_rcv_buffer,total_size,MPI_DOUBLE_PRECISION,top_task,tag_recv, &
+                 MPI_COMM_WORLD,req_recv,err)
+
+END SUBROUTINE clover_send_recv_message_top
+
+SUBROUTINE clover_unpack_top(fields, chunk, depth,                        &
+                             top_rcv_buffer,                              &
+                             bottom_top_offset)
+
+  USE pack_kernel_module
+
+  IMPLICIT NONE
+
+  INTEGER         :: fields(:), chunk, total_in_top_buff, depth, bottom_top_offset(:)
+  REAL(KIND=8)    :: top_rcv_buffer(:)
+
+  IF(fields(FIELD_DENSITY0).EQ.1) THEN
+    CALL clover_unpack_message_top(chunks(chunk)%field%x_min,                    &
+                                   chunks(chunk)%field%x_max,                    &
+                                   chunks(chunk)%field%y_min,                    &
+                                   chunks(chunk)%field%y_max,                    &
+                                   chunks(chunk)%field%density0,                 &
+                                   chunks(chunk)%top_rcv_buffer,                 &
+                                   CELL_DATA,VERTEX_DATA,X_FACE_DATA,Y_FACE_DATA,&
+                                   depth, CELL_DATA,                             &
+                                   bottom_top_offset(FIELD_DENSITY0))
+  ENDIF
+  IF(fields(FIELD_DENSITY1).EQ.1) THEN
+    CALL clover_unpack_message_top(chunks(chunk)%field%x_min,                    &
+                                   chunks(chunk)%field%x_max,                    &
+                                   chunks(chunk)%field%y_min,                    &
+                                   chunks(chunk)%field%y_max,                    &
+                                   chunks(chunk)%field%density1,                 &
+                                   chunks(chunk)%top_rcv_buffer,                 &
+                                   CELL_DATA,VERTEX_DATA,X_FACE_DATA,Y_FACE_DATA,&
+                                   depth, CELL_DATA,                             &
+                                   bottom_top_offset(FIELD_DENSITY1))
+  ENDIF
+  IF(fields(FIELD_ENERGY0).EQ.1) THEN
+    CALL clover_unpack_message_top(chunks(chunk)%field%x_min,                    &
+                                   chunks(chunk)%field%x_max,                    &
+                                   chunks(chunk)%field%y_min,                    &
+                                   chunks(chunk)%field%y_max,                    &
+                                   chunks(chunk)%field%energy0,                  &
+                                   chunks(chunk)%top_rcv_buffer,                 &
+                                   CELL_DATA,VERTEX_DATA,X_FACE_DATA,Y_FACE_DATA,&
+                                   depth, CELL_DATA,                             &
+                                   bottom_top_offset(FIELD_ENERGY0))
+  ENDIF
+  IF(fields(FIELD_ENERGY1).EQ.1) THEN
+    CALL clover_unpack_message_top(chunks(chunk)%field%x_min,                    &
+                                   chunks(chunk)%field%x_max,                    &
+                                   chunks(chunk)%field%y_min,                    &
+                                   chunks(chunk)%field%y_max,                    &
+                                   chunks(chunk)%field%energy1,                  &
+                                   chunks(chunk)%top_rcv_buffer,                 &
+                                   CELL_DATA,VERTEX_DATA,X_FACE_DATA,Y_FACE_DATA,&
+                                   depth, CELL_DATA,                             &
+                                   bottom_top_offset(FIELD_ENERGY1))
+  ENDIF
+  IF(fields(FIELD_PRESSURE).EQ.1) THEN
+    CALL clover_unpack_message_top(chunks(chunk)%field%x_min,                    &
+                                   chunks(chunk)%field%x_max,                    &
+                                   chunks(chunk)%field%y_min,                    &
+                                   chunks(chunk)%field%y_max,                    &
+                                   chunks(chunk)%field%pressure,                 &
+                                   chunks(chunk)%top_rcv_buffer,                 &
+                                   CELL_DATA,VERTEX_DATA,X_FACE_DATA,Y_FACE_DATA,&
+                                   depth, CELL_DATA,                             &
+                                   bottom_top_offset(FIELD_PRESSURE))
+  ENDIF
+  IF(fields(FIELD_VISCOSITY).EQ.1) THEN
+    CALL clover_unpack_message_top(chunks(chunk)%field%x_min,                    &
+                                   chunks(chunk)%field%x_max,                    &
+                                   chunks(chunk)%field%y_min,                    &
+                                   chunks(chunk)%field%y_max,                    &
+                                   chunks(chunk)%field%viscosity,                &
+                                   chunks(chunk)%top_rcv_buffer,                 &
+                                   CELL_DATA,VERTEX_DATA,X_FACE_DATA,Y_FACE_DATA,&
+                                   depth, CELL_DATA,                             &
+                                   bottom_top_offset(FIELD_VISCOSITY))
+  ENDIF
+  IF(fields(FIELD_SOUNDSPEED).EQ.1) THEN
+    CALL clover_unpack_message_top(chunks(chunk)%field%x_min,                    &
+                                   chunks(chunk)%field%x_max,                    &
+                                   chunks(chunk)%field%y_min,                    &
+                                   chunks(chunk)%field%y_max,                    &
+                                   chunks(chunk)%field%soundspeed,               &
+                                   chunks(chunk)%top_rcv_buffer,                 &
+                                   CELL_DATA,VERTEX_DATA,X_FACE_DATA,Y_FACE_DATA,&
+                                   depth, CELL_DATA,                             &
+                                   bottom_top_offset(FIELD_SOUNDSPEED))
+  ENDIF
+  IF(fields(FIELD_XVEL0).EQ.1) THEN
+    CALL clover_unpack_message_top(chunks(chunk)%field%x_min,                    &
+                                   chunks(chunk)%field%x_max,                    &
+                                   chunks(chunk)%field%y_min,                    &
+                                   chunks(chunk)%field%y_max,                    &
+                                   chunks(chunk)%field%xvel0,                    &
+                                   chunks(chunk)%top_rcv_buffer,                 &
+                                   CELL_DATA,VERTEX_DATA,X_FACE_DATA,Y_FACE_DATA,&
+                                   depth, VERTEX_DATA,                           &
+                                   bottom_top_offset(FIELD_XVEL0))
+  ENDIF
+  IF(fields(FIELD_XVEL1).EQ.1) THEN
+    CALL clover_unpack_message_top(chunks(chunk)%field%x_min,                    &
+                                   chunks(chunk)%field%x_max,                    &
+                                   chunks(chunk)%field%y_min,                    &
+                                   chunks(chunk)%field%y_max,                    &
+                                   chunks(chunk)%field%xvel1,                    &
+                                   chunks(chunk)%top_rcv_buffer,                 &
+                                   CELL_DATA,VERTEX_DATA,X_FACE_DATA,Y_FACE_DATA,&
+                                   depth, VERTEX_DATA,                           &
+                                   bottom_top_offset(FIELD_XVEL1))
+  ENDIF
+  IF(fields(FIELD_YVEL0).EQ.1) THEN
+    CALL clover_unpack_message_top(chunks(chunk)%field%x_min,                    &
+                                   chunks(chunk)%field%x_max,                    &
+                                   chunks(chunk)%field%y_min,                    &
+                                   chunks(chunk)%field%y_max,                    &
+                                   chunks(chunk)%field%yvel0,                    &
+                                   chunks(chunk)%top_rcv_buffer,                 &
+                                   CELL_DATA,VERTEX_DATA,X_FACE_DATA,Y_FACE_DATA,&
+                                   depth, VERTEX_DATA,                           &
+                                   bottom_top_offset(FIELD_YVEL0))
+  ENDIF
+  IF(fields(FIELD_YVEL1).EQ.1) THEN
+    CALL clover_unpack_message_top(chunks(chunk)%field%x_min,                    &
+                                   chunks(chunk)%field%x_max,                    &
+                                   chunks(chunk)%field%y_min,                    &
+                                   chunks(chunk)%field%y_max,                    &
+                                   chunks(chunk)%field%yvel1,                    &
+                                   chunks(chunk)%top_rcv_buffer,                 &
+                                   CELL_DATA,VERTEX_DATA,X_FACE_DATA,Y_FACE_DATA,&
+                                   depth, VERTEX_DATA,                           &
+                                   bottom_top_offset(FIELD_YVEL1))
+  ENDIF
+  IF(fields(FIELD_VOL_FLUX_X).EQ.1) THEN
+    CALL clover_unpack_message_top(chunks(chunk)%field%x_min,                    &
+                                   chunks(chunk)%field%x_max,                    &
+                                   chunks(chunk)%field%y_min,                    &
+                                   chunks(chunk)%field%y_max,                    &
+                                   chunks(chunk)%field%vol_flux_x,               &
+                                   chunks(chunk)%top_rcv_buffer,                 &
+                                   CELL_DATA,VERTEX_DATA,X_FACE_DATA,Y_FACE_DATA,&
+                                   depth, X_FACE_DATA,                           &
+                                   bottom_top_offset(FIELD_VOL_FLUX_X))
+  ENDIF
+  IF(fields(FIELD_VOL_FLUX_Y).EQ.1) THEN
+    CALL clover_unpack_message_top(chunks(chunk)%field%x_min,                    &
+                                   chunks(chunk)%field%x_max,                    &
+                                   chunks(chunk)%field%y_min,                    &
+                                   chunks(chunk)%field%y_max,                    &
+                                   chunks(chunk)%field%vol_flux_y,               &
+                                   chunks(chunk)%top_rcv_buffer,                 &
+                                   CELL_DATA,VERTEX_DATA,X_FACE_DATA,Y_FACE_DATA,&
+                                   depth, Y_FACE_DATA,                           &
+                                   bottom_top_offset(FIELD_VOL_FLUX_Y))
+  ENDIF
+  IF(fields(FIELD_MASS_FLUX_X).EQ.1) THEN
+    CALL clover_unpack_message_top(chunks(chunk)%field%x_min,                    &
+                                   chunks(chunk)%field%x_max,                    &
+                                   chunks(chunk)%field%y_min,                    &
+                                   chunks(chunk)%field%y_max,                    &
+                                   chunks(chunk)%field%mass_flux_x,              &
+                                   chunks(chunk)%top_rcv_buffer,                 &
+                                   CELL_DATA,VERTEX_DATA,X_FACE_DATA,Y_FACE_DATA,&
+                                   depth, X_FACE_DATA,                           &
+                                   bottom_top_offset(FIELD_MASS_FLUX_X))
+  ENDIF
+  IF(fields(FIELD_MASS_FLUX_Y).EQ.1) THEN
+    CALL clover_unpack_message_top(chunks(chunk)%field%x_min,                    &
+                                   chunks(chunk)%field%x_max,                    &
+                                   chunks(chunk)%field%y_min,                    &
+                                   chunks(chunk)%field%y_max,                    &
+                                   chunks(chunk)%field%mass_flux_y,              &
+                                   chunks(chunk)%top_rcv_buffer,                 &
+                                   CELL_DATA,VERTEX_DATA,X_FACE_DATA,Y_FACE_DATA,&
+                                   depth, Y_FACE_DATA,                           &
+                                   bottom_top_offset(FIELD_MASS_FLUX_Y))
+  ENDIF
+
+END SUBROUTINE clover_unpack_top
+
+SUBROUTINE clover_pack_bottom(chunk, fields, depth, bottom_top_offset)
+
+  USE pack_kernel_module
+
+  IMPLICIT NONE
+
+  INTEGER        :: chunk, fields(:), depth, tot_packb, bottom_top_offset(:)
+
+  IF(fields(FIELD_DENSITY0).EQ.1) THEN
+    CALL clover_pack_message_bottom(chunks(chunk)%field%x_min,                    &
+                                    chunks(chunk)%field%x_max,                    &
+                                    chunks(chunk)%field%y_min,                    &
+                                    chunks(chunk)%field%y_max,                    &
+                                    chunks(chunk)%field%density0,                 &
+                                    chunks(chunk)%bottom_snd_buffer,              &
+                                    CELL_DATA,VERTEX_DATA,X_FACE_DATA,Y_FACE_DATA,&
+                                    depth, CELL_DATA,                             &
+                                    bottom_top_offset(FIELD_DENSITY0))
+  ENDIF
+  IF(fields(FIELD_DENSITY1).EQ.1) THEN
+    CALL clover_pack_message_bottom(chunks(chunk)%field%x_min,                    &
+                                    chunks(chunk)%field%x_max,                    &
+                                    chunks(chunk)%field%y_min,                    &
+                                    chunks(chunk)%field%y_max,                    &
+                                    chunks(chunk)%field%density1,                 &
+                                    chunks(chunk)%bottom_snd_buffer,              &
+                                    CELL_DATA,VERTEX_DATA,X_FACE_DATA,Y_FACE_DATA,&
+                                    depth, CELL_DATA,                             &
+                                    bottom_top_offset(FIELD_DENSITY1))
+  ENDIF
+  IF(fields(FIELD_ENERGY0).EQ.1) THEN
+    CALL clover_pack_message_bottom(chunks(chunk)%field%x_min,                    &
+                                    chunks(chunk)%field%x_max,                    &
+                                    chunks(chunk)%field%y_min,                    &
+                                    chunks(chunk)%field%y_max,                    &
+                                    chunks(chunk)%field%energy0,                  &
+                                    chunks(chunk)%bottom_snd_buffer,              &
+                                    CELL_DATA,VERTEX_DATA,X_FACE_DATA,Y_FACE_DATA,&
+                                    depth, CELL_DATA,                             &
+                                    bottom_top_offset(FIELD_ENERGY0))
+  ENDIF
+  IF(fields(FIELD_ENERGY1).EQ.1) THEN
+    CALL clover_pack_message_bottom(chunks(chunk)%field%x_min,                    &
+                                    chunks(chunk)%field%x_max,                    &
+                                    chunks(chunk)%field%y_min,                    &
+                                    chunks(chunk)%field%y_max,                    &
+                                    chunks(chunk)%field%energy1,                  &
+                                    chunks(chunk)%bottom_snd_buffer,              &
+                                    CELL_DATA,VERTEX_DATA,X_FACE_DATA,Y_FACE_DATA,&
+                                    depth, CELL_DATA,                             &
+                                    bottom_top_offset(FIELD_ENERGY1))
+  ENDIF
+  IF(fields(FIELD_PRESSURE).EQ.1) THEN
+    CALL clover_pack_message_bottom(chunks(chunk)%field%x_min,                    &
+                                    chunks(chunk)%field%x_max,                    &
+                                    chunks(chunk)%field%y_min,                    &
+                                    chunks(chunk)%field%y_max,                    &
+                                    chunks(chunk)%field%pressure,                 &
+                                    chunks(chunk)%bottom_snd_buffer,              &
+                                    CELL_DATA,VERTEX_DATA,X_FACE_DATA,Y_FACE_DATA,&
+                                    depth, CELL_DATA,                             &
+                                    bottom_top_offset(FIELD_PRESSURE))
+  ENDIF
+  IF(fields(FIELD_VISCOSITY).EQ.1) THEN
+    CALL clover_pack_message_bottom(chunks(chunk)%field%x_min,                    &
+                                    chunks(chunk)%field%x_max,                    &
+                                    chunks(chunk)%field%y_min,                    &
+                                    chunks(chunk)%field%y_max,                    &
+                                    chunks(chunk)%field%viscosity,                &
+                                    chunks(chunk)%bottom_snd_buffer,              &
+                                    CELL_DATA,VERTEX_DATA,X_FACE_DATA,Y_FACE_DATA,&
+                                    depth, CELL_DATA,                             &
+                                    bottom_top_offset(FIELD_VISCOSITY))
+  ENDIF
+  IF(fields(FIELD_SOUNDSPEED).EQ.1) THEN
+    CALL clover_pack_message_bottom(chunks(chunk)%field%x_min,                    &
+                                    chunks(chunk)%field%x_max,                    &
+                                    chunks(chunk)%field%y_min,                    &
+                                    chunks(chunk)%field%y_max,                    &
+                                    chunks(chunk)%field%soundspeed,               &
+                                    chunks(chunk)%bottom_snd_buffer,              &
+                                    CELL_DATA,VERTEX_DATA,X_FACE_DATA,Y_FACE_DATA,&
+                                    depth, CELL_DATA,                             &
+                                    bottom_top_offset(FIELD_SOUNDSPEED))
+  ENDIF
+  IF(fields(FIELD_XVEL0).EQ.1) THEN
+    CALL clover_pack_message_bottom(chunks(chunk)%field%x_min,                    &
+                                    chunks(chunk)%field%x_max,                    &
+                                    chunks(chunk)%field%y_min,                    &
+                                    chunks(chunk)%field%y_max,                    &
+                                    chunks(chunk)%field%xvel0,                    &
+                                    chunks(chunk)%bottom_snd_buffer,              &
+                                    CELL_DATA,VERTEX_DATA,X_FACE_DATA,Y_FACE_DATA,&
+                                    depth, VERTEX_DATA,                           &
+                                    bottom_top_offset(FIELD_XVEL0))
+  ENDIF
+  IF(fields(FIELD_XVEL1).EQ.1) THEN
+    CALL clover_pack_message_bottom(chunks(chunk)%field%x_min,                    &
+                                    chunks(chunk)%field%x_max,                    &
+                                    chunks(chunk)%field%y_min,                    &
+                                    chunks(chunk)%field%y_max,                    &
+                                    chunks(chunk)%field%xvel1,                    &
+                                    chunks(chunk)%bottom_snd_buffer,              &
+                                    CELL_DATA,VERTEX_DATA,X_FACE_DATA,Y_FACE_DATA,&
+                                    depth, VERTEX_DATA,                           &
+                                    bottom_top_offset(FIELD_XVEL1))
+  ENDIF
+  IF(fields(FIELD_YVEL0).EQ.1) THEN
+    CALL clover_pack_message_bottom(chunks(chunk)%field%x_min,                    &
+                                    chunks(chunk)%field%x_max,                    &
+                                    chunks(chunk)%field%y_min,                    &
+                                    chunks(chunk)%field%y_max,                    &
+                                    chunks(chunk)%field%yvel0,                    &
+                                    chunks(chunk)%bottom_snd_buffer,              &
+                                    CELL_DATA,VERTEX_DATA,X_FACE_DATA,Y_FACE_DATA,&
+                                    depth, VERTEX_DATA,                           &
+                                    bottom_top_offset(FIELD_YVEL0))
+  ENDIF
+  IF(fields(FIELD_YVEL1).EQ.1) THEN
+    CALL clover_pack_message_bottom(chunks(chunk)%field%x_min,                    &
+                                    chunks(chunk)%field%x_max,                    &
+                                    chunks(chunk)%field%y_min,                    &
+                                    chunks(chunk)%field%y_max,                    &
+                                    chunks(chunk)%field%yvel1,                    &
+                                    chunks(chunk)%bottom_snd_buffer,              &
+                                    CELL_DATA,VERTEX_DATA,X_FACE_DATA,Y_FACE_DATA,&
+                                    depth, VERTEX_DATA,                           &
+                                    bottom_top_offset(FIELD_YVEL1))
+  ENDIF
+  IF(fields(FIELD_VOL_FLUX_X).EQ.1) THEN
+    CALL clover_pack_message_bottom(chunks(chunk)%field%x_min,                    &
+                                    chunks(chunk)%field%x_max,                    &
+                                    chunks(chunk)%field%y_min,                    &
+                                    chunks(chunk)%field%y_max,                    &
+                                    chunks(chunk)%field%vol_flux_x,               &
+                                    chunks(chunk)%bottom_snd_buffer,              &
+                                    CELL_DATA,VERTEX_DATA,X_FACE_DATA,Y_FACE_DATA,&
+                                    depth, X_FACE_DATA,                           &
+                                    bottom_top_offset(FIELD_VOL_FLUX_X))
+  ENDIF
+  IF(fields(FIELD_VOL_FLUX_Y).EQ.1) THEN
+    CALL clover_pack_message_bottom(chunks(chunk)%field%x_min,                    &
+                                    chunks(chunk)%field%x_max,                    &
+                                    chunks(chunk)%field%y_min,                    &
+                                    chunks(chunk)%field%y_max,                    &
+                                    chunks(chunk)%field%vol_flux_y,               &
+                                    chunks(chunk)%bottom_snd_buffer,              &
+                                    CELL_DATA,VERTEX_DATA,X_FACE_DATA,Y_FACE_DATA,&
+                                    depth, Y_FACE_DATA,                           &
+                                    bottom_top_offset(FIELD_VOL_FLUX_Y))
+  ENDIF
+  IF(fields(FIELD_MASS_FLUX_X).EQ.1) THEN
+    CALL clover_pack_message_bottom(chunks(chunk)%field%x_min,                    &
+                                    chunks(chunk)%field%x_max,                    &
+                                    chunks(chunk)%field%y_min,                    &
+                                    chunks(chunk)%field%y_max,                    &
+                                    chunks(chunk)%field%mass_flux_x,              &
+                                    chunks(chunk)%bottom_snd_buffer,              &
+                                    CELL_DATA,VERTEX_DATA,X_FACE_DATA,Y_FACE_DATA,&
+                                    depth, X_FACE_DATA,                           &
+                                    bottom_top_offset(FIELD_MASS_FLUX_X))
+  ENDIF
+  IF(fields(FIELD_MASS_FLUX_Y).EQ.1) THEN
+    CALL clover_pack_message_bottom(chunks(chunk)%field%x_min,                    &
+                                    chunks(chunk)%field%x_max,                    &
+                                    chunks(chunk)%field%y_min,                    &
+                                    chunks(chunk)%field%y_max,                    &
+                                    chunks(chunk)%field%mass_flux_y,              &
+                                    chunks(chunk)%bottom_snd_buffer,              &
+                                    CELL_DATA,VERTEX_DATA,X_FACE_DATA,Y_FACE_DATA,&
+                                    depth, Y_FACE_DATA,                           &
+                                    bottom_top_offset(FIELD_MASS_FLUX_Y))
+  ENDIF
+
+END SUBROUTINE clover_pack_bottom
+
+SUBROUTINE clover_send_recv_message_bottom(bottom_snd_buffer, bottom_rcv_buffer,        &
+                                           chunk, total_size,                           &   
+                                           tag_send, tag_recv,                          &
+                                           req_send, req_recv)
+
+  IMPLICIT NONE
+
+  REAL(KIND=8) :: bottom_snd_buffer(:), bottom_rcv_buffer(:)
+  INTEGER      :: bottom_task
+  INTEGER      :: chunk
+  INTEGER      :: total_size, tag_send, tag_recv, err
+  INTEGER      :: req_send, req_recv
+
+  bottom_task=chunks(chunks(chunk)%chunk_neighbours(chunk_bottom))%task
+
+  CALL MPI_ISEND(bottom_snd_buffer,total_size,MPI_DOUBLE_PRECISION,bottom_task,tag_send &
+                ,MPI_COMM_WORLD,req_send,err)
+
+  CALL MPI_IRECV(bottom_rcv_buffer,total_size,MPI_DOUBLE_PRECISION,bottom_task,tag_recv &
+                ,MPI_COMM_WORLD,req_recv,err)
+
+END SUBROUTINE clover_send_recv_message_bottom
+
+SUBROUTINE clover_unpack_bottom(fields, chunk, depth,                        &
+                             bottom_rcv_buffer,                              &
+                             bottom_top_offset)
+
+  USE pack_kernel_module
+
+  IMPLICIT NONE
+
+  INTEGER         :: fields(:), chunk, depth, bottom_top_offset(:)
+  REAL(KIND=8)    :: bottom_rcv_buffer(:)
+
+  IF(fields(FIELD_DENSITY0).EQ.1) THEN
+    CALL clover_unpack_message_bottom(chunks(chunk)%field%x_min,                    &
+                                      chunks(chunk)%field%x_max,                    &
+                                      chunks(chunk)%field%y_min,                    &
+                                      chunks(chunk)%field%y_max,                    &
+                                      chunks(chunk)%field%density0,                 &
+                                      chunks(chunk)%bottom_rcv_buffer,              &
+                                      CELL_DATA,VERTEX_DATA,X_FACE_DATA,Y_FACE_DATA,&
+                                      depth, CELL_DATA,                             &
+                                      bottom_top_offset(FIELD_DENSITY0))
+  ENDIF
+  IF(fields(FIELD_DENSITY1).EQ.1) THEN
+    CALL clover_unpack_message_bottom(chunks(chunk)%field%x_min,                    &
+                                      chunks(chunk)%field%x_max,                    &
+                                      chunks(chunk)%field%y_min,                    &
+                                      chunks(chunk)%field%y_max,                    &
+                                      chunks(chunk)%field%density1,                 &
+                                      chunks(chunk)%bottom_rcv_buffer,              &
+                                      CELL_DATA,VERTEX_DATA,X_FACE_DATA,Y_FACE_DATA,&
+                                      depth, CELL_DATA,                             &
+                                      bottom_top_offset(FIELD_DENSITY1))
+  ENDIF
+  IF(fields(FIELD_ENERGY0).EQ.1) THEN
+    CALL clover_unpack_message_bottom(chunks(chunk)%field%x_min,                    &
+                                      chunks(chunk)%field%x_max,                    &
+                                      chunks(chunk)%field%y_min,                    &
+                                      chunks(chunk)%field%y_max,                    &
+                                      chunks(chunk)%field%energy0,                  &
+                                      chunks(chunk)%bottom_rcv_buffer,              &
+                                      CELL_DATA,VERTEX_DATA,X_FACE_DATA,Y_FACE_DATA,&
+                                      depth, CELL_DATA,                             &
+                                      bottom_top_offset(FIELD_ENERGY0))
+  ENDIF
+  IF(fields(FIELD_ENERGY1).EQ.1) THEN
+    CALL clover_unpack_message_bottom(chunks(chunk)%field%x_min,                    &
+                                      chunks(chunk)%field%x_max,                    &
+                                      chunks(chunk)%field%y_min,                    &
+                                      chunks(chunk)%field%y_max,                    &
+                                      chunks(chunk)%field%energy1,                  &
+                                      chunks(chunk)%bottom_rcv_buffer,              &
+                                      CELL_DATA,VERTEX_DATA,X_FACE_DATA,Y_FACE_DATA,&
+                                      depth, CELL_DATA,                             &
+                                      bottom_top_offset(FIELD_ENERGY1))
+  ENDIF
+  IF(fields(FIELD_PRESSURE).EQ.1) THEN
+    CALL clover_unpack_message_bottom(chunks(chunk)%field%x_min,                    &
+                                      chunks(chunk)%field%x_max,                    &
+                                      chunks(chunk)%field%y_min,                    &
+                                      chunks(chunk)%field%y_max,                    &
+                                      chunks(chunk)%field%pressure,                 &
+                                      chunks(chunk)%bottom_rcv_buffer,              &
+                                      CELL_DATA,VERTEX_DATA,X_FACE_DATA,Y_FACE_DATA,&
+                                      depth, CELL_DATA,                             &
+                                      bottom_top_offset(FIELD_PRESSURE))
+  ENDIF
+  IF(fields(FIELD_VISCOSITY).EQ.1) THEN
+    CALL clover_unpack_message_bottom(chunks(chunk)%field%x_min,                    &
+                                      chunks(chunk)%field%x_max,                    &
+                                      chunks(chunk)%field%y_min,                    &
+                                      chunks(chunk)%field%y_max,                    &
+                                      chunks(chunk)%field%viscosity,                &
+                                      chunks(chunk)%bottom_rcv_buffer,              &
+                                      CELL_DATA,VERTEX_DATA,X_FACE_DATA,Y_FACE_DATA,&
+                                      depth, CELL_DATA,                             &
+                                      bottom_top_offset(FIELD_VISCOSITY))
+  ENDIF
+  IF(fields(FIELD_SOUNDSPEED).EQ.1) THEN
+    CALL clover_unpack_message_bottom(chunks(chunk)%field%x_min,                    &
+                                      chunks(chunk)%field%x_max,                    &
+                                      chunks(chunk)%field%y_min,                    &
+                                      chunks(chunk)%field%y_max,                    &
+                                      chunks(chunk)%field%soundspeed,               &
+                                      chunks(chunk)%bottom_rcv_buffer,              &
+                                      CELL_DATA,VERTEX_DATA,X_FACE_DATA,Y_FACE_DATA,&
+                                      depth, CELL_DATA,                             &
+                                      bottom_top_offset(FIELD_SOUNDSPEED))
+  ENDIF
+  IF(fields(FIELD_XVEL0).EQ.1) THEN
+    CALL clover_unpack_message_bottom(chunks(chunk)%field%x_min,                    &
+                                      chunks(chunk)%field%x_max,                    &
+                                      chunks(chunk)%field%y_min,                    &
+                                      chunks(chunk)%field%y_max,                    &
+                                      chunks(chunk)%field%xvel0,                    &
+                                      chunks(chunk)%bottom_rcv_buffer,              &
+                                      CELL_DATA,VERTEX_DATA,X_FACE_DATA,Y_FACE_DATA,&
+                                      depth, VERTEX_DATA,                           &
+                                      bottom_top_offset(FIELD_XVEL0))
+  ENDIF
+  IF(fields(FIELD_XVEL1).EQ.1) THEN
+    CALL clover_unpack_message_bottom(chunks(chunk)%field%x_min,                    &
+                                      chunks(chunk)%field%x_max,                    &
+                                      chunks(chunk)%field%y_min,                    &
+                                      chunks(chunk)%field%y_max,                    &
+                                      chunks(chunk)%field%xvel1,                    &
+                                      chunks(chunk)%bottom_rcv_buffer,              &
+                                      CELL_DATA,VERTEX_DATA,X_FACE_DATA,Y_FACE_DATA,&
+                                      depth, VERTEX_DATA,                           &
+                                      bottom_top_offset(FIELD_XVEL1))
+  ENDIF
+  IF(fields(FIELD_YVEL0).EQ.1) THEN
+    CALL clover_unpack_message_bottom(chunks(chunk)%field%x_min,                    &
+                                      chunks(chunk)%field%x_max,                    &
+                                      chunks(chunk)%field%y_min,                    &
+                                      chunks(chunk)%field%y_max,                    &
+                                      chunks(chunk)%field%yvel0,                    &
+                                      chunks(chunk)%bottom_rcv_buffer,              &
+                                      CELL_DATA,VERTEX_DATA,X_FACE_DATA,Y_FACE_DATA,&
+                                      depth, VERTEX_DATA,                           &
+                                      bottom_top_offset(FIELD_YVEL0))
+  ENDIF
+  IF(fields(FIELD_YVEL1).EQ.1) THEN
+    CALL clover_unpack_message_bottom(chunks(chunk)%field%x_min,                    &
+                                      chunks(chunk)%field%x_max,                    &
+                                      chunks(chunk)%field%y_min,                    &
+                                      chunks(chunk)%field%y_max,                    &
+                                      chunks(chunk)%field%yvel1,                    &
+                                      chunks(chunk)%bottom_rcv_buffer,              &
+                                      CELL_DATA,VERTEX_DATA,X_FACE_DATA,Y_FACE_DATA,&
+                                      depth, VERTEX_DATA,                           &
+                                      bottom_top_offset(FIELD_YVEL1))
+  ENDIF
+  IF(fields(FIELD_VOL_FLUX_X).EQ.1) THEN
+    CALL clover_unpack_message_bottom(chunks(chunk)%field%x_min,                    &
+                                      chunks(chunk)%field%x_max,                    &
+                                      chunks(chunk)%field%y_min,                    &
+                                      chunks(chunk)%field%y_max,                    &
+                                      chunks(chunk)%field%vol_flux_x,               &
+                                      chunks(chunk)%bottom_rcv_buffer,              &
+                                      CELL_DATA,VERTEX_DATA,X_FACE_DATA,Y_FACE_DATA,&
+                                      depth, X_FACE_DATA,                           &
+                                      bottom_top_offset(FIELD_VOL_FLUX_X))
+  ENDIF
+  IF(fields(FIELD_VOL_FLUX_Y).EQ.1) THEN
+    CALL clover_unpack_message_bottom(chunks(chunk)%field%x_min,                    &
+                                      chunks(chunk)%field%x_max,                    &
+                                      chunks(chunk)%field%y_min,                    &
+                                      chunks(chunk)%field%y_max,                    &
+                                      chunks(chunk)%field%vol_flux_y,               &
+                                      chunks(chunk)%bottom_rcv_buffer,              &
+                                      CELL_DATA,VERTEX_DATA,X_FACE_DATA,Y_FACE_DATA,&
+                                      depth, Y_FACE_DATA,                           &
+                                      bottom_top_offset(FIELD_VOL_FLUX_Y))
+  ENDIF
+  IF(fields(FIELD_MASS_FLUX_X).EQ.1) THEN
+    CALL clover_unpack_message_bottom(chunks(chunk)%field%x_min,                    &
+                                      chunks(chunk)%field%x_max,                    &
+                                      chunks(chunk)%field%y_min,                    &
+                                      chunks(chunk)%field%y_max,                    &
+                                      chunks(chunk)%field%mass_flux_x,              &
+                                      chunks(chunk)%bottom_rcv_buffer,              &
+                                      CELL_DATA,VERTEX_DATA,X_FACE_DATA,Y_FACE_DATA,&
+                                      depth, X_FACE_DATA,                           &
+                                      bottom_top_offset(FIELD_MASS_FLUX_X))
+  ENDIF
+  IF(fields(FIELD_MASS_FLUX_Y).EQ.1) THEN
+    CALL clover_unpack_message_bottom(chunks(chunk)%field%x_min,                    &
+                                      chunks(chunk)%field%x_max,                    &
+                                      chunks(chunk)%field%y_min,                    &
+                                      chunks(chunk)%field%y_max,                    &
+                                      chunks(chunk)%field%mass_flux_y,              &
+                                      chunks(chunk)%bottom_rcv_buffer,              &
+                                      CELL_DATA,VERTEX_DATA,X_FACE_DATA,Y_FACE_DATA,&
+                                      depth, Y_FACE_DATA,                           &
+                                      bottom_top_offset(FIELD_MASS_FLUX_Y))
+  ENDIF
+
+END SUBROUTINE clover_unpack_bottom
 
 SUBROUTINE clover_exchange_message(chunk,field,                            &
                                    left_snd_buffer,                        &
@@ -455,7 +1882,7 @@ SUBROUTINE clover_exchange_message(chunk,field,                            &
 
   INTEGER      :: chunk,depth,field_type
 
-  INTEGER      :: size,err,request(8),tag,message_count,x_inc,y_inc
+  INTEGER      :: size,err,request(8),tag,message_count,j,k,x_inc,y_inc,index
   INTEGER      :: status(MPI_STATUS_SIZE,8)
   INTEGER      :: receiver,sender
 
@@ -506,7 +1933,7 @@ SUBROUTINE clover_exchange_message(chunk,field,                            &
                                    chunks(chunk)%chunk_neighbours(chunk_left),          &
                                    chunks(chunk)%chunk_neighbours(chunk_right),         &
                                    external_face,                                       &
-                                   x_inc,y_inc,depth,                                   &
+                                   x_inc,y_inc,depth,size,                              &
                                    field,left_snd_buffer,right_snd_buffer)
     ELSEIF(use_C_kernels)THEN
       CALL pack_left_right_buffers_c(chunks(chunk)%field%x_min,chunks(chunk)%field%x_max, &
@@ -514,7 +1941,7 @@ SUBROUTINE clover_exchange_message(chunk,field,                            &
                                      chunks(chunk)%chunk_neighbours(chunk_left),          &
                                      chunks(chunk)%chunk_neighbours(chunk_right),         &
                                      external_face,                                       &
-                                     x_inc,y_inc,depth,                                   &
+                                     x_inc,y_inc,depth,size,                              &
                                      field,left_snd_buffer,right_snd_buffer)
     ENDIF
 
@@ -555,7 +1982,7 @@ SUBROUTINE clover_exchange_message(chunk,field,                            &
                                      chunks(chunk)%chunk_neighbours(chunk_left),          &
                                      chunks(chunk)%chunk_neighbours(chunk_right),         &
                                      external_face,                                       &
-                                     x_inc,y_inc,depth,                                   &
+                                     x_inc,y_inc,depth,size,                              &
                                      field,left_rcv_buffer,right_rcv_buffer)
     ELSEIF(use_C_kernels)THEN
       CALL unpack_left_right_buffers_c(chunks(chunk)%field%x_min,chunks(chunk)%field%x_max, &
@@ -563,7 +1990,7 @@ SUBROUTINE clover_exchange_message(chunk,field,                            &
                                        chunks(chunk)%chunk_neighbours(chunk_left),          &
                                        chunks(chunk)%chunk_neighbours(chunk_right),         &
                                        external_face,                                       &
-                                       x_inc,y_inc,depth,                                   &
+                                       x_inc,y_inc,depth,size,                              &
                                        field,left_rcv_buffer,right_rcv_buffer)
     ENDIF
   ENDIF
@@ -580,7 +2007,7 @@ SUBROUTINE clover_exchange_message(chunk,field,                            &
                                    chunks(chunk)%chunk_neighbours(chunk_bottom),        &
                                    chunks(chunk)%chunk_neighbours(chunk_top),           &
                                    external_face,                                       &
-                                   x_inc,y_inc,depth,                                   &
+                                   x_inc,y_inc,depth,size,                              &
                                    field,bottom_snd_buffer,top_snd_buffer)
     ELSEIF(use_C_kernels)THEN
       CALL pack_top_bottom_buffers_c(chunks(chunk)%field%x_min,chunks(chunk)%field%x_max, &
@@ -588,7 +2015,7 @@ SUBROUTINE clover_exchange_message(chunk,field,                            &
                                      chunks(chunk)%chunk_neighbours(chunk_bottom),        &
                                      chunks(chunk)%chunk_neighbours(chunk_top),           &
                                      external_face,                                       &
-                                     x_inc,y_inc,depth,                                   &
+                                     x_inc,y_inc,depth,size,                              &
                                      field,bottom_snd_buffer,top_snd_buffer)
     ENDIF
 
@@ -630,7 +2057,7 @@ SUBROUTINE clover_exchange_message(chunk,field,                            &
                                      chunks(chunk)%chunk_neighbours(chunk_bottom),        &
                                      chunks(chunk)%chunk_neighbours(chunk_top),           &
                                      external_face,                                       &
-                                     x_inc,y_inc,depth,                                   &
+                                     x_inc,y_inc,depth,size,                              &
                                      field,bottom_rcv_buffer,top_rcv_buffer)
     ELSEIF(use_C_kernels)THEN
       CALL unpack_top_bottom_buffers_c(chunks(chunk)%field%x_min,chunks(chunk)%field%x_max, &
@@ -638,7 +2065,7 @@ SUBROUTINE clover_exchange_message(chunk,field,                            &
                                        chunks(chunk)%chunk_neighbours(chunk_bottom),        &
                                        chunks(chunk)%chunk_neighbours(chunk_top),           &
                                        external_face,                                       &
-                                       x_inc,y_inc,depth,                                   &
+                                       x_inc,y_inc,depth,size,                              &
                                        field,bottom_rcv_buffer,top_rcv_buffer)
     ENDIF
   ENDIF
