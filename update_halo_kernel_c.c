@@ -30,8 +30,6 @@
 #include <math.h>
 
 void update_halo_kernel_c_(int *xmin,int *xmax,int *ymin,int *ymax,
-                        int *lft,int *bttm,int *rght,int *tp,
-                        int *lft_bndry,int *bttm_bndry,int *rght_bndry,int *tp_bndry,
                         int *chunk_neighbours,
                         double *density0,
                         double *energy0,
@@ -56,14 +54,6 @@ void update_halo_kernel_c_(int *xmin,int *xmax,int *ymin,int *ymax,
   int x_max=*xmax;
   int y_min=*ymin;
   int y_max=*ymax;
-  int left=*lft;
-  int bottom=*bttm;
-  int right=*rght;
-  int top=*tp;
-  int left_boundary=*lft_bndry;
-  int bottom_boundary=*bttm_bndry;
-  int right_boundary=*rght_bndry;
-  int top_boundary=*tp_bndry;
   int depth=*dpth;
 
   /* These need to be kept consistent with the data module to avoid use statement */
@@ -84,7 +74,6 @@ void update_halo_kernel_c_(int *xmin,int *xmax,int *ymin,int *ymax,
   int FIELD_VOL_FLUX_Y =13;
   int FIELD_MASS_FLUX_X=14;
   int FIELD_MASS_FLUX_Y=15;
-  int NUM_FIELDS       =1;
 
   int j,k;
 
@@ -339,6 +328,48 @@ void update_halo_kernel_c_(int *xmin,int *xmax,int *ymin,int *ymax,
 #pragma ivdep
         for (j=1;j<=depth;j++) {
           viscosity[FTNREF2D(x_max+j,k,x_max+4,x_min-2,y_min-2)]=viscosity[FTNREF2D(x_max+1-j,k,x_max+4,x_min-2,y_min-2)];
+	}
+      }
+    }
+  }
+
+  if(fields[FTNREF1D(FIELD_SOUNDSPEED,1)]==1) {
+    if(chunk_neighbours[FTNREF1D(CHUNK_BOTTOM,1)]==EXTERNAL_FACE) {
+#pragma omp for private(j,k)
+      for (j=x_min-depth;j<=x_max+depth;j++) {
+#pragma ivdep
+        for (k=1;k<=depth;k++) {
+          soundspeed[FTNREF2D(j  ,1-k,x_max+4,x_min-2,y_min-2)]=soundspeed[FTNREF2D(j  ,0+k,x_max+4,x_min-2,y_min-2)];
+	}
+      }
+    }
+
+    if(chunk_neighbours[FTNREF1D(CHUNK_TOP,1)]==EXTERNAL_FACE) {
+#pragma omp for private(j,k)
+      for (j=x_min-depth;j<=x_max+depth;j++) {
+#pragma ivdep
+        for (k=1;k<=depth;k++) {
+          soundspeed[FTNREF2D(j  ,y_max+k,x_max+4,x_min-2,y_min-2)]=soundspeed[FTNREF2D(j  ,y_max+1-k,x_max+4,x_min-2,y_min-2)];
+	}
+      }
+    }
+
+    if(chunk_neighbours[FTNREF1D(CHUNK_LEFT,1)]==EXTERNAL_FACE) {
+#pragma omp for private(j,k)
+      for (k=y_min-depth;k<=y_max+depth;k++) {
+#pragma ivdep
+        for (j=1;j<=depth;j++) {
+          soundspeed[FTNREF2D(1-j,k,x_max+4,x_min-2,y_min-2)]=soundspeed[FTNREF2D(0+j,k,x_max+4,x_min-2,y_min-2)];
+        }
+      }
+    }
+
+    if(chunk_neighbours[FTNREF1D(CHUNK_RIGHT,1)]==EXTERNAL_FACE) {
+#pragma omp for private(j,k)
+      for (k=y_min-depth;k<=y_max+depth;k++) {
+#pragma ivdep
+        for (j=1;j<=depth;j++) {
+          soundspeed[FTNREF2D(x_max+j,k,x_max+4,x_min-2,y_min-2)]=soundspeed[FTNREF2D(x_max+1-j,k,x_max+4,x_min-2,y_min-2)];
 	}
       }
     }

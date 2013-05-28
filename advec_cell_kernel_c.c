@@ -30,7 +30,6 @@
 void advec_cell_kernel_c_(int *xmin,int *xmax,int *ymin,int *ymax,
                           int *dr,
                           int *swp_nmbr,
-                          int *vctr,
                        double *vertexdx,
                        double *vertexdy,
                        double *volume,
@@ -56,7 +55,6 @@ void advec_cell_kernel_c_(int *xmin,int *xmax,int *ymin,int *ymax,
   int y_max=*ymax;
   int sweep_number=*swp_nmbr;
   int dir=*dr;
-  int vector=*vctr;
 
   int j,k,upwind,donor,downwind,dif;
 

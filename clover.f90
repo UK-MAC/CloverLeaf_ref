@@ -455,7 +455,7 @@ SUBROUTINE clover_exchange_message(chunk,field,                            &
 
   INTEGER      :: chunk,depth,field_type
 
-  INTEGER      :: size,err,request(8),tag,message_count,j,k,x_inc,y_inc,index
+  INTEGER      :: size,err,request(8),tag,message_count,x_inc,y_inc
   INTEGER      :: status(MPI_STATUS_SIZE,8)
   INTEGER      :: receiver,sender
 
@@ -506,7 +506,7 @@ SUBROUTINE clover_exchange_message(chunk,field,                            &
                                    chunks(chunk)%chunk_neighbours(chunk_left),          &
                                    chunks(chunk)%chunk_neighbours(chunk_right),         &
                                    external_face,                                       &
-                                   x_inc,y_inc,depth,size,                              &
+                                   x_inc,y_inc,depth,                                   &
                                    field,left_snd_buffer,right_snd_buffer)
     ELSEIF(use_C_kernels)THEN
       CALL pack_left_right_buffers_c(chunks(chunk)%field%x_min,chunks(chunk)%field%x_max, &
@@ -514,7 +514,7 @@ SUBROUTINE clover_exchange_message(chunk,field,                            &
                                      chunks(chunk)%chunk_neighbours(chunk_left),          &
                                      chunks(chunk)%chunk_neighbours(chunk_right),         &
                                      external_face,                                       &
-                                     x_inc,y_inc,depth,size,                              &
+                                     x_inc,y_inc,depth,                                   &
                                      field,left_snd_buffer,right_snd_buffer)
     ENDIF
 
@@ -555,7 +555,7 @@ SUBROUTINE clover_exchange_message(chunk,field,                            &
                                      chunks(chunk)%chunk_neighbours(chunk_left),          &
                                      chunks(chunk)%chunk_neighbours(chunk_right),         &
                                      external_face,                                       &
-                                     x_inc,y_inc,depth,size,                              &
+                                     x_inc,y_inc,depth,                                   &
                                      field,left_rcv_buffer,right_rcv_buffer)
     ELSEIF(use_C_kernels)THEN
       CALL unpack_left_right_buffers_c(chunks(chunk)%field%x_min,chunks(chunk)%field%x_max, &
@@ -563,7 +563,7 @@ SUBROUTINE clover_exchange_message(chunk,field,                            &
                                        chunks(chunk)%chunk_neighbours(chunk_left),          &
                                        chunks(chunk)%chunk_neighbours(chunk_right),         &
                                        external_face,                                       &
-                                       x_inc,y_inc,depth,size,                              &
+                                       x_inc,y_inc,depth,                                   &
                                        field,left_rcv_buffer,right_rcv_buffer)
     ENDIF
   ENDIF
@@ -580,7 +580,7 @@ SUBROUTINE clover_exchange_message(chunk,field,                            &
                                    chunks(chunk)%chunk_neighbours(chunk_bottom),        &
                                    chunks(chunk)%chunk_neighbours(chunk_top),           &
                                    external_face,                                       &
-                                   x_inc,y_inc,depth,size,                              &
+                                   x_inc,y_inc,depth,                                   &
                                    field,bottom_snd_buffer,top_snd_buffer)
     ELSEIF(use_C_kernels)THEN
       CALL pack_top_bottom_buffers_c(chunks(chunk)%field%x_min,chunks(chunk)%field%x_max, &
@@ -588,7 +588,7 @@ SUBROUTINE clover_exchange_message(chunk,field,                            &
                                      chunks(chunk)%chunk_neighbours(chunk_bottom),        &
                                      chunks(chunk)%chunk_neighbours(chunk_top),           &
                                      external_face,                                       &
-                                     x_inc,y_inc,depth,size,                              &
+                                     x_inc,y_inc,depth,                                   &
                                      field,bottom_snd_buffer,top_snd_buffer)
     ENDIF
 
@@ -630,7 +630,7 @@ SUBROUTINE clover_exchange_message(chunk,field,                            &
                                      chunks(chunk)%chunk_neighbours(chunk_bottom),        &
                                      chunks(chunk)%chunk_neighbours(chunk_top),           &
                                      external_face,                                       &
-                                     x_inc,y_inc,depth,size,                              &
+                                     x_inc,y_inc,depth,                                   &
                                      field,bottom_rcv_buffer,top_rcv_buffer)
     ELSEIF(use_C_kernels)THEN
       CALL unpack_top_bottom_buffers_c(chunks(chunk)%field%x_min,chunks(chunk)%field%x_max, &
@@ -638,7 +638,7 @@ SUBROUTINE clover_exchange_message(chunk,field,                            &
                                        chunks(chunk)%chunk_neighbours(chunk_bottom),        &
                                        chunks(chunk)%chunk_neighbours(chunk_top),           &
                                        external_face,                                       &
-                                       x_inc,y_inc,depth,size,                              &
+                                       x_inc,y_inc,depth,                                   &
                                        field,bottom_rcv_buffer,top_rcv_buffer)
     ENDIF
   ENDIF
