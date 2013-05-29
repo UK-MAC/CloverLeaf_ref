@@ -75,7 +75,7 @@ void pack_left_right_buffers_c_(int *xmin,int *xmax,int *ymin,int *ymax,
 
 void unpack_left_right_buffers_c_(int *xmin,int *xmax,int *ymin,int *ymax,
                                   int *chnk_lft,int *chnk_rght,int *xtrnl_fc,
-                                  int *xinc,int *yinc,int *dpth,
+                                  int *xinc,int *yinc,int *dpth,int *sz,
                                   double *field, double *left_rcv_buffer, double *right_rcv_buffer)
 
 {
