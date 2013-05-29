@@ -1608,7 +1608,7 @@ SUBROUTINE clover_unpack_right(fields, chunk, depth,                          &
                                          chunks(chunk)%field%x_max,                    &
                                          chunks(chunk)%field%y_min,                    &
                                          chunks(chunk)%field%y_max,                    &
-                                         chunks(chunk)%field%pressure,                 &
+                                         chunks(chunk)%field%viscosity,                &
                                          chunks(chunk)%right_rcv_buffer,               &
                                          CELL_DATA,VERTEX_DATA,X_FACE_DATA,Y_FACE_DATA,&
                                          depth, CELL_DATA,                             &
@@ -1859,14 +1859,14 @@ SUBROUTINE clover_pack_top(chunk, fields, depth, bottom_top_offset)
   IF(fields(FIELD_DENSITY1).EQ.1) THEN
     IF(use_fortran_kernels) THEN
       CALL clover_pack_message_top(chunks(chunk)%field%x_min,                    &
-                                     chunks(chunk)%field%x_max,                    &
-                                     chunks(chunk)%field%y_min,                    &
-                                     chunks(chunk)%field%y_max,                    &
-                                     chunks(chunk)%field%density1,                 &
-                                     chunks(chunk)%top_snd_buffer,                 &
-                                     CELL_DATA,VERTEX_DATA,X_FACE_DATA,Y_FACE_DATA,&
-                                     depth, CELL_DATA,                             &
-                                     bottom_top_offset(FIELD_DENSITY1))
+                                   chunks(chunk)%field%x_max,                    &
+                                   chunks(chunk)%field%y_min,                    &
+                                   chunks(chunk)%field%y_max,                    &
+                                   chunks(chunk)%field%density1,                 &
+                                   chunks(chunk)%top_snd_buffer,                 &
+                                   CELL_DATA,VERTEX_DATA,X_FACE_DATA,Y_FACE_DATA,&
+                                   depth, CELL_DATA,                             &
+                                   bottom_top_offset(FIELD_DENSITY1))
     ELSE
       CALL clover_pack_message_top_c(chunks(chunk)%field%x_min,                    &
                                      chunks(chunk)%field%x_max,                    &
@@ -2323,7 +2323,7 @@ SUBROUTINE clover_unpack_top(fields, chunk, depth,                        &
                                        chunks(chunk)%field%x_max,                    &
                                        chunks(chunk)%field%y_min,                    &
                                        chunks(chunk)%field%y_max,                    &
-                                       chunks(chunk)%field%energy1,                  &
+                                       chunks(chunk)%field%pressure,                 &
                                        chunks(chunk)%top_rcv_buffer,                 &
                                        CELL_DATA,VERTEX_DATA,X_FACE_DATA,Y_FACE_DATA,&
                                        depth, CELL_DATA,                             &
@@ -2748,10 +2748,10 @@ SUBROUTINE clover_pack_bottom(chunk, fields, depth, bottom_top_offset)
                                         chunks(chunk)%field%x_max,                    &
                                         chunks(chunk)%field%y_min,                    &
                                         chunks(chunk)%field%y_max,                    &
-                                        chunks(chunk)%field%soundspeed,               &
+                                        chunks(chunk)%field%xvel0     ,               &
                                         chunks(chunk)%bottom_snd_buffer,              &
                                         CELL_DATA,VERTEX_DATA,X_FACE_DATA,Y_FACE_DATA,&
-                                        depth, CELL_DATA,                             &
+                                        depth, VERTEX_DATA,                           &
                                         bottom_top_offset(FIELD_XVEL0))
     ENDIF
   ENDIF
