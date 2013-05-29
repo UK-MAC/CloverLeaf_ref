@@ -28,7 +28,7 @@
 
 void pack_left_right_buffers_c_(int *xmin,int *xmax,int *ymin,int *ymax,
                                 int *chnk_lft,int *chnk_rght,int *xtrnl_fc,
-                                int *xinc,int *yinc,int *dpth,
+                                int *xinc,int *yinc,int *dpth,int *sz,
                                 double *field, double *left_snd_buffer, double *right_snd_buffer)
 
 {
