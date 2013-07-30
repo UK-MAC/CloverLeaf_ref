@@ -480,7 +480,7 @@ void clover_unpack_message_top_c_(int *xmin,int *xmax,int *ymin,int *ymax, doubl
 
 void pack_left_right_buffers_c_(int *xmin,int *xmax,int *ymin,int *ymax,
                                 int *chnk_lft,int *chnk_rght,int *xtrnl_fc,
-                                int *xinc,int *yinc,int *dpth,
+                                int *xinc,int *yinc,int *dpth,int *sz,
                                 double *field, double *left_snd_buffer, double *right_snd_buffer)
 
 {
@@ -494,6 +494,7 @@ void pack_left_right_buffers_c_(int *xmin,int *xmax,int *ymin,int *ymax,
   int x_inc=*xinc;
   int y_inc=*yinc;
   int depth=*dpth;
+  int size=*sz;
 
   int j,k,index;
 
@@ -527,7 +528,7 @@ void pack_left_right_buffers_c_(int *xmin,int *xmax,int *ymin,int *ymax,
 
 void unpack_left_right_buffers_c_(int *xmin,int *xmax,int *ymin,int *ymax,
                                   int *chnk_lft,int *chnk_rght,int *xtrnl_fc,
-                                  int *xinc,int *yinc,int *dpth,
+                                  int *xinc,int *yinc,int *dpth,int *sz,
                                   double *field, double *left_rcv_buffer, double *right_rcv_buffer)
 
 {
@@ -541,6 +542,7 @@ void unpack_left_right_buffers_c_(int *xmin,int *xmax,int *ymin,int *ymax,
   int x_inc=*xinc;
   int y_inc=*yinc;
   int depth=*dpth;
+  int size=*sz;
 
   int j,k,index;
 
@@ -574,7 +576,7 @@ void unpack_left_right_buffers_c_(int *xmin,int *xmax,int *ymin,int *ymax,
 
 void pack_top_bottom_buffers_c_(int *xmin,int *xmax,int *ymin,int *ymax,
                                 int *chnk_bttm,int *chnk_tp,int *xtrnl_fc,
-                                int *xinc,int *yinc,int *dpth,
+                                int *xinc,int *yinc,int *dpth,int *sz,
                                 double *field, double *bottom_snd_buffer, double *top_snd_buffer)
 
 {
@@ -588,10 +590,11 @@ void pack_top_bottom_buffers_c_(int *xmin,int *xmax,int *ymin,int *ymax,
   int x_inc=*xinc;
   int y_inc=*yinc;
   int depth=*dpth;
+  int size=*sz;
 
   int j,k,index;
 
-#pragma omp parallel
+//#pragma omp parallel
  {
 
   if(chunk_bottom!=external_face) {
@@ -619,7 +622,7 @@ void pack_top_bottom_buffers_c_(int *xmin,int *xmax,int *ymin,int *ymax,
 
 void unpack_top_bottom_buffers_c_(int *xmin,int *xmax,int *ymin,int *ymax,
                                   int *chnk_bttm,int *chnk_tp,int *xtrnl_fc,
-                                  int *xinc,int *yinc,int *dpth,
+                                  int *xinc,int *yinc,int *dpth,int *sz,
                                   double *field, double *bottom_rcv_buffer, double *top_rcv_buffer)
 
 {
@@ -633,10 +636,11 @@ void unpack_top_bottom_buffers_c_(int *xmin,int *xmax,int *ymin,int *ymax,
   int x_inc=*xinc;
   int y_inc=*yinc;
   int depth=*dpth;
+  int size=*sz;
 
   int j,k,index;
 
-#pragma omp parallel
+//#pragma omp parallel
  {
 
   if(chunk_bottom!=external_face) {
