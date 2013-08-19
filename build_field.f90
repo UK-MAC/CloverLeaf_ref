@@ -100,6 +100,7 @@ SUBROUTINE build_field(chunk,x_cells,y_cells)
    ! Zeroing isn't strictly neccessary but it ensures physical pages
    ! are allocated. This prevents first touch overheads in the main code
    ! cycle which can skew timings in the first step
+ !$OMP PARALLEL
    chunks(chunk)%field%work_array1=0.0
    chunks(chunk)%field%work_array2=0.0
    chunks(chunk)%field%work_array3=0.0
@@ -137,5 +138,6 @@ SUBROUTINE build_field(chunk,x_cells,y_cells)
    chunks(chunk)%field%volume=0.0
    chunks(chunk)%field%xarea=0.0
    chunks(chunk)%field%yarea=0.0
+!$OMP END PARALLEL
   
 END SUBROUTINE build_field
