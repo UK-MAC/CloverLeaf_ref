@@ -455,7 +455,7 @@ SUBROUTINE clover_exchange_message(chunk,field,                            &
 
   INTEGER      :: chunk,depth,field_type
 
-  INTEGER      :: size,err,request(8),tag,message_count,j,k,x_inc,y_inc,index
+  INTEGER      :: size,err,request(8),tag,message_count,x_inc,y_inc
   INTEGER      :: status(MPI_STATUS_SIZE,8)
   INTEGER      :: receiver,sender
 
