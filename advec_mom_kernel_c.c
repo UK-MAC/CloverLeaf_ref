@@ -63,7 +63,6 @@ void advec_mom_kernel_c_(int *xmin,int *xmax,int *ymin,int *ymax,
   int j,k,mom_sweep;
   int upwind,donor,downwind,dif;
   double sigma,wind,width;
-  double sigma2;
   double vdiffuw,vdiffdw,auw,adw,limiter;
 
   double *vel1;
@@ -192,7 +191,7 @@ void advec_mom_kernel_c_(int *xmin,int *xmax,int *ymin,int *ymax,
         }
         advec_vel[FTNREF2D(j  ,k  ,x_max+5,x_min-2,y_min-2)]=vel1[FTNREF2D(donor,k  ,x_max+5,x_min-2,y_min-2)]+(1.0-sigma)*limiter;
         mom_flux[FTNREF2D(j  ,k  ,x_max+5,x_min-2,y_min-2)]=advec_vel[FTNREF2D(j  ,k  ,x_max+5,x_min-2,y_min-2)]
-                                                             *node_flux[FTNREF2D(j  ,k  ,x_max+5,x_min-2,y_min-2)];
+                                                           *node_flux[FTNREF2D(j  ,k  ,x_max+5,x_min-2,y_min-2)];
       }
     }
 
