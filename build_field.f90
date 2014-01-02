@@ -26,7 +26,7 @@ SUBROUTINE build_field(chunk,x_cells,y_cells)
 
    IMPLICIT NONE
 
-   INTEGER :: chunk,x_cells,y_cells
+   INTEGER :: chunk,x_cells,y_cells, j, k
 
    chunks(chunk)%field%x_min=1
    chunks(chunk)%field%y_min=1
