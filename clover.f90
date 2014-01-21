@@ -174,10 +174,10 @@ SUBROUTINE clover_decompose(x_cells,y_cells,left,right,bottom,top)
             IF(cy.LE.mod_y)add_y=1
 
             IF (chunk .EQ. parallel%task+1) THEN
-                left(1)=(cx-1)*delta_x+1+add_x_prev
-                right(1)=left(chunk)+delta_x-1+add_x
-                bottom(1)=(cy-1)*delta_y+1+add_y_prev
-                top(1)=bottom(chunk)+delta_y-1+add_y
+                left(1)   = (cx-1)*delta_x+1+add_x_prev
+                right(1)  = left(1)+delta_x-1+add_x
+                bottom(1) = (cy-1)*delta_y+1+add_y_prev
+                top(1)    = bottom(1)+delta_y-1+add_y
 
                 chunks(1)%chunk_neighbours(chunk_left)=chunk_x*(cy-1)+cx-1
                 chunks(1)%chunk_neighbours(chunk_right)=chunk_x*(cy-1)+cx+1
