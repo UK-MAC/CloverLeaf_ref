@@ -48,14 +48,14 @@ SUBROUTINE field_summary()
   ENDIF
 
   IF(profiler_on) kernel_time=timer()
-  DO c=1,number_of_chunks
+  DO c=1,chunks_per_task
     CALL ideal_gas(c,.FALSE.)
   ENDDO
   IF(profiler_on) profiler%ideal_gas=profiler%ideal_gas+(timer()-kernel_time)
 
   IF(profiler_on) kernel_time=timer()
   IF(use_fortran_kernels)THEN
-    DO c=1,number_of_chunks
+    DO c=1,chunks_per_task
       IF(chunks(c)%task.EQ.parallel%task) THEN
         CALL field_summary_kernel(chunks(c)%field%x_min,                   &
                                   chunks(c)%field%x_max,                   &
@@ -71,7 +71,7 @@ SUBROUTINE field_summary()
       ENDIF
     ENDDO
   ELSEIF(use_C_kernels)THEN
-    DO c=1,number_of_chunks
+    DO c=1,chunks_per_task
       IF(chunks(c)%task.EQ.parallel%task) THEN
         CALL field_summary_kernel_c(chunks(c)%field%x_min,                 &
                                   chunks(c)%field%x_max,                   &
