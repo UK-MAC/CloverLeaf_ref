@@ -91,8 +91,6 @@ SUBROUTINE clover_init_comms
   parallel%boss_task=0
   parallel%max_task=size
 
-    WRITE(*, *) "process: ", parallel%task, " finished init comms"
-
 END SUBROUTINE clover_init_comms
 
 SUBROUTINE clover_get_num_chunks(count)
@@ -571,10 +569,8 @@ SUBROUTINE clover_exchange_message(chunk,field,                            &
     ENDIF
   ENDIF
 
-    WRITE(*, *) "process: ", parallel%task, " before first wait "
   ! Wait for the messages
   CALL MPI_WAITALL(message_count,request,status,err)
-    WRITE(*, *) "process: ", parallel%task, " after first wait "
 
   ! Unpack buffers in halo cells
   IF(parallel%task.EQ.chunks(chunk)%task) THEN
@@ -650,10 +646,8 @@ SUBROUTINE clover_exchange_message(chunk,field,                            &
 
   ENDIF
 
-    WRITE(*, *) "process: ", parallel%task, " before second wait "
   ! Wait for the messages
   CALL MPI_WAITALL(message_count,request,status,err)
-    WRITE(*, *) "process: ", parallel%task, " after second wait "
 
   ! Unpack buffers in halo cells
   IF(parallel%task.EQ.chunks(chunk)%task) THEN
