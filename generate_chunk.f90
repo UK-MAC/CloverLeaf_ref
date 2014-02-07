@@ -75,7 +75,7 @@ SUBROUTINE generate_chunk(chunk)
                                g_point)
       ELSEIF(use_C_kernels)THEN
         CALL generate_chunk_kernel_c(chunks(chunk)%field%x_min,         &
-                               chunks(chunk)%field%x_max,               &
+                                 chunks(chunk)%field%x_max,             &
                                  chunks(chunk)%field%y_min,             &
                                  chunks(chunk)%field%y_max,             &
                                  chunks(chunk)%field%vertexx,           &
