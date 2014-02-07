@@ -18,7 +18,7 @@
 /**
  *  @brief C timestep kernel
  *  @author Wayne Gaudin
- *  @details alculates the minimum timestep on the mesh chunk based on the CFL
+ *  @details calculates the minimum timestep on the mesh chunk based on the CFL
  *  condition, the velocity gradient and the velocity divergence. A safety
  *  factor is used to ensure numerical stability.
  */
