@@ -66,7 +66,6 @@ SUBROUTINE read_input()
   use_fortran_kernels=.TRUE.
   use_C_kernels=.FALSE.
   use_OA_kernels=.FALSE.
-  use_vector_loops=.FALSE.
   profiler_on=.FALSE.
   profiler%timestep=0.0
   profiler%acceleration=0.0
@@ -174,8 +173,6 @@ SUBROUTINE read_input()
         use_fortran_kernels=.FALSE.
         use_C_kernels=.FALSE.
         use_OA_kernels=.TRUE.
-      CASE('use_vector_loops')
-        use_vector_loops=.TRUE.
       CASE('profiler_on')
         profiler_on=.TRUE.
         IF(parallel%boss)WRITE(g_out,"(1x,a25)")'Profiler on'
