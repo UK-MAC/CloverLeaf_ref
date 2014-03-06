@@ -92,4 +92,6 @@ MODULE data_module
      
    INTEGER,        PARAMETER ::g_len_max=500
 
+   INTEGER,        PARAMETER :: chunks_per_task = 1
+
 END MODULE data_module
