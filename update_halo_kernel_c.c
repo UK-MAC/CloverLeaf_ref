@@ -374,7 +374,6 @@ void update_halo_kernel_c_(int *xmin,int *xmax,int *ymin,int *ymax,
       }
     }
   }
-
   if(fields[FTNREF1D(FIELD_XVEL0,1)]==1) {
     if(chunk_neighbours[FTNREF1D(CHUNK_BOTTOM,1)]==EXTERNAL_FACE) {
 #pragma omp for private(j,k)

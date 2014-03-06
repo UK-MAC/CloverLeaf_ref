@@ -66,7 +66,7 @@ void field_summary_kernel_c_(int *xmin,
 
 #pragma omp parallel
  {
-#pragma omp for private(vsqrd,cell_vol,cell_mass,j,k,jv,kv) reduction(+ : vol,mass,press,ie,ke)
+#pragma omp for private(vsqrd,cell_vol,cell_mass) reduction(+ : vol,mass,press,ie,ke,j,jv,kv)
   for (k=y_min;k<=y_max;k++) {
 #pragma ivdep
     for (j=x_min;j<=x_max;j++) {

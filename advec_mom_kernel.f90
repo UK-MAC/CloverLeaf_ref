@@ -74,9 +74,7 @@ SUBROUTINE advec_mom_kernel(x_min,x_max,y_min,y_max,   &
   INTEGER :: j,k,mom_sweep
   INTEGER :: upwind,donor,downwind,dif
   REAL(KIND=8) :: sigma,wind,width
-  REAL(KIND=8) :: sigma2,wind2
   REAL(KIND=8) :: vdiffuw,vdiffdw,auw,adw,limiter
-  REAL(KIND=8) :: vdiffuw2,vdiffdw2,auw2,limiter2
   REAL(KIND=8), POINTER, DIMENSION(:,:) :: vel1
 
   ! Choose the correct velocity, ideally, remove this pointer

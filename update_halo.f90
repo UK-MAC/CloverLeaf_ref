@@ -35,7 +35,7 @@ SUBROUTINE update_halo(fields,depth)
 
   CALL clover_exchange(fields,depth)
 
-  DO c=1,number_of_chunks
+  DO c=1,chunks_per_task
 
     IF(chunks(c)%task.EQ.parallel%task) THEN
 

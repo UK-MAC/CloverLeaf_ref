@@ -161,33 +161,39 @@ SUBROUTINE clover_decompose(x_cells,y_cells,left,right,bottom,top)
 
   ! Set up chunk mesh ranges and chunk connectivity
 
-  add_x_prev=0
-  add_y_prev=0
-  chunk=1
-  DO cy=1,chunk_y
-    DO cx=1,chunk_x
-      add_x=0
-      add_y=0
-      IF(cx.LE.mod_x)add_x=1
-      IF(cy.LE.mod_y)add_y=1
-      left(chunk)=(cx-1)*delta_x+1+add_x_prev
-      right(chunk)=left(chunk)+delta_x-1+add_x
-      bottom(chunk)=(cy-1)*delta_y+1+add_y_prev
-      top(chunk)=bottom(chunk)+delta_y-1+add_y
-      chunks(chunk)%chunk_neighbours(chunk_left)=chunk_x*(cy-1)+cx-1
-      chunks(chunk)%chunk_neighbours(chunk_right)=chunk_x*(cy-1)+cx+1
-      chunks(chunk)%chunk_neighbours(chunk_bottom)=chunk_x*(cy-2)+cx
-      chunks(chunk)%chunk_neighbours(chunk_top)=chunk_x*(cy)+cx
-      IF(cx.EQ.1)chunks(chunk)%chunk_neighbours(chunk_left)=external_face
-      IF(cx.EQ.chunk_x)chunks(chunk)%chunk_neighbours(chunk_right)=external_face
-      IF(cy.EQ.1)chunks(chunk)%chunk_neighbours(chunk_bottom)=external_face
-      IF(cy.EQ.chunk_y)chunks(chunk)%chunk_neighbours(chunk_top)=external_face
-      IF(cx.LE.mod_x)add_x_prev=add_x_prev+1
-      chunk=chunk+1
-    ENDDO
     add_x_prev=0
-    IF(cy.LE.mod_y)add_y_prev=add_y_prev+1
-  ENDDO
+    add_y_prev=0
+    chunk=1
+    DO cy=1,chunk_y
+        DO cx=1,chunk_x
+            add_x=0
+            add_y=0
+            IF(cx.LE.mod_x)add_x=1
+            IF(cy.LE.mod_y)add_y=1
+
+            IF (chunk .EQ. parallel%task+1) THEN
+                left(1)   = (cx-1)*delta_x+1+add_x_prev
+                right(1)  = left(1)+delta_x-1+add_x
+                bottom(1) = (cy-1)*delta_y+1+add_y_prev
+                top(1)    = bottom(1)+delta_y-1+add_y
+
+                chunks(1)%chunk_neighbours(chunk_left)=chunk_x*(cy-1)+cx-1
+                chunks(1)%chunk_neighbours(chunk_right)=chunk_x*(cy-1)+cx+1
+                chunks(1)%chunk_neighbours(chunk_bottom)=chunk_x*(cy-2)+cx
+                chunks(1)%chunk_neighbours(chunk_top)=chunk_x*(cy)+cx
+
+                IF(cx.EQ.1)       chunks(1)%chunk_neighbours(chunk_left)=external_face
+                IF(cx.EQ.chunk_x) chunks(1)%chunk_neighbours(chunk_right)=external_face
+                IF(cy.EQ.1)       chunks(1)%chunk_neighbours(chunk_bottom)=external_face
+                IF(cy.EQ.chunk_y) chunks(1)%chunk_neighbours(chunk_top)=external_face
+            ENDIF
+
+            IF(cx.LE.mod_x)add_x_prev=add_x_prev+1
+            chunk=chunk+1
+        ENDDO
+        add_x_prev=0
+        IF(cy.LE.mod_y)add_y_prev=add_y_prev+1
+    ENDDO
 
   IF(parallel%boss)THEN
     WRITE(g_out,*)
@@ -243,7 +249,7 @@ SUBROUTINE clover_exchange(fields,depth)
     request=0
     message_count=0
 
-    chunk = parallel%task+1 
+    chunk = 1 
 
     end_pack_index_left_right=0
     end_pack_index_bottom_top=0
@@ -716,7 +722,7 @@ SUBROUTINE clover_send_recv_message_left(left_snd_buffer, left_rcv_buffer,      
   INTEGER         :: total_size, tag_send, tag_recv, err
   INTEGER         :: req_send, req_recv
 
-  left_task =chunks(chunks(chunk)%chunk_neighbours(chunk_left))%task
+  left_task =chunks(chunk)%chunk_neighbours(chunk_left) - 1
 
   CALL MPI_ISEND(left_snd_buffer,total_size,MPI_DOUBLE_PRECISION,left_task,tag_send &
                 ,MPI_COMM_WORLD,req_send,err)
@@ -1456,7 +1462,7 @@ SUBROUTINE clover_send_recv_message_right(right_snd_buffer, right_rcv_buffer,   
   INTEGER      :: total_size, tag_send, tag_recv, err
   INTEGER      :: req_send, req_recv
 
-  right_task=chunks(chunks(chunk)%chunk_neighbours(chunk_right))%task
+  right_task=chunks(chunk)%chunk_neighbours(chunk_right) - 1
 
   CALL MPI_ISEND(right_snd_buffer,total_size,MPI_DOUBLE_PRECISION,right_task,tag_send, &
                  MPI_COMM_WORLD,req_send,err)
@@ -2186,21 +2192,21 @@ SUBROUTINE clover_send_recv_message_top(top_snd_buffer, top_rcv_buffer,     &
                                         tag_send, tag_recv,                 &
                                         req_send, req_recv)
 
-  IMPLICIT NONE
+    IMPLICIT NONE
 
-  REAL(KIND=8) :: top_snd_buffer(:), top_rcv_buffer(:)
-  INTEGER      :: top_task
-  INTEGER      :: chunk
-  INTEGER      :: total_size, tag_send, tag_recv, err
-  INTEGER      :: req_send, req_recv
+    REAL(KIND=8) :: top_snd_buffer(:), top_rcv_buffer(:)
+    INTEGER      :: top_task
+    INTEGER      :: chunk
+    INTEGER      :: total_size, tag_send, tag_recv, err
+    INTEGER      :: req_send, req_recv
 
-    top_task=chunks(chunks(chunk)%chunk_neighbours(chunk_top))%task
+    top_task=chunks(chunk)%chunk_neighbours(chunk_top) - 1
 
-  CALL MPI_ISEND(top_snd_buffer,total_size,MPI_DOUBLE_PRECISION,top_task,tag_send, &
-                 MPI_COMM_WORLD,req_send,err)
+    CALL MPI_ISEND(top_snd_buffer,total_size,MPI_DOUBLE_PRECISION,top_task,tag_send, &
+                   MPI_COMM_WORLD,req_send,err)
 
-  CALL MPI_IRECV(top_rcv_buffer,total_size,MPI_DOUBLE_PRECISION,top_task,tag_recv, &
-                 MPI_COMM_WORLD,req_recv,err)
+    CALL MPI_IRECV(top_rcv_buffer,total_size,MPI_DOUBLE_PRECISION,top_task,tag_recv, &
+                   MPI_COMM_WORLD,req_recv,err)
 
 END SUBROUTINE clover_send_recv_message_top
 
@@ -2214,6 +2220,7 @@ SUBROUTINE clover_unpack_top(fields, chunk, depth,                        &
 
   INTEGER         :: fields(:), chunk, total_in_top_buff, depth, bottom_top_offset(:)
   REAL(KIND=8)    :: top_rcv_buffer(:)
+
 
   IF(fields(FIELD_DENSITY0).EQ.1) THEN
     IF(use_fortran_kernels) THEN
@@ -2932,7 +2939,7 @@ SUBROUTINE clover_send_recv_message_bottom(bottom_snd_buffer, bottom_rcv_buffer,
   INTEGER      :: total_size, tag_send, tag_recv, err
   INTEGER      :: req_send, req_recv
 
-  bottom_task=chunks(chunks(chunk)%chunk_neighbours(chunk_bottom))%task
+  bottom_task=chunks(chunk)%chunk_neighbours(chunk_bottom) - 1
 
   CALL MPI_ISEND(bottom_snd_buffer,total_size,MPI_DOUBLE_PRECISION,bottom_task,tag_send &
                 ,MPI_COMM_WORLD,req_send,err)
@@ -3373,7 +3380,7 @@ SUBROUTINE clover_exchange_message(chunk,field,                            &
                                    chunks(chunk)%chunk_neighbours(chunk_left),          &
                                    chunks(chunk)%chunk_neighbours(chunk_right),         &
                                    external_face,                                       &
-                                   x_inc,y_inc,depth,                                   &
+                                   x_inc,y_inc,depth,size,                              &
                                    field,left_snd_buffer,right_snd_buffer)
     ELSEIF(use_C_kernels)THEN
       CALL pack_left_right_buffers_c(chunks(chunk)%field%x_min,chunks(chunk)%field%x_max, &
@@ -3381,18 +3388,19 @@ SUBROUTINE clover_exchange_message(chunk,field,                            &
                                      chunks(chunk)%chunk_neighbours(chunk_left),          &
                                      chunks(chunk)%chunk_neighbours(chunk_right),         &
                                      external_face,                                       &
-                                     x_inc,y_inc,depth,                                   &
+                                     x_inc,y_inc,depth,size,                              &
                                      field,left_snd_buffer,right_snd_buffer)
     ENDIF
 
     ! Send/receive the data
     IF(chunks(chunk)%chunk_neighbours(chunk_left).NE.external_face) THEN
       tag=4*(chunk)+1 ! 4 because we have 4 faces, 1 because it is leaving the left face
-      receiver=chunks(chunks(chunk)%chunk_neighbours(chunk_left))%task
+      receiver=chunks(chunk)%chunk_neighbours(chunk_left)-1
       CALL MPI_ISEND(left_snd_buffer,size,MPI_DOUBLE_PRECISION,receiver,tag &
                     ,MPI_COMM_WORLD,request(message_count+1),err)
-      tag=4*(chunks(chunk)%chunk_neighbours(chunk_left))+2 ! 4 because we have 4 faces, 1 because it is coming from the right face of the left neighbour
-      sender=chunks(chunks(chunk)%chunk_neighbours(chunk_left))%task
+
+      tag=4*(chunk)+2 ! 4 because we have 4 faces, 1 because it is coming from the right face of the left neighbour
+      sender=chunks(chunk)%chunk_neighbours(chunk_left)-1
       CALL MPI_IRECV(left_rcv_buffer,size,MPI_DOUBLE_PRECISION,sender,tag &
                     ,MPI_COMM_WORLD,request(message_count+2),err)
       message_count=message_count+2
@@ -3400,11 +3408,12 @@ SUBROUTINE clover_exchange_message(chunk,field,                            &
 
     IF(chunks(chunk)%chunk_neighbours(chunk_right).NE.external_face) THEN
       tag=4*chunk+2 ! 4 because we have 4 faces, 2 because it is leaving the right face
-      receiver=chunks(chunks(chunk)%chunk_neighbours(chunk_right))%task
+      receiver=chunks(chunk)%chunk_neighbours(chunk_right)-1
       CALL MPI_ISEND(right_snd_buffer,size,MPI_DOUBLE_PRECISION,receiver,tag &
                     ,MPI_COMM_WORLD,request(message_count+1),err)
-      tag=4*(chunks(chunk)%chunk_neighbours(chunk_right))+1 ! 4 because we have 4 faces, 1 because it is coming from the left face of the right neighbour
-      sender=chunks(chunks(chunk)%chunk_neighbours(chunk_right))%task
+
+      tag=4*(chunk)+1 ! 4 because we have 4 faces, 1 because it is coming from the left face of the right neighbour
+      sender=chunks(chunk)%chunk_neighbours(chunk_right)-1
       CALL MPI_IRECV(right_rcv_buffer,size,MPI_DOUBLE_PRECISION,sender,tag, &
                      MPI_COMM_WORLD,request(message_count+2),err)
       message_count=message_count+2
@@ -3422,7 +3431,7 @@ SUBROUTINE clover_exchange_message(chunk,field,                            &
                                      chunks(chunk)%chunk_neighbours(chunk_left),          &
                                      chunks(chunk)%chunk_neighbours(chunk_right),         &
                                      external_face,                                       &
-                                     x_inc,y_inc,depth,                                   &
+                                     x_inc,y_inc,depth,size,                              &
                                      field,left_rcv_buffer,right_rcv_buffer)
     ELSEIF(use_C_kernels)THEN
       CALL unpack_left_right_buffers_c(chunks(chunk)%field%x_min,chunks(chunk)%field%x_max, &
@@ -3430,7 +3439,7 @@ SUBROUTINE clover_exchange_message(chunk,field,                            &
                                        chunks(chunk)%chunk_neighbours(chunk_left),          &
                                        chunks(chunk)%chunk_neighbours(chunk_right),         &
                                        external_face,                                       &
-                                       x_inc,y_inc,depth,                                   &
+                                       x_inc,y_inc,depth,size,                              &
                                        field,left_rcv_buffer,right_rcv_buffer)
     ENDIF
   ENDIF
@@ -3447,7 +3456,7 @@ SUBROUTINE clover_exchange_message(chunk,field,                            &
                                    chunks(chunk)%chunk_neighbours(chunk_bottom),        &
                                    chunks(chunk)%chunk_neighbours(chunk_top),           &
                                    external_face,                                       &
-                                   x_inc,y_inc,depth,                                   &
+                                   x_inc,y_inc,depth,size,                              &
                                    field,bottom_snd_buffer,top_snd_buffer)
     ELSEIF(use_C_kernels)THEN
       CALL pack_top_bottom_buffers_c(chunks(chunk)%field%x_min,chunks(chunk)%field%x_max, &
@@ -3455,18 +3464,19 @@ SUBROUTINE clover_exchange_message(chunk,field,                            &
                                      chunks(chunk)%chunk_neighbours(chunk_bottom),        &
                                      chunks(chunk)%chunk_neighbours(chunk_top),           &
                                      external_face,                                       &
-                                     x_inc,y_inc,depth,                                   &
+                                     x_inc,y_inc,depth,size,                              &
                                      field,bottom_snd_buffer,top_snd_buffer)
     ENDIF
 
     ! Send/receive the data
     IF(chunks(chunk)%chunk_neighbours(chunk_bottom).NE.external_face) THEN
       tag=4*(chunk)+3 ! 4 because we have 4 faces, 3 because it is leaving the bottom face
-      receiver=chunks(chunks(chunk)%chunk_neighbours(chunk_bottom))%task
+      receiver=chunks(chunk)%chunk_neighbours(chunk_bottom)-1
       CALL MPI_ISEND(bottom_snd_buffer,size,MPI_DOUBLE_PRECISION,receiver,tag &
                     ,MPI_COMM_WORLD,request(message_count+1),err)
-      tag=4*(chunks(chunk)%chunk_neighbours(chunk_bottom))+4 ! 4 because we have 4 faces, 1 because it is coming from the top face of the bottom neighbour
-      sender=chunks(chunks(chunk)%chunk_neighbours(chunk_bottom))%task
+
+      tag=4*(chunk)+4 ! 4 because we have 4 faces, 1 because it is coming from the top face of the bottom neighbour
+      sender=chunks(chunk)%chunk_neighbours(chunk_bottom)-1
       CALL MPI_IRECV(bottom_rcv_buffer,size,MPI_DOUBLE_PRECISION,sender,tag &
                     ,MPI_COMM_WORLD,request(message_count+2),err)
       message_count=message_count+2
@@ -3474,11 +3484,12 @@ SUBROUTINE clover_exchange_message(chunk,field,                            &
 
     IF(chunks(chunk)%chunk_neighbours(chunk_top).NE.external_face) THEN
       tag=4*(chunk)+4 ! 4 because we have 4 faces, 4 because it is leaving the top face
-      receiver=chunks(chunks(chunk)%chunk_neighbours(chunk_top))%task
+      receiver=chunks(chunk)%chunk_neighbours(chunk_top)-1
       CALL MPI_ISEND(top_snd_buffer,size,MPI_DOUBLE_PRECISION,receiver,tag &
                     ,MPI_COMM_WORLD,request(message_count+1),err)
-      tag=4*(chunks(chunk)%chunk_neighbours(chunk_top))+3 ! 4 because we have 4 faces, 4 because it is coming from the left face of the top neighbour
-      sender=chunks(chunks(chunk)%chunk_neighbours(chunk_top))%task
+
+      tag=4*(chunk)+3 ! 4 because we have 4 faces, 4 because it is coming from the left face of the top neighbour
+      sender=chunks(chunk)%chunk_neighbours(chunk_top)-1
       CALL MPI_IRECV(top_rcv_buffer,size,MPI_DOUBLE_PRECISION,sender,tag, &
                      MPI_COMM_WORLD,request(message_count+2),err)
       message_count=message_count+2
@@ -3497,7 +3508,7 @@ SUBROUTINE clover_exchange_message(chunk,field,                            &
                                      chunks(chunk)%chunk_neighbours(chunk_bottom),        &
                                      chunks(chunk)%chunk_neighbours(chunk_top),           &
                                      external_face,                                       &
-                                     x_inc,y_inc,depth,                                   &
+                                     x_inc,y_inc,depth,size,                              &
                                      field,bottom_rcv_buffer,top_rcv_buffer)
     ELSEIF(use_C_kernels)THEN
       CALL unpack_top_bottom_buffers_c(chunks(chunk)%field%x_min,chunks(chunk)%field%x_max, &
@@ -3505,7 +3516,7 @@ SUBROUTINE clover_exchange_message(chunk,field,                            &
                                        chunks(chunk)%chunk_neighbours(chunk_bottom),        &
                                        chunks(chunk)%chunk_neighbours(chunk_top),           &
                                        external_face,                                       &
-                                       x_inc,y_inc,depth,                                   &
+                                       x_inc,y_inc,depth,size,                              &
                                        field,bottom_rcv_buffer,top_rcv_buffer)
     ENDIF
   ENDIF

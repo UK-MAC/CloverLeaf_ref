@@ -319,6 +319,7 @@ CONTAINS
           viscosity(x_max+j,k)=viscosity(x_max+1-j,k)
         ENDDO
       ENDDO
+!$OMP END DO
     ENDIF
   ENDIF
 

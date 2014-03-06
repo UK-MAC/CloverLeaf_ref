@@ -16,7 +16,7 @@
 # CloverLeaf. If not, see http://www.gnu.org/licenses/.
 
 #  @brief Makefile for CloverLeaf
-#  @author Wayne Gaudin
+#  @author Wayne Gaudin, Andy Herdman
 #  @details Agnostic, platform independent makefile for the Clover Leaf benchmark code.
 
 # It is not meant to be clever in anyway, just a simple build out of the box script.
@@ -205,5 +205,6 @@ c_lover: *.c Makefile
 	initialise_chunk_kernel_c.c	\
 	timer_c.c
 
+
 clean:
-	rm -f *.o *.mod *genmod* *.lst *.cub *.ptx clover_leaf
+	rm -f *.o *.mod *genmod* *cuda* *hmd* *.cu *.oo *.hmf *.lst *.cub *.ptx *.cl clover_leaf
