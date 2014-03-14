@@ -46,14 +46,12 @@ SUBROUTINE advec_mom_kernel(x_min,x_max,y_min,y_max,   &
                             celldy,            &
                             which_vel,         &
                             sweep_number,      &
-                            direction,         &
-                            vector             )
+                            direction          )
 
   IMPLICIT NONE
   
   INTEGER :: x_min,x_max,y_min,y_max
   INTEGER :: which_vel,sweep_number,direction
-  LOGICAL :: vector
 
   REAL(KIND=8), TARGET,DIMENSION(x_min-2:x_max+3,y_min-2:y_max+3) :: xvel1,yvel1
   REAL(KIND=8), DIMENSION(x_min-2:x_max+3,y_min-2:y_max+2) :: mass_flux_x
@@ -76,9 +74,7 @@ SUBROUTINE advec_mom_kernel(x_min,x_max,y_min,y_max,   &
   INTEGER :: j,k,mom_sweep
   INTEGER :: upwind,donor,downwind,dif
   REAL(KIND=8) :: sigma,wind,width
-  REAL(KIND=8) :: sigma2,wind2
   REAL(KIND=8) :: vdiffuw,vdiffdw,auw,adw,limiter
-  REAL(KIND=8) :: vdiffuw2,vdiffdw2,auw2,limiter2
   REAL(KIND=8), POINTER, DIMENSION(:,:) :: vel1
 
   ! Choose the correct velocity, ideally, remove this pointer
@@ -162,71 +158,37 @@ SUBROUTINE advec_mom_kernel(x_min,x_max,y_min,y_max,   &
     ENDDO
 !$OMP END DO
 
-    IF(vector) THEN
-!$OMP DO PRIVATE(sigma,width,limiter,vdiffuw,vdiffdw,auw,adw,wind &
-!$OMP           ,sigma2,limiter2,vdiffuw2,vdiffdw2,auw2,wind2)
-      DO k=y_min,y_max+1
-        DO j=x_min-1,x_max+1
-          sigma=ABS(node_flux(j,k))/(node_mass_pre(j+1,k))
-          sigma2=ABS(node_flux(j,k))/(node_mass_pre(j,k))
-          width=celldx(j)
-          vdiffuw=vel1(j+1,k)-vel1(j+2,k)
-          vdiffdw=vel1(j,k)-vel1(j+1,k)
-          vdiffuw2=vel1(j,k)-vel1(j-1,k)
-          vdiffdw2=-vdiffdw
+!$OMP DO PRIVATE(upwind,downwind,donor,dif,sigma,width,limiter,vdiffuw,vdiffdw,auw,adw,wind)
+    DO k=y_min,y_max+1
+      DO j=x_min-1,x_max+1
+        IF(node_flux(j,k).LT.0.0)THEN
+          upwind=j+2
+          donor=j+1
+          downwind=j
+          dif=donor
+        ELSE
+          upwind=j-1
+          donor=j
+          downwind=j+1
+          dif=upwind
+        ENDIF
+        sigma=ABS(node_flux(j,k))/(node_mass_pre(donor,k))
+        width=celldx(j)
+        vdiffuw=vel1(donor,k)-vel1(upwind,k)
+        vdiffdw=vel1(downwind,k)-vel1(donor,k)
+        limiter=0.0
+        IF(vdiffuw*vdiffdw.GT.0.0)THEN
           auw=ABS(vdiffuw)
           adw=ABS(vdiffdw)
-          auw2=ABS(vdiffuw2)
           wind=1.0_8
-          wind2=1.0_8
           IF(vdiffdw.LE.0.0) wind=-1.0_8
-          IF(vdiffdw2.LE.0.0) wind2=-1.0_8
-          limiter=wind*MIN(width*((2.0_8-sigma)*adw/width+(1.0_8+sigma)*auw/celldx(j+1))/6.0_8,auw,adw)
-          limiter2=wind2*MIN(width*((2.0_8-sigma2)*adw/width+(1.0_8+sigma2)*auw2/celldx(j-1))/6.0_8,auw2,adw)
-          IF(vdiffuw*vdiffdw.LE.0.0) limiter=0.0
-          IF(vdiffuw2*vdiffdw2.LE.0.0) limiter2=0.0
-          IF(node_flux(j,k).LT.0.0)THEN
-            advec_vel(j,k)=vel1(j+1,k)+(1.0-sigma)*limiter
-          ELSE
-            advec_vel(j,k)=vel1(j,k)+(1.0-sigma2)*limiter2
-          ENDIF
-          mom_flux(j,k)=advec_vel(j,k)*node_flux(j,k)
-        ENDDO
+          limiter=wind*MIN(width*((2.0_8-sigma)*adw/width+(1.0_8+sigma)*auw/celldx(dif))/6.0_8,auw,adw)
+        ENDIF
+        advec_vel(j,k)=vel1(donor,k)+(1.0-sigma)*limiter
+        mom_flux(j,k)=advec_vel(j,k)*node_flux(j,k)
       ENDDO
+    ENDDO
 !$OMP END DO
-    ELSE
-!$OMP DO PRIVATE(upwind,downwind,donor,dif,sigma,width,limiter,vdiffuw,vdiffdw,auw,adw,wind)
-      DO k=y_min,y_max+1
-        DO j=x_min-1,x_max+1
-          IF(node_flux(j,k).LT.0.0)THEN
-            upwind=j+2
-            donor=j+1
-            downwind=j
-            dif=donor
-          ELSE
-            upwind=j-1
-            donor=j
-            downwind=j+1
-            dif=upwind
-          ENDIF
-          sigma=ABS(node_flux(j,k))/(node_mass_pre(donor,k))
-          width=celldx(j)
-          vdiffuw=vel1(donor,k)-vel1(upwind,k)
-          vdiffdw=vel1(downwind,k)-vel1(donor,k)
-          limiter=0.0
-          IF(vdiffuw*vdiffdw.GT.0.0)THEN
-            auw=ABS(vdiffuw)
-            adw=ABS(vdiffdw)
-            wind=1.0_8
-            IF(vdiffdw.LE.0.0) wind=-1.0_8
-            limiter=wind*MIN(width*((2.0_8-sigma)*adw/width+(1.0_8+sigma)*auw/celldx(dif))/6.0_8,auw,adw)
-          ENDIF
-          advec_vel(j,k)=vel1(donor,k)+(1.0-sigma)*limiter
-          mom_flux(j,k)=advec_vel(j,k)*node_flux(j,k)
-        ENDDO
-      ENDDO
-!$OMP END DO
-    ENDIF
 !$OMP DO
     DO k=y_min,y_max+1
       DO j=x_min,x_max+1
@@ -261,72 +223,38 @@ SUBROUTINE advec_mom_kernel(x_min,x_max,y_min,y_max,   &
       ENDDO
     ENDDO
 !$OMP END DO
-    IF(vector) THEN
-!$OMP DO PRIVATE(sigma,width,limiter,vdiffuw,vdiffdw,auw,adw,wind &
-!$OMP           ,sigma2,limiter2,vdiffuw2,vdiffdw2,auw2,wind2)
-      DO k=y_min-1,y_max+1
-        DO j=x_min,x_max+1
-          sigma=ABS(node_flux(j,k))/(node_mass_pre(j,k+1))
-          sigma2=ABS(node_flux(j,k))/(node_mass_pre(j,k))
-          width=celldy(k)
-          vdiffuw=vel1(j,k+1)-vel1(j,k+2)
-          vdiffdw=vel1(j,k)-vel1(j,k+1)
-          vdiffuw2=vel1(j,k)-vel1(j,k-1)
-          vdiffdw2=-vdiffdw
+!$OMP DO PRIVATE(upwind,donor,downwind,dif,sigma,width,limiter,vdiffuw,vdiffdw,auw,adw,wind)
+    DO k=y_min-1,y_max+1
+      DO j=x_min,x_max+1
+        IF(node_flux(j,k).LT.0.0)THEN
+          upwind=k+2
+          donor=k+1
+          downwind=k
+          dif=donor
+        ELSE
+          upwind=k-1
+          donor=k
+          downwind=k+1
+          dif=upwind
+        ENDIF
+
+        sigma=ABS(node_flux(j,k))/(node_mass_pre(j,donor))
+        width=celldy(k)
+        vdiffuw=vel1(j,donor)-vel1(j,upwind)
+        vdiffdw=vel1(j,downwind)-vel1(j,donor)
+        limiter=0.0
+        IF(vdiffuw*vdiffdw.GT.0.0)THEN
           auw=ABS(vdiffuw)
           adw=ABS(vdiffdw)
-          auw2=ABS(vdiffuw2)
           wind=1.0_8
-          wind2=1.0_8
           IF(vdiffdw.LE.0.0) wind=-1.0_8
-          IF(vdiffdw2.LE.0.0) wind2=-1.0_8
-          limiter=wind*MIN(width*((2.0_8-sigma)*adw/width+(1.0_8+sigma)*auw/celldy(k+1))/6.0_8,auw,adw)
-          limiter2=wind2*MIN(width*((2.0_8-sigma2)*adw/width+(1.0_8+sigma2)*auw2/celldy(k-1))/6.0_8,auw2,adw)
-          IF(vdiffuw*vdiffdw.LE.0.0) limiter=0.0
-          IF(vdiffuw2*vdiffdw2.LE.0.0) limiter2=0.0
-          IF(node_flux(j,k).LT.0.0)THEN
-            advec_vel(j,k)=vel1(j,k+1)+(1.0-sigma)*limiter
-          ELSE
-            advec_vel(j,k)=vel1(j,k)+(1.0-sigma2)*limiter2
-          ENDIF
-          mom_flux(j,k)=advec_vel(j,k)*node_flux(j,k)
-        ENDDO
+          limiter=wind*MIN(width*((2.0_8-sigma)*adw/width+(1.0_8+sigma)*auw/celldy(dif))/6.0_8,auw,adw)
+        ENDIF
+        advec_vel(j,k)=vel1(j,donor)+(1.0_8-sigma)*limiter
+        mom_flux(j,k)=advec_vel(j,k)*node_flux(j,k)
       ENDDO
+    ENDDO
 !$OMP END DO
-    ELSE
-!$OMP DO PRIVATE(upwind,donor,downwind,dif,sigma,width,limiter,vdiffuw,vdiffdw,auw,adw,wind)
-      DO k=y_min-1,y_max+1
-        DO j=x_min,x_max+1
-          IF(node_flux(j,k).LT.0.0)THEN
-            upwind=k+2
-            donor=k+1
-            downwind=k
-            dif=donor
-          ELSE
-            upwind=k-1
-            donor=k
-            downwind=k+1
-            dif=upwind
-          ENDIF
-
-          sigma=ABS(node_flux(j,k))/(node_mass_pre(j,donor))
-          width=celldy(k)
-          vdiffuw=vel1(j,donor)-vel1(j,upwind)
-          vdiffdw=vel1(j,downwind)-vel1(j,donor)
-          limiter=0.0
-          IF(vdiffuw*vdiffdw.GT.0.0)THEN
-            auw=ABS(vdiffuw)
-            adw=ABS(vdiffdw)
-            wind=1.0_8
-            IF(vdiffdw.LE.0.0) wind=-1.0_8
-            limiter=wind*MIN(width*((2.0_8-sigma)*adw/width+(1.0_8+sigma)*auw/celldy(dif))/6.0_8,auw,adw)
-          ENDIF
-          advec_vel(j,k)=vel1(j,donor)+(1.0_8-sigma)*limiter
-          mom_flux(j,k)=advec_vel(j,k)*node_flux(j,k)
-        ENDDO
-      ENDDO
-!$OMP END DO
-    ENDIF
 !$OMP DO
     DO k=y_min,y_max+1
       DO j=x_min,x_max+1

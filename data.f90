@@ -23,7 +23,7 @@ MODULE data_module
 
    IMPLICIT NONE
 
-   REAL(KIND=8), PARAMETER :: g_version=1.0
+   REAL(KIND=8), PARAMETER :: g_version=1.1
 
    INTEGER,      PARAMETER :: g_ibig=640000
 
@@ -91,5 +91,7 @@ MODULE data_module
    TYPE(parallel_type) :: parallel
      
    INTEGER,        PARAMETER ::g_len_max=500
+
+   INTEGER,        PARAMETER :: chunks_per_task = 1
 
 END MODULE data_module

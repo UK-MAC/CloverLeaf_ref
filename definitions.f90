@@ -72,8 +72,6 @@ MODULE definitions_module
    LOGICAL      :: use_C_kernels
    LOGICAL      :: use_OA_kernels
 
-   LOGICAL      :: use_vector_loops ! Some loops work better in serial depending on the hardware
-
    LOGICAL      :: profiler_on ! Internal code profiler to make comparisons across systems easier
 
    TYPE profiler_type

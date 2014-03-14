@@ -30,7 +30,6 @@ SUBROUTINE advec_cell_kernel(x_min,       &
                              y_max,       &
                              dir,         &
                              sweep_number,&
-                             vector,      &
                              vertexdx,    &
                              vertexdy,    &
                              volume,      &
@@ -53,7 +52,6 @@ SUBROUTINE advec_cell_kernel(x_min,       &
   INTEGER :: x_min,x_max,y_min,y_max
   INTEGER :: sweep_number,dir
   INTEGER :: g_xdir=1,g_ydir=2
-  LOGICAL :: vector
 
   REAL(KIND=8), DIMENSION(x_min-2:x_max+2,y_min-2:y_max+2) :: volume
   REAL(KIND=8), DIMENSION(x_min-2:x_max+2,y_min-2:y_max+2) :: density1
@@ -75,9 +73,9 @@ SUBROUTINE advec_cell_kernel(x_min,       &
 
   INTEGER :: j,k,upwind,donor,downwind,dif
 
-  REAL(KIND=8) :: sigma,sigmat,sigmav,sigmam,sigma3,sigma4
+  REAL(KIND=8) :: wind,sigma,sigmat,sigmav,sigmam,sigma3,sigma4
   REAL(KIND=8) :: diffuw,diffdw,limiter
-  REAL(KIND=8), PARAMETER :: one_by_six=1.0_8/6.0_8
+  REAL(KIND=8) :: one_by_six=1.0_8/6.0_8
 
 !$OMP PARALLEL
 
@@ -104,7 +102,7 @@ SUBROUTINE advec_cell_kernel(x_min,       &
     ENDIF
 
 !$OMP DO PRIVATE(upwind,donor,downwind,dif,sigmat,sigma3,sigma4,sigmav,sigma,sigmam, &
-!$OMP            diffuw,diffdw,limiter)
+!$OMP            diffuw,diffdw,limiter,wind)
     DO k=y_min,y_max
       DO j=x_min,x_max+2
 
@@ -129,8 +127,10 @@ SUBROUTINE advec_cell_kernel(x_min,       &
 
         diffuw=density1(donor,k)-density1(upwind,k)
         diffdw=density1(downwind,k)-density1(donor,k)
+        wind=1.0_8
+        IF(diffdw.LE.0.0) wind=-1.0_8
         IF(diffuw*diffdw.GT.0.0)THEN
-          limiter=(1.0_8-sigmav)*SIGN(1.0_8,diffdw)*MIN(ABS(diffuw),ABS(diffdw)&
+          limiter=(1.0_8-sigmav)*wind*MIN(ABS(diffuw),ABS(diffdw)&
               ,one_by_six*(sigma3*ABS(diffuw)+sigma4*ABS(diffdw)))
         ELSE
           limiter=0.0
@@ -140,8 +140,10 @@ SUBROUTINE advec_cell_kernel(x_min,       &
         sigmam=ABS(mass_flux_x(j,k))/(density1(donor,k)*pre_vol(donor,k))
         diffuw=energy1(donor,k)-energy1(upwind,k)
         diffdw=energy1(downwind,k)-energy1(donor,k)
+        wind=1.0_8
+        IF(diffdw.LE.0.0) wind=-1.0_8
         IF(diffuw*diffdw.GT.0.0)THEN
-          limiter=(1.0_8-sigmam)*SIGN(1.0_8,diffdw)*MIN(ABS(diffuw),ABS(diffdw)&
+          limiter=(1.0_8-sigmam)*wind*MIN(ABS(diffuw),ABS(diffdw)&
               ,one_by_six*(sigma3*ABS(diffuw)+sigma4*ABS(diffdw)))
         ELSE
           limiter=0.0
@@ -189,7 +191,7 @@ SUBROUTINE advec_cell_kernel(x_min,       &
     ENDIF
 
 !$OMP DO PRIVATE(upwind,donor,downwind,dif,sigmat,sigma3,sigma4,sigmav,sigma,sigmam, &
-!$OMP            diffuw,diffdw,limiter)
+!$OMP            diffuw,diffdw,limiter,wind)
     DO k=y_min,y_max+2
       DO j=x_min,x_max
 
@@ -214,8 +216,10 @@ SUBROUTINE advec_cell_kernel(x_min,       &
 
         diffuw=density1(j,donor)-density1(j,upwind)
         diffdw=density1(j,downwind)-density1(j,donor)
+        wind=1.0_8
+        IF(diffdw.LE.0.0) wind=-1.0_8
         IF(diffuw*diffdw.GT.0.0)THEN
-          limiter=(1.0_8-sigmav)*SIGN(1.0_8,diffdw)*MIN(ABS(diffuw),ABS(diffdw)&
+          limiter=(1.0_8-sigmav)*wind*MIN(ABS(diffuw),ABS(diffdw)&
               ,one_by_six*(sigma3*ABS(diffuw)+sigma4*ABS(diffdw)))
         ELSE
           limiter=0.0
@@ -225,8 +229,10 @@ SUBROUTINE advec_cell_kernel(x_min,       &
         sigmam=ABS(mass_flux_y(j,k))/(density1(j,donor)*pre_vol(j,donor))
         diffuw=energy1(j,donor)-energy1(j,upwind)
         diffdw=energy1(j,downwind)-energy1(j,donor)
+        wind=1.0_8
+        IF(diffdw.LE.0.0) wind=-1.0_8
         IF(diffuw*diffdw.GT.0.0)THEN
-          limiter=(1.0_8-sigmam)*SIGN(1.0_8,diffdw)*MIN(ABS(diffuw),ABS(diffdw)&
+          limiter=(1.0_8-sigmam)*wind*MIN(ABS(diffuw),ABS(diffdw)&
               ,one_by_six*(sigma3*ABS(diffuw)+sigma4*ABS(diffdw)))
         ELSE
           limiter=0.0
