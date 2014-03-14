@@ -129,34 +129,36 @@ SUBROUTINE advec_mom_kernel(x_min,x_max,y_min,y_max,   &
   ENDIF
 
   IF(direction.EQ.1)THEN
+    IF(which_vel.EQ.1)THEN
 !$OMP DO
-    DO k=y_min,y_max+1
-      DO j=x_min-2,x_max+2
-        ! Find staggered mesh mass fluxes, nodal masses and volumes.
-        node_flux(j,k)=0.25_8*(mass_flux_x(j,k-1  )+mass_flux_x(j  ,k)  &
-                        +mass_flux_x(j+1,k-1)+mass_flux_x(j+1,k)) ! Mass Flux
+      DO k=y_min,y_max+1
+        DO j=x_min-2,x_max+2
+          ! Find staggered mesh mass fluxes, nodal masses and volumes.
+          node_flux(j,k)=0.25_8*(mass_flux_x(j,k-1  )+mass_flux_x(j  ,k)  &
+                                +mass_flux_x(j+1,k-1)+mass_flux_x(j+1,k))
+        ENDDO
       ENDDO
-    ENDDO
 !$OMP END DO
 !$OMP DO
-    DO k=y_min,y_max+1
-      DO j=x_min-1,x_max+2
-        ! Staggered cell mass post advection
-        node_mass_post(j,k)=0.25_8*(density1(j  ,k-1)*post_vol(j  ,k-1)                   &
-                                   +density1(j  ,k  )*post_vol(j  ,k  )                   &
-                                   +density1(j-1,k-1)*post_vol(j-1,k-1)                   &
-                                   +density1(j-1,k  )*post_vol(j-1,k  ))
+      DO k=y_min,y_max+1
+        DO j=x_min-1,x_max+2
+          ! Staggered cell mass post advection
+          node_mass_post(j,k)=0.25_8*(density1(j  ,k-1)*post_vol(j  ,k-1)                   &
+                                     +density1(j  ,k  )*post_vol(j  ,k  )                   &
+                                     +density1(j-1,k-1)*post_vol(j-1,k-1)                   &
+                                     +density1(j-1,k  )*post_vol(j-1,k  ))
+        ENDDO
       ENDDO
-    ENDDO
 !$OMP END DO
 !$OMP DO
-    DO k=y_min,y_max+1
-      DO j=x_min-1,x_max+2
-        ! Stagered cell mass pre advection
-        node_mass_pre(j,k)=node_mass_post(j,k)-node_flux(j-1,k)+node_flux(j,k)
+      DO k=y_min,y_max+1
+        DO j=x_min-1,x_max+2
+          ! Stagered cell mass pre advection
+          node_mass_pre(j,k)=node_mass_post(j,k)-node_flux(j-1,k)+node_flux(j,k)
+        ENDDO
       ENDDO
-    ENDDO
 !$OMP END DO
+    ENDIF
 
 !$OMP DO PRIVATE(upwind,downwind,donor,dif,sigma,width,limiter,vdiffuw,vdiffdw,auw,adw,wind)
     DO k=y_min,y_max+1
@@ -197,32 +199,34 @@ SUBROUTINE advec_mom_kernel(x_min,x_max,y_min,y_max,   &
     ENDDO
 !$OMP END DO
   ELSEIF(direction.EQ.2)THEN
+    IF(which_vel.EQ.1)THEN
 !$OMP DO
-    DO k=y_min-2,y_max+2
-      DO j=x_min,x_max+1
-        ! Find staggered mesh mass fluxes and nodal masses and volumes.
-        node_flux(j,k)=0.25_8*(mass_flux_y(j-1,k  )+mass_flux_y(j  ,k  ) &
-                              +mass_flux_y(j-1,k+1)+mass_flux_y(j  ,k+1))
+      DO k=y_min-2,y_max+2
+        DO j=x_min,x_max+1
+          ! Find staggered mesh mass fluxes and nodal masses and volumes.
+          node_flux(j,k)=0.25_8*(mass_flux_y(j-1,k  )+mass_flux_y(j  ,k  ) &
+                                +mass_flux_y(j-1,k+1)+mass_flux_y(j  ,k+1))
+        ENDDO
       ENDDO
-    ENDDO
 !$OMP END DO
 !$OMP DO
-    DO k=y_min-1,y_max+2
-      DO j=x_min,x_max+1
-        node_mass_post(j,k)=0.25_8*(density1(j  ,k-1)*post_vol(j  ,k-1)                     &
-                                   +density1(j  ,k  )*post_vol(j  ,k  )                     &
-                                   +density1(j-1,k-1)*post_vol(j-1,k-1)                     &
-                                   +density1(j-1,k  )*post_vol(j-1,k  ))
+      DO k=y_min-1,y_max+2
+        DO j=x_min,x_max+1
+          node_mass_post(j,k)=0.25_8*(density1(j  ,k-1)*post_vol(j  ,k-1)                     &
+                                     +density1(j  ,k  )*post_vol(j  ,k  )                     &
+                                     +density1(j-1,k-1)*post_vol(j-1,k-1)                     &
+                                     +density1(j-1,k  )*post_vol(j-1,k  ))
+        ENDDO
       ENDDO
-    ENDDO
 !$OMP END DO
 !$OMP DO
-    DO k=y_min-1,y_max+2
-      DO j=x_min,x_max+1
-        node_mass_pre(j,k)=node_mass_post(j,k)-node_flux(j,k-1)+node_flux(j,k)
+      DO k=y_min-1,y_max+2
+        DO j=x_min,x_max+1
+          node_mass_pre(j,k)=node_mass_post(j,k)-node_flux(j,k-1)+node_flux(j,k)
+        ENDDO
       ENDDO
-    ENDDO
 !$OMP END DO
+    ENDIF
 !$OMP DO PRIVATE(upwind,donor,downwind,dif,sigma,width,limiter,vdiffuw,vdiffdw,auw,adw,wind)
     DO k=y_min-1,y_max+1
       DO j=x_min,x_max+1
