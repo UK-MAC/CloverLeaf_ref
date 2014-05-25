@@ -62,6 +62,12 @@ ifndef COMPILER
   MESSAGE=select a compiler to compile in OpenMP, e.g. make COMPILER=INTEL
 endif
 
+VTUNE_INCLUDE = -I/opt/intel/vtune_amplifier_xe_2015/include
+VTUNE_LIB_LOC = -L/opt/intel/vtune_amplifier_xe_2015/lib64 
+VTUNE_LIB = -littnotify
+DEBUG_SYMS = -g 
+ENABLE_VTUNE = -DVTUNE_PROFILE
+
 OMP_INTEL     = -openmp
 OMP_SUN       = -xopenmp=parallel -vpara
 OMP_GNU       = -fopenmp
@@ -71,7 +77,7 @@ OMP_PATHSCALE = -mp
 OMP_XL        = -qsmp=omp -qthreaded
 OMP=$(OMP_$(COMPILER))
 
-FLAGS_INTEL     = -O3 -no-prec-div
+FLAGS_INTEL     = -O3 -no-prec-div -fpp
 FLAGS_SUN       = -fast -xipo=2 -Xlistv4
 FLAGS_GNU       = -O3 -march=native -funroll-loops
 FLAGS_CRAY      = -em -ra -h acc_model=fast_addr:no_deep_copy:auto_async_all
@@ -89,7 +95,7 @@ CFLAGS_XL       = -O5 -qipa=partition=large -g -qfullpath -Q -qlistopt -qattr=fu
 CFLAGS_          = -O3
 
 ifdef DEBUG
-  FLAGS_INTEL     = -O0 -g -debug all -check all -traceback -check noarg_temp_created
+  FLAGS_INTEL     = -O0 -g -debug all -check all -traceback -check noarg_temp_created -fpp
   FLAGS_SUN       = -g -xopenmp=noopt -stackvar -u -fpover=yes -C -ftrap=common
   FLAGS_GNU       = -O0 -g -O -Wall -Wextra -fbounds-check
   FLAGS_CRAY      = -O0 -g -em -eD
@@ -117,13 +123,14 @@ ifdef IEEE
   I3E=$(I3E_$(COMPILER))
 endif
 
-FLAGS=$(FLAGS_$(COMPILER)) $(OMP) $(I3E) $(OPTIONS)
-CFLAGS=$(CFLAGS_$(COMPILER)) $(OMP) $(I3E) $(C_OPTIONS) -c
+FLAGS=$(DEBUG_SYMS) $(FLAGS_$(COMPILER)) $(OMP) $(I3E) $(OPTIONS) $(VTUNE_LIB_LOC) $(ENABLE_VTUNE)
+CFLAGS=$(DEBUG_SYMS) $(CFLAGS_$(COMPILER)) $(OMP) $(I3E) $(C_OPTIONS) $(VTUNE_INCLUDE) -c
 MPI_COMPILER=mpif90
 C_MPI_COMPILER=mpicc
 
 clover_leaf: c_lover *.f90 Makefile
 	$(MPI_COMPILER) $(FLAGS)	\
+	fortran_vtune_interface.f90 \
 	data.f90			\
 	definitions.f90			\
 	pack_kernel.f90			\
@@ -184,6 +191,8 @@ clover_leaf: c_lover *.f90 Makefile
 	pack_kernel_c.o			\
 	generate_chunk_kernel_c.o	\
 	initialise_chunk_kernel_c.o	\
+	vtune_pause_resume.o \
+	$(VTUNE_LIB) \
 	-o clover_leaf; echo $(MESSAGE)
 
 c_lover: *.c Makefile
@@ -203,6 +212,7 @@ c_lover: *.c Makefile
 	pack_kernel_c.c			\
 	generate_chunk_kernel_c.c	\
 	initialise_chunk_kernel_c.c	\
+	vtune_pause_resume.c \
 	timer_c.c
 
 
