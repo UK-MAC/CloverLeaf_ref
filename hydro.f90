@@ -31,6 +31,9 @@ SUBROUTINE hydro
   USE advection_module
   USE reset_field_module
 
+    USE, INTRINSIC :: ISO_C_BINDING
+    USE ITT_FORTRAN
+
   IMPLICIT NONE
 
   INTEGER         :: loc(1)
@@ -42,6 +45,11 @@ SUBROUTINE hydro
   REAL(KIND=8)    :: kernel_total,totals(parallel%max_task)
 
   timerstart = timer()
+
+#ifdef VTUNE_PROFILE
+    WRITE(*,*) "Resuming vtune" 
+    CALL FORTRAN_ITT_RESUME()
+#endif
 
   DO
 
@@ -88,6 +96,11 @@ SUBROUTINE hydro
       IF(visit_frequency.NE.0) CALL visit()
 
       wall_clock=timer() - timerstart
+
+#ifdef VTUNE_PROFILE
+        CALL FORTRAN_ITT_PAUSE()
+#endif
+
       IF ( parallel%boss ) THEN
         WRITE(g_out,*)
         WRITE(g_out,*) 'Calculation complete'
