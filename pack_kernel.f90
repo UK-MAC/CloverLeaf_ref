@@ -334,14 +334,14 @@ SUBROUTINE clover_pack_message_bottom(x_min,x_max,y_min,y_max,field,            
     y_inc=1
   ENDIF
 
-!$OMP PARALLEL DO PRIVATE(index)
   DO k=1,depth
+!$OMP PARALLEL DO PRIVATE(index)
     DO j=x_min-depth,x_max+x_inc+depth
       index= buffer_offset + j+depth+(k-1)*(x_max+x_inc+(2*depth))
       bottom_snd_buffer(index)=field(j,y_min+y_inc-1+k)
     ENDDO
-  ENDDO
 !$OMP END PARALLEL DO
+  ENDDO
 
 END SUBROUTINE clover_pack_message_bottom
 
