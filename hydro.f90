@@ -31,8 +31,10 @@ SUBROUTINE hydro
   USE advection_module
   USE reset_field_module
 
+#ifdef VTUNE_PROFILE
     USE, INTRINSIC :: ISO_C_BINDING
     USE ITT_FORTRAN
+#endif
 
   IMPLICIT NONE
 

@@ -62,11 +62,11 @@ ifndef COMPILER
   MESSAGE=select a compiler to compile in OpenMP, e.g. make COMPILER=INTEL
 endif
 
-VTUNE_INCLUDE = -I/opt/intel/vtune_amplifier_xe_2015/include
-VTUNE_LIB_LOC = -L/opt/intel/vtune_amplifier_xe_2015/lib64 
-VTUNE_LIB = -littnotify
-DEBUG_SYMS = -g 
-ENABLE_VTUNE = -DVTUNE_PROFILE
+#VTUNE_INCLUDE = -I/opt/intel/vtune_amplifier_xe_2015/include
+#VTUNE_LIB_LOC = -L/opt/intel/vtune_amplifier_xe_2015/lib64 
+#VTUNE_LIB = -littnotify
+#DEBUG_SYMS = -g 
+#ENABLE_VTUNE = -DVTUNE_PROFILE
 
 OMP_INTEL     = -openmp
 OMP_SUN       = -xopenmp=parallel -vpara

@@ -1,5 +1,6 @@
 MODULE ITT_FORTRAN
 
+#ifdef VTUNE_PROFILE
     USE, INTRINSIC :: ISO_C_BINDING
 
     INTERFACE
@@ -14,6 +15,8 @@ MODULE ITT_FORTRAN
 !            BIND(C, NAME='__itt_pause_ptr__3_0')
         END SUBROUTINE
     END INTERFACE
+
+#endif
 
 END MODULE
 
