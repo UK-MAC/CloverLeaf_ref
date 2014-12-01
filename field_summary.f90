@@ -107,10 +107,15 @@ SUBROUTINE field_summary()
   IF(complete) THEN
     IF(parallel%boss) THEN
 !$    IF(OMP_GET_THREAD_NUM().EQ.0) THEN
-        IF(test_problem.EQ.1) THEN
-          qa_diff=ABS((100.0_8*(ke/1.82280367310258_8))-100.0_8)
-          WRITE(*,*)"Test problem 1 is within",qa_diff,"% of the expected solution"
-          WRITE(g_out,*)"Test problem 1 is within",qa_diff,"% of the expected solution"
+        IF(test_problem.GE.1) THEN
+          write(*,*) ke
+          IF(test_problem.EQ.1) qa_diff=ABS((100.0_8*(ke/1.82280367310258_8))-100.0_8)
+          IF(test_problem.EQ.2) qa_diff=ABS((100.0_8*(ke/1.19316898756307_8))-100.0_8)
+          IF(test_problem.EQ.3) qa_diff=ABS((100.0_8*(ke/0.307475452287895_8))-100.0_8)
+          IF(test_problem.EQ.4) qa_diff=ABS((100.0_8*(ke/2.58984003503994_8))-100.0_8)
+          IF(test_problem.EQ.5) qa_diff=ABS((100.0_8*(ke/116.482111627676_8))-100.0_8)
+          WRITE(*,'(a,i4,a,e16.7,a)')"Test problem", Test_problem," is within",qa_diff,"% of the expected solution"
+          WRITE(g_out,'(a,i4,a,e16.7,a)')"Test problem", Test_problem," is within",qa_diff,"% of the expected solution"
           IF(qa_diff.LT.0.001) THEN
             WRITE(*,*)"This test is considered PASSED"
             WRITE(g_out,*)"This test is considered PASSED"
