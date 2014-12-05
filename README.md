@@ -5,9 +5,10 @@ The reference version of CloverLeaf
 
 Performance Table
 
-                  Hardware
-Test Problem      Xeon Core
-2                   20.5
-3                   300.0
-4
-6
+| Test Problem  | Time          |              |
+| ------------- |:-------------:|:------------:|
+| Hardware      | Xeon Core     | Xeon Node    |
+| 2             | 20            | 2.5          |
+| 3             | 30            | 4.0          |
+| 4             | 40            | 5.0          |
+| 5             | 250           | 50.0         |
