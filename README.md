@@ -1,9 +1,8 @@
-#CloverLeaf_ref
-==============
+# CloverLeaf_ref
 
 This is the reference version of CloverLeaf. Expected performance is give below.
 
-## Performance Table
+### Performance Table
 
 | Test Problem  | Time          | Time         |
 | ------------- |:-------------:|:------------:|
@@ -13,7 +12,7 @@ This is the reference version of CloverLeaf. Expected performance is give below.
 | 4             | 460.0         | 70.0         |
 | 5             | 13000         | 1700.0       |
 
-## Weak Scaling - Test 4
+### Weak Scaling - Test 4
 
 | Node Count | Time         |
 | ---------- |:------------:|
@@ -24,7 +23,7 @@ This is the reference version of CloverLeaf. Expected performance is give below.
 | 16         |              |
 
 
-## Strong Scaling - Test 5
+### Strong Scaling - Test 5
 
 | Node Count | Time          | Speed Up |
 | ---------- |:-------------:|:--------:|
