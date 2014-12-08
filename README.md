@@ -2,6 +2,8 @@
 
 This is the reference version of CloverLeaf. Expected performance is give below.
 
+If you do not see this performance, or you see variability, then is it recommended that you check MPI task placement and OpenMP thread affinities, because it is essential these are pinned and placed optimally to obtain best performance.
+
 ### Performance Table
 
 | Test Problem  | Time                         | Time                        |
