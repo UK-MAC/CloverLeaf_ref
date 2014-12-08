@@ -9,7 +9,7 @@ This is the reference version of CloverLeaf. Expected performance is give below.
 | Hardware      | Xeon Core     | Xeon Node    |
 | 2             | 20.0          | 2.5          |
 | 3             | 960.0         | 100.0        |
-| 4             | 460.0         | 70.0         |
+| 4             | 460.0         | 40.0         |
 | 5             | 13000         | 1700.0       |
 
 ### Weak Scaling - Test 4
