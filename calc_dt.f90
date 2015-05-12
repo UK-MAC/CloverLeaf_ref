@@ -23,14 +23,14 @@ MODULE calc_dt_module
 
 CONTAINS
 
-SUBROUTINE calc_dt(chunk,local_dt,local_control,xl_pos,yl_pos,jldt,kldt)
+SUBROUTINE calc_dt(tile,local_dt,local_control,xl_pos,yl_pos,jldt,kldt)
 
   USE clover_module
   USE calc_dt_kernel_module
 
   IMPLICIT NONE
 
-  INTEGER          :: chunk
+  INTEGER          :: tile
   REAL(KIND=8)     :: local_dt
   CHARACTER(LEN=8) :: local_control
   REAL(KIND=8)     :: xl_pos,yl_pos
@@ -41,16 +41,14 @@ SUBROUTINE calc_dt(chunk,local_dt,local_control,xl_pos,yl_pos,jldt,kldt)
 
   local_dt=g_big
 
-  IF(chunks(chunk)%task.NE.parallel%task) RETURN
 
   small = 0
 
-  IF(use_fortran_kernels)THEN
 
-    CALL calc_dt_kernel(chunks(chunk)%field%x_min,     &
-                        chunks(chunk)%field%x_max,     &
-                        chunks(chunk)%field%y_min,     &
-                        chunks(chunk)%field%y_max,     &
+    CALL calc_dt_kernel(chunk%tiles(tile)%t_xmin,     &
+                        chunk%tiles(tile)%t_xmax,     &
+                        chunk%tiles(tile)%t_ymin,     &
+                        chunk%tiles(tile)%t_ymax,     &
                         g_small,                       &
                         g_big,                         &
                         dtmin,                         &
@@ -58,21 +56,21 @@ SUBROUTINE calc_dt(chunk,local_dt,local_control,xl_pos,yl_pos,jldt,kldt)
                         dtu_safe,                      &
                         dtv_safe,                      &
                         dtdiv_safe,                    &
-                        chunks(chunk)%field%xarea,     &
-                        chunks(chunk)%field%yarea,     &
-                        chunks(chunk)%field%cellx,     &
-                        chunks(chunk)%field%celly,     &
-                        chunks(chunk)%field%celldx,    &
-                        chunks(chunk)%field%celldy,    &
-                        chunks(chunk)%field%volume,    &
-                        chunks(chunk)%field%density0,  &
-                        chunks(chunk)%field%energy0,   &
-                        chunks(chunk)%field%pressure,  &
-                        chunks(chunk)%field%viscosity, &
-                        chunks(chunk)%field%soundspeed,&
-                        chunks(chunk)%field%xvel0,     &
-                        chunks(chunk)%field%yvel0,     &
-                        chunks(chunk)%field%work_array1,&
+                        chunk%tiles(tile)%field%xarea,     &
+                        chunk%tiles(tile)%field%yarea,     &
+                        chunk%tiles(tile)%field%cellx,     &
+                        chunk%tiles(tile)%field%celly,     &
+                        chunk%tiles(tile)%field%celldx,    &
+                        chunk%tiles(tile)%field%celldy,    &
+                        chunk%tiles(tile)%field%volume,    &
+                        chunk%tiles(tile)%field%density0,  &
+                        chunk%tiles(tile)%field%energy0,   &
+                        chunk%tiles(tile)%field%pressure,  &
+                        chunk%tiles(tile)%field%viscosity, &
+                        chunk%tiles(tile)%field%soundspeed,&
+                        chunk%tiles(tile)%field%xvel0,     &
+                        chunk%tiles(tile)%field%yvel0,     &
+                        chunk%tiles(tile)%field%work_array1,&
                         local_dt,                      &
                         l_control,                     &
                         xl_pos,                        &
@@ -81,43 +79,7 @@ SUBROUTINE calc_dt(chunk,local_dt,local_control,xl_pos,yl_pos,jldt,kldt)
                         kldt,                          &
                         small                          )
 
-  ELSEIF(use_C_kernels)THEN
 
-    CALL calc_dt_kernel_c(chunks(chunk)%field%x_min,   &
-                        chunks(chunk)%field%x_max,     &
-                        chunks(chunk)%field%y_min,     &
-                        chunks(chunk)%field%y_max,     &
-                        g_small,                       &
-                        g_big,                         &
-                        dtmin,                         &
-                        dtc_safe,                      &
-                        dtu_safe,                      &
-                        dtv_safe,                      &
-                        dtdiv_safe,                    &
-                        chunks(chunk)%field%xarea,     &
-                        chunks(chunk)%field%yarea,     &
-                        chunks(chunk)%field%cellx,     &
-                        chunks(chunk)%field%celly,     &
-                        chunks(chunk)%field%celldx,    &
-                        chunks(chunk)%field%celldy,    &
-                        chunks(chunk)%field%volume,    &
-                        chunks(chunk)%field%density0,  &
-                        chunks(chunk)%field%energy0,   &
-                        chunks(chunk)%field%pressure,  &
-                        chunks(chunk)%field%viscosity, &
-                        chunks(chunk)%field%soundspeed,&
-                        chunks(chunk)%field%xvel0,     &
-                        chunks(chunk)%field%yvel0,     &
-                        chunks(chunk)%field%work_array1,&
-                        local_dt,                      &
-                        l_control,                     &
-                        xl_pos,                        &
-                        yl_pos,                        &
-                        jldt,                          &
-                        kldt,                          &
-                        small                          )
-
-  ENDIF 
 
   IF(l_control.EQ.1) local_control='sound'
   IF(l_control.EQ.2) local_control='xvel'

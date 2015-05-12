@@ -135,6 +135,8 @@ clover_leaf: c_lover *.f90 Makefile
 	initialise_chunk_kernel.f90	\
 	initialise_chunk.f90		\
 	build_field.f90			\
+	update_tile_halo_kernel.f90	\
+	update_tile_halo.f90		\
 	update_halo_kernel.f90		\
 	update_halo.f90			\
 	ideal_gas_kernel.f90		\

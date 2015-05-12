@@ -31,41 +31,28 @@ SUBROUTINE viscosity()
   
   IMPLICIT NONE
 
-  INTEGER :: c
+  INTEGER :: tile
 
-  DO c=1,chunks_per_task
+!$OMP PARALLEL
+!$OMP DO
+  DO tile=1,tiles_per_chunk
 
-    IF(chunks(c)%task.EQ.parallel%task) THEN
+        CALL viscosity_kernel(chunk%tiles(tile)%t_xmin,                   &
+                            chunk%tiles(tile)%t_xmax,                     &
+                            chunk%tiles(tile)%t_ymin,                     &
+                            chunk%tiles(tile)%t_ymax,                     &
+                            chunk%tiles(tile)%field%celldx,                    &
+                            chunk%tiles(tile)%field%celldy,                    &
+                            chunk%tiles(tile)%field%density0,                  &
+                            chunk%tiles(tile)%field%pressure,                  &
+                            chunk%tiles(tile)%field%viscosity,                 &
+                            chunk%tiles(tile)%field%xvel0,                     &
+                            chunk%tiles(tile)%field%yvel0                      )
 
-      IF(use_fortran_kernels)THEN
-        CALL viscosity_kernel(chunks(c)%field%x_min,                   &
-                            chunks(c)%field%x_max,                     &
-                            chunks(c)%field%y_min,                     &
-                            chunks(c)%field%y_max,                     &
-                            chunks(c)%field%celldx,                    &
-                            chunks(c)%field%celldy,                    &
-                            chunks(c)%field%density0,                  &
-                            chunks(c)%field%pressure,                  &
-                            chunks(c)%field%viscosity,                 &
-                            chunks(c)%field%xvel0,                     &
-                            chunks(c)%field%yvel0                      )
-      ELSEIF(use_C_kernels)THEN
-        CALL viscosity_kernel_c(chunks(c)%field%x_min,                 &
-                            chunks(c)%field%x_max,                     &
-                            chunks(c)%field%y_min,                     &
-                            chunks(c)%field%y_max,                     &
-                            chunks(c)%field%celldx,                    &
-                            chunks(c)%field%celldy,                    &
-                            chunks(c)%field%density0,                  &
-                            chunks(c)%field%pressure,                  &
-                            chunks(c)%field%viscosity,                 &
-                            chunks(c)%field%xvel0,                     &
-                            chunks(c)%field%yvel0                      )
-      ENDIF
-
-    ENDIF
 
   ENDDO
+!$OMP END DO
+!$OMP END PARALLEL
 
 END SUBROUTINE viscosity
 

@@ -31,12 +31,12 @@ SUBROUTINE visit
 
   IMPLICIT NONE
 
-  INTEGER :: j,k,c,err,get_unit,u,dummy
+  INTEGER :: j,k,c,err,get_unit,u,dummy,tile
   INTEGER :: nxc,nyc,nxv,nyv,nblocks
   REAL(KIND=8)    :: temp_var
 
   CHARACTER(len=80)           :: name
-  CHARACTER(len=10)           :: chunk_name,step_name
+  CHARACTER(len=10)           :: chunk_name,tile_name,step_name
   CHARACTER(len=90)           :: filename
 
   LOGICAL, SAVE :: first_call=.TRUE.
@@ -49,7 +49,7 @@ SUBROUTINE visit
 
   IF(first_call) THEN
 
-    nblocks=number_of_chunks
+    nblocks=number_of_chunks*tiles_per_chunk
     filename = "clover.visit"
     u=get_unit(dummy)
     OPEN(UNIT=u,FILE=filename,STATUS='UNKNOWN',IOSTAT=err)
@@ -61,9 +61,13 @@ SUBROUTINE visit
   ENDIF
 
   IF(profiler_on) kernel_time=timer()
-  DO c=1,chunks_per_task
-    CALL ideal_gas(c,.FALSE.)
+!$OMP PARALLEL
+!$OMP DO
+  DO tile=1,tiles_per_chunk
+    CALL ideal_gas(tile,.FALSE.)
   ENDDO
+!$OMP END DO
+!$OMP END PARALLEL
   IF(profiler_on) profiler%ideal_gas=profiler%ideal_gas+(timer()-kernel_time)
 
   fields=0
@@ -83,31 +87,40 @@ SUBROUTINE visit
     filename = "clover.visit"
     u=get_unit(dummy)
     OPEN(UNIT=u,FILE=filename,STATUS='UNKNOWN',POSITION='APPEND',IOSTAT=err)
-
-    DO c = 1, number_of_chunks
+    DO c = 0, parallel%max_task -1
       WRITE(chunk_name, '(i6)') c+100000
       chunk_name(1:1) = "."
-      WRITE(step_name, '(i6)') step+100000
-      step_name(1:1) = "."
-      filename = trim(trim(name) //trim(chunk_name)//trim(step_name))//".vtk"
-      WRITE(u,'(a)')TRIM(filename)
+      DO tile = 1, tiles_per_chunk 
+        WRITE(tile_name, '(i6)') tile+100000
+        tile_name(1:1) = "."
+        WRITE(step_name, '(i6)') step+100000
+        step_name(1:1) = "."
+        filename = trim(trim(name)//trim(chunk_name)//trim(tile_name)//trim(step_name))//".vtk"
+        WRITE(u,'(a)')TRIM(filename)
+      ENDDO
     ENDDO
     CLOSE(u)
 
   ENDIF
 
   IF(profiler_on) kernel_time=timer()
-  DO c = 1, chunks_per_task
-    IF(chunks(c)%task.EQ.parallel%task) THEN
-      nxc=chunks(c)%field%x_max-chunks(c)%field%x_min+1
-      nyc=chunks(c)%field%y_max-chunks(c)%field%y_min+1
+
+!$OMP PARALLEL
+!$OMP DO
+  DO tile = 1, tiles_per_chunk
+    IF(chunk%task.EQ.parallel%task) THEN
+      nxc=chunk%tiles(tile)%t_xmax-chunk%tiles(tile)%t_xmin+1
+      nyc=chunk%tiles(tile)%t_ymax-chunk%tiles(tile)%t_ymin+1
       nxv=nxc+1
       nyv=nyc+1
-      WRITE(chunk_name, '(i6)') c+100000
+      
+      WRITE(chunk_name, '(i6)') parallel%task+100000
       chunk_name(1:1) = "."
+      WRITE(tile_name, '(i6)') tile+100000
+      tile_name(1:1) = "."
       WRITE(step_name, '(i6)') step+100000
       step_name(1:1) = "."
-      filename = trim(trim(name) //trim(chunk_name)//trim(step_name))//".vtk"
+      filename = trim(trim(name) //trim(chunk_name)//trim(tile_name)//trim(step_name))//".vtk"
       u=get_unit(dummy)
       OPEN(UNIT=u,FILE=filename,STATUS='UNKNOWN',IOSTAT=err)
       WRITE(u,'(a)')'# vtk DataFile Version 3.0'
@@ -116,58 +129,60 @@ SUBROUTINE visit
       WRITE(u,'(a)')'DATASET RECTILINEAR_GRID'
       WRITE(u,'(a,2i12,a)')'DIMENSIONS',nxv,nyv,' 1'
       WRITE(u,'(a,i5,a)')'X_COORDINATES ',nxv,' double'
-      DO j=chunks(c)%field%x_min,chunks(c)%field%x_max+1
-        WRITE(u,'(e12.4)')chunks(c)%field%vertexx(j)
+      DO j=chunk%tiles(tile)%t_xmin,chunk%tiles(tile)%t_xmax+1
+        WRITE(u,'(e12.4)')chunk%tiles(tile)%field%vertexx(j)
       ENDDO
       WRITE(u,'(a,i5,a)')'Y_COORDINATES ',nyv,' double'
-      DO k=chunks(c)%field%y_min,chunks(c)%field%y_max+1
-        WRITE(u,'(e12.4)')chunks(c)%field%vertexy(k)
+      DO k=chunk%tiles(tile)%t_ymin,chunk%tiles(tile)%t_ymax+1
+        WRITE(u,'(e12.4)')chunk%tiles(tile)%field%vertexy(k)
       ENDDO
       WRITE(u,'(a)')'Z_COORDINATES 1 double'
       WRITE(u,'(a)')'0'
       WRITE(u,'(a,i20)')'CELL_DATA ',nxc*nyc
       WRITE(u,'(a)')'FIELD FieldData 4'
       WRITE(u,'(a,i20,a)')'density 1 ',nxc*nyc,' double'
-      DO k=chunks(c)%field%y_min,chunks(c)%field%y_max
-        WRITE(u,'(e12.4)')(chunks(c)%field%density0(j,k),j=chunks(c)%field%x_min,chunks(c)%field%x_max)
+      DO k=chunk%tiles(tile)%t_ymin,chunk%tiles(tile)%t_ymax
+        WRITE(u,'(e12.4)')(chunk%tiles(tile)%field%density0(j,k),j=chunk%tiles(tile)%t_xmin,chunk%tiles(tile)%t_xmax)
       ENDDO
       WRITE(u,'(a,i20,a)')'energy 1 ',nxc*nyc,' double'
-      DO k=chunks(c)%field%y_min,chunks(c)%field%y_max
-        WRITE(u,'(e12.4)')(chunks(c)%field%energy0(j,k),j=chunks(c)%field%x_min,chunks(c)%field%x_max)
+      DO k=chunk%tiles(tile)%t_ymin,chunk%tiles(tile)%t_ymax
+        WRITE(u,'(e12.4)')(chunk%tiles(tile)%field%energy0(j,k),j=chunk%tiles(tile)%t_xmin,chunk%tiles(tile)%t_xmax)
       ENDDO
       WRITE(u,'(a,i20,a)')'pressure 1 ',nxc*nyc,' double'
-      DO k=chunks(c)%field%y_min,chunks(c)%field%y_max
-        WRITE(u,'(e12.4)')(chunks(c)%field%pressure(j,k),j=chunks(c)%field%x_min,chunks(c)%field%x_max)
+      DO k=chunk%tiles(tile)%t_ymin,chunk%tiles(tile)%t_ymax
+        WRITE(u,'(e12.4)')(chunk%tiles(tile)%field%pressure(j,k),j=chunk%tiles(tile)%t_xmin,chunk%tiles(tile)%t_xmax)
       ENDDO
       WRITE(u,'(a,i20,a)')'viscosity 1 ',nxc*nyc,' double'
-      DO k=chunks(c)%field%y_min,chunks(c)%field%y_max
-        DO j=chunks(c)%field%x_min,chunks(c)%field%x_max
+      DO k=chunk%tiles(tile)%t_ymin,chunk%tiles(tile)%t_ymax
+        DO j=chunk%tiles(tile)%t_xmin,chunk%tiles(tile)%t_xmax
           temp_var=0.0
-          IF(chunks(c)%field%viscosity(j,k).GT.0.00000001) temp_var=chunks(c)%field%viscosity(j,k)
+          IF(chunk%tiles(tile)%field%viscosity(j,k).GT.0.00000001) temp_var=chunk%tiles(tile)%field%viscosity(j,k)
           WRITE(u,'(e12.4)') temp_var
         ENDDO
       ENDDO
       WRITE(u,'(a,i20)')'POINT_DATA ',nxv*nyv
       WRITE(u,'(a)')'FIELD FieldData 2'
       WRITE(u,'(a,i20,a)')'x_vel 1 ',nxv*nyv,' double'
-      DO k=chunks(c)%field%y_min,chunks(c)%field%y_max+1
-        DO j=chunks(c)%field%x_min,chunks(c)%field%x_max+1
+      DO k=chunk%tiles(tile)%t_ymin,chunk%tiles(tile)%t_ymax+1
+        DO j=chunk%tiles(tile)%t_xmin,chunk%tiles(tile)%t_xmax+1
           temp_var=0.0
-          IF(ABS(chunks(c)%field%xvel0(j,k)).GT.0.00000001) temp_var=chunks(c)%field%xvel0(j,k)
+          IF(ABS(chunk%tiles(tile)%field%xvel0(j,k)).GT.0.00000001) temp_var=chunk%tiles(tile)%field%xvel0(j,k)
           WRITE(u,'(e12.4)') temp_var
         ENDDO
       ENDDO
       WRITE(u,'(a,i20,a)')'y_vel 1 ',nxv*nyv,' double'
-      DO k=chunks(c)%field%y_min,chunks(c)%field%y_max+1
-        DO j=chunks(c)%field%x_min,chunks(c)%field%x_max+1
+      DO k=chunk%tiles(tile)%t_ymin,chunk%tiles(tile)%t_ymax+1
+        DO j=chunk%tiles(tile)%t_xmin,chunk%tiles(tile)%t_xmax+1
           temp_var=0.0
-          IF(ABS(chunks(c)%field%yvel0(j,k)).GT.0.00000001) temp_var=chunks(c)%field%yvel0(j,k)
+          IF(ABS(chunk%tiles(tile)%field%yvel0(j,k)).GT.0.00000001) temp_var=chunk%tiles(tile)%field%yvel0(j,k)
           WRITE(u,'(e12.4)') temp_var
         ENDDO
       ENDDO
       CLOSE(u)
     ENDIF
   ENDDO
+!$OMP END DO
+!$OMP END PARALLEL
   IF(profiler_on) profiler%visit=profiler%visit+(timer()-kernel_time)
 
 END SUBROUTINE visit

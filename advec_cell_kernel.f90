@@ -77,32 +77,32 @@ SUBROUTINE advec_cell_kernel(x_min,       &
   REAL(KIND=8) :: diffuw,diffdw,limiter
   REAL(KIND=8) :: one_by_six=1.0_8/6.0_8
 
-!$OMP PARALLEL
+!!$OMP PARALLEL
 
   IF(dir.EQ.g_xdir) THEN
 
     IF(sweep_number.EQ.1)THEN
-!$OMP DO
+!!$OMP DO
       DO k=y_min-2,y_max+2
         DO j=x_min-2,x_max+2
           pre_vol(j,k)=volume(j,k)+(vol_flux_x(j+1,k  )-vol_flux_x(j,k)+vol_flux_y(j  ,k+1)-vol_flux_y(j,k))
           post_vol(j,k)=pre_vol(j,k)-(vol_flux_x(j+1,k  )-vol_flux_x(j,k))
         ENDDO
       ENDDO 
-!$OMP END DO
+!!$OMP END DO
     ELSE
-!$OMP DO
+!!$OMP DO
       DO k=y_min-2,y_max+2
         DO j=x_min-2,x_max+2
           pre_vol(j,k)=volume(j,k)+vol_flux_x(j+1,k)-vol_flux_x(j,k)
           post_vol(j,k)=volume(j,k)
         ENDDO
       ENDDO 
-!$OMP END DO
+!!$OMP END DO
     ENDIF
 
-!$OMP DO PRIVATE(upwind,donor,downwind,dif,sigmat,sigma3,sigma4,sigmav,sigma,sigmam, &
-!$OMP            diffuw,diffdw,limiter,wind)
+!!$OMP DO PRIVATE(upwind,donor,downwind,dif,sigmat,sigma3,sigma4,sigmav,sigma,sigmam, &
+!!$OMP            diffuw,diffdw,limiter,wind)
     DO k=y_min,y_max
       DO j=x_min,x_max+2
 
@@ -153,9 +153,9 @@ SUBROUTINE advec_cell_kernel(x_min,       &
 
       ENDDO
     ENDDO
-!$OMP END DO
+!!$OMP END DO
 
-!$OMP DO
+!!$OMP DO
     DO k=y_min,y_max
       DO j=x_min,x_max
         pre_mass(j,k)=density1(j,k)*pre_vol(j,k)
@@ -166,32 +166,32 @@ SUBROUTINE advec_cell_kernel(x_min,       &
         energy1(j,k)=post_ener(j,k)
       ENDDO
     ENDDO
-!$OMP END DO
+!!$OMP END DO
 
   ELSEIF(dir.EQ.g_ydir) THEN
 
     IF(sweep_number.EQ.1)THEN
-!$OMP DO
+!!$OMP DO
       DO k=y_min-2,y_max+2
         DO j=x_min-2,x_max+2
           pre_vol(j,k)=volume(j,k)+(vol_flux_y(j  ,k+1)-vol_flux_y(j,k)+vol_flux_x(j+1,k  )-vol_flux_x(j,k))
           post_vol(j,k)=pre_vol(j,k)-(vol_flux_y(j  ,k+1)-vol_flux_y(j,k))
         ENDDO
       ENDDO
-!$OMP END DO
+!!$OMP END DO
     ELSE
-!$OMP DO
+!!$OMP DO
       DO k=y_min-2,y_max+2
         DO j=x_min-2,x_max+2
           pre_vol(j,k)=volume(j,k)+vol_flux_y(j  ,k+1)-vol_flux_y(j,k)
           post_vol(j,k)=volume(j,k)
         ENDDO
       ENDDO
-!$OMP END DO
+!!$OMP END DO
     ENDIF
 
-!$OMP DO PRIVATE(upwind,donor,downwind,dif,sigmat,sigma3,sigma4,sigmav,sigma,sigmam, &
-!$OMP            diffuw,diffdw,limiter,wind)
+!!$OMP DO PRIVATE(upwind,donor,downwind,dif,sigmat,sigma3,sigma4,sigmav,sigma,sigmam, &
+!!$OMP            diffuw,diffdw,limiter,wind)
     DO k=y_min,y_max+2
       DO j=x_min,x_max
 
@@ -241,9 +241,9 @@ SUBROUTINE advec_cell_kernel(x_min,       &
 
       ENDDO
     ENDDO
-!$OMP END DO
+!!$OMP END DO
 
-!$OMP DO
+!!$OMP DO
     DO k=y_min,y_max
       DO j=x_min,x_max
         pre_mass(j,k)=density1(j,k)*pre_vol(j,k)
@@ -254,11 +254,11 @@ SUBROUTINE advec_cell_kernel(x_min,       &
         energy1(j,k)=post_ener(j,k)
       ENDDO
     ENDDO
-!$OMP END DO
+!!$OMP END DO
 
   ENDIF
 
-!$OMP END PARALLEL
+!!$OMP END PARALLEL
 
 END SUBROUTINE advec_cell_kernel
 

@@ -19,14 +19,14 @@
 !>  @author Wayne Gaudin
 !>  @details Invoked the users specified chunk generator.
 
-SUBROUTINE generate_chunk(chunk)
+SUBROUTINE generate_chunk(tile)
 
   USE clover_module
   USE generate_chunk_kernel_module
 
   IMPLICIT NONE
 
-  INTEGER         :: chunk
+  INTEGER         :: tile 
 
   INTEGER         :: state
   REAL(KIND=8), DIMENSION(number_of_states) :: state_density,state_energy,state_xvel,state_yvel
@@ -46,19 +46,18 @@ SUBROUTINE generate_chunk(chunk)
    state_geometry(state)=states(state)%geometry
   ENDDO
 
-  IF(use_fortran_kernels) THEN
-    CALL generate_chunk_kernel(chunks(chunk)%field%x_min,             &
-                               chunks(chunk)%field%x_max,             &
-                               chunks(chunk)%field%y_min,             &
-                               chunks(chunk)%field%y_max,             &
-                               chunks(chunk)%field%vertexx,           &
-                               chunks(chunk)%field%vertexy,           &
-                               chunks(chunk)%field%cellx,             &
-                               chunks(chunk)%field%celly,             &
-                               chunks(chunk)%field%density0,          &
-                               chunks(chunk)%field%energy0,           &
-                               chunks(chunk)%field%xvel0,             &
-                               chunks(chunk)%field%yvel0,             &
+    CALL generate_chunk_kernel(chunk%tiles(tile)%t_xmin,             &
+                               chunk%tiles(tile)%t_xmax,             &
+                               chunk%tiles(tile)%t_ymin,             &
+                               chunk%tiles(tile)%t_ymax,             &
+                               chunk%tiles(tile)%field%vertexx,           &
+                               chunk%tiles(tile)%field%vertexy,           &
+                               chunk%tiles(tile)%field%cellx,             &
+                               chunk%tiles(tile)%field%celly,             &
+                               chunk%tiles(tile)%field%density0,          &
+                               chunk%tiles(tile)%field%energy0,           &
+                               chunk%tiles(tile)%field%xvel0,             &
+                               chunk%tiles(tile)%field%yvel0,             &
                                number_of_states,                      &
                                state_density,                         &
                                state_energy,                          &
@@ -73,33 +72,6 @@ SUBROUTINE generate_chunk(chunk)
                                g_rect,                                &
                                g_circ,                                &
                                g_point)
-      ELSEIF(use_C_kernels)THEN
-        CALL generate_chunk_kernel_c(chunks(chunk)%field%x_min,         &
-                                 chunks(chunk)%field%x_max,             &
-                                 chunks(chunk)%field%y_min,             &
-                                 chunks(chunk)%field%y_max,             &
-                                 chunks(chunk)%field%vertexx,           &
-                                 chunks(chunk)%field%vertexy,           &
-                                 chunks(chunk)%field%cellx,             &
-                                 chunks(chunk)%field%celly,             &
-                                 chunks(chunk)%field%density0,          &
-                                 chunks(chunk)%field%energy0,           &
-                                 chunks(chunk)%field%xvel0,             &
-                                 chunks(chunk)%field%yvel0,             &
-                                 number_of_states,                      &
-                                 state_density,                         &
-                                 state_energy,                          &
-                                 state_xvel,                            &
-                                 state_yvel,                            &
-                                 state_xmin,                            &
-                                 state_xmax,                            &
-                                 state_ymin,                            &
-                                 state_ymax,                            &
-                                 state_radius,                          &
-                                 state_geometry,                        &
-                                 g_rect,                                &
-                                 g_circ,                                &
-                                 g_point)
-      ENDIF
+
 
 END SUBROUTINE generate_chunk

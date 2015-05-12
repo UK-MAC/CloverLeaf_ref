@@ -44,39 +44,39 @@ SUBROUTINE reset_field_kernel(x_min,x_max,y_min,y_max,    &
 
   INTEGER :: j,k
 
-!$OMP PARALLEL
-!$OMP DO
+!!$OMP PARALLEL
+!!$OMP DO
   DO k=y_min,y_max
      DO j=x_min,x_max
         density0(j,k)=density1(j,k)
      ENDDO
   ENDDO
-!$OMP END DO
+!!$OMP END DO
 
-!$OMP DO
+!!$OMP DO
   DO k=y_min,y_max
      DO j=x_min,x_max
         energy0(j,k)=energy1(j,k)
      ENDDO
   ENDDO
-!$OMP END DO
+!!$OMP END DO
 
-!$OMP DO
+!!$OMP DO
   DO k=y_min,y_max+1
      DO j=x_min,x_max+1
         xvel0(j,k)=xvel1(j,k)
      ENDDO
   ENDDO
-!$OMP END DO
+!!$OMP END DO
 
-!$OMP DO
+!!$OMP DO
   DO k=y_min,y_max+1
      DO j=x_min,x_max+1
         yvel0(j,k)=yvel1(j,k)
      ENDDO
   ENDDO
-!$OMP END DO
-!$OMP END PARALLEL
+!!$OMP END DO
+!!$OMP END PARALLEL
 
 END SUBROUTINE reset_field_kernel
 

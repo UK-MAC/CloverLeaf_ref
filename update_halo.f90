@@ -27,68 +27,59 @@ CONTAINS
 SUBROUTINE update_halo(fields,depth)
 
   USE clover_module
+  USE update_tile_halo_module
   USE update_halo_kernel_module
 
   IMPLICIT NONE
 
-  INTEGER :: c,fields(NUM_FIELDS),depth
+  INTEGER :: tile,fields(NUM_FIELDS),depth
 
+    !TODO: fix the chunk comms phase
+  CALL update_tile_halo(fields,depth)
   CALL clover_exchange(fields,depth)
+  
 
-  DO c=1,chunks_per_task
+    IF (  (chunk%chunk_neighbours(CHUNK_LEFT) .EQ. EXTERNAL_FACE) .OR.     &
+          (chunk%chunk_neighbours(CHUNK_RIGHT) .EQ. EXTERNAL_FACE) .OR.    &
+          (chunk%chunk_neighbours(CHUNK_BOTTOM) .EQ. EXTERNAL_FACE) .OR.   &
+          (chunk%chunk_neighbours(CHUNK_TOP) .EQ. EXTERNAL_FACE) ) THEN
 
-    IF(chunks(c)%task.EQ.parallel%task) THEN
 
-      IF(use_fortran_kernels)THEN
-        CALL update_halo_kernel(chunks(c)%field%x_min,          &
-                                chunks(c)%field%x_max,          &
-                                chunks(c)%field%y_min,          &
-                                chunks(c)%field%y_max,          &
-                                chunks(c)%chunk_neighbours,     &
-                                chunks(c)%field%density0,       &
-                                chunks(c)%field%energy0,        &
-                                chunks(c)%field%pressure,       &
-                                chunks(c)%field%viscosity,      &
-                                chunks(c)%field%soundspeed,     &
-                                chunks(c)%field%density1,       &
-                                chunks(c)%field%energy1,        &
-                                chunks(c)%field%xvel0,          &
-                                chunks(c)%field%yvel0,          &
-                                chunks(c)%field%xvel1,          &
-                                chunks(c)%field%yvel1,          &
-                                chunks(c)%field%vol_flux_x,     &
-                                chunks(c)%field%vol_flux_y,     &
-                                chunks(c)%field%mass_flux_x,    &
-                                chunks(c)%field%mass_flux_y,    &
-                                fields,                         &
-                                depth                           )
-      ELSEIF(use_C_kernels)THEN
-        CALL update_halo_kernel_c(chunks(c)%field%x_min,        &
-                                chunks(c)%field%x_max,          &
-                                chunks(c)%field%y_min,          &
-                                chunks(c)%field%y_max,          &
-                                chunks(c)%chunk_neighbours,     &
-                                chunks(c)%field%density0,       &
-                                chunks(c)%field%energy0,        &
-                                chunks(c)%field%pressure,       &
-                                chunks(c)%field%viscosity,      &
-                                chunks(c)%field%soundspeed,     &
-                                chunks(c)%field%density1,       &
-                                chunks(c)%field%energy1,        &
-                                chunks(c)%field%xvel0,          &
-                                chunks(c)%field%yvel0,          &
-                                chunks(c)%field%xvel1,          &
-                                chunks(c)%field%yvel1,          &
-                                chunks(c)%field%vol_flux_x,     &
-                                chunks(c)%field%vol_flux_y,     &
-                                chunks(c)%field%mass_flux_x,    &
-                                chunks(c)%field%mass_flux_y,    &
-                                fields,                         &
-                                depth                           )
-      ENDIF
+!$OMP PARALLEL
+!$OMP DO
+        DO tile=1,tiles_per_chunk
+
+              CALL update_halo_kernel(chunk%tiles(tile)%t_xmin,          &
+                                      chunk%tiles(tile)%t_xmax,          &
+                                      chunk%tiles(tile)%t_ymin,          &
+                                      chunk%tiles(tile)%t_ymax,          &
+                                      chunk%chunk_neighbours,     &
+                                      chunk%tiles(tile)%tile_neighbours,     &
+                                      chunk%tiles(tile)%field%density0,       &
+                                      chunk%tiles(tile)%field%energy0,        &
+                                      chunk%tiles(tile)%field%pressure,       &
+                                      chunk%tiles(tile)%field%viscosity,      &
+                                      chunk%tiles(tile)%field%soundspeed,     &
+                                      chunk%tiles(tile)%field%density1,       &
+                                      chunk%tiles(tile)%field%energy1,        &
+                                      chunk%tiles(tile)%field%xvel0,          &
+                                      chunk%tiles(tile)%field%yvel0,          &
+                                      chunk%tiles(tile)%field%xvel1,          &
+                                      chunk%tiles(tile)%field%yvel1,          &
+                                      chunk%tiles(tile)%field%vol_flux_x,     &
+                                      chunk%tiles(tile)%field%vol_flux_y,     &
+                                      chunk%tiles(tile)%field%mass_flux_x,    &
+                                      chunk%tiles(tile)%field%mass_flux_y,    &
+                                      fields,                         &
+                                      depth                          )
+
+
+        ENDDO
+!$OMP END DO
+!$OMP END PARALLEL
     ENDIF
 
-  ENDDO
+    
 
 END SUBROUTINE update_halo
 

@@ -53,6 +53,8 @@ SUBROUTINE read_input()
 
   visit_frequency=0
   summary_frequency=10
+  
+  tiles_per_chunk=1
 
   dtinit=0.1_8
   dtmax=1.0_8
@@ -161,6 +163,9 @@ SUBROUTINE read_input()
       CASE('summary_frequency')
         summary_frequency=parse_getival(parse_getword(.TRUE.))
         IF(parallel%boss)WRITE(g_out,"(1x,a25,i12)")'summary_frequency',summary_frequency
+      CASE('tiles_per_chunk')
+        tiles_per_chunk=parse_getival(parse_getword(.TRUE.))
+        IF(parallel%boss)WRITE(g_out,"(1x,a25,i12)")'tiles_per_chunk',tiles_per_chunk
       CASE('use_fortran_kernels')
         use_fortran_kernels=.TRUE.
         use_C_kernels=.FALSE.

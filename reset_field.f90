@@ -30,46 +30,33 @@ SUBROUTINE reset_field()
 
   IMPLICIT NONE
 
-  INTEGER :: c
+  INTEGER :: tile
 
   REAL(KIND=8) :: kernel_time,timer
 
   IF(profiler_on) kernel_time=timer()
-  DO c=1,chunks_per_task
+  
+!$OMP PARALLEL
+!$OMP DO
+  DO tile=1,tiles_per_chunk
 
-    IF(chunks(c)%task.EQ.parallel%task) THEN
 
-      IF(use_fortran_kernels)THEN
-        CALL reset_field_kernel(chunks(c)%field%x_min,   &
-                              chunks(c)%field%x_max,     &
-                              chunks(c)%field%y_min,     &
-                              chunks(c)%field%y_max,     &
-                              chunks(c)%field%density0,  &
-                              chunks(c)%field%density1,  &
-                              chunks(c)%field%energy0,   &
-                              chunks(c)%field%energy1,   &
-                              chunks(c)%field%xvel0,     &
-                              chunks(c)%field%xvel1,     &
-                              chunks(c)%field%yvel0,     &
-                              chunks(c)%field%yvel1      )
-      ELSEIF(use_C_kernels)THEN
-        CALL reset_field_kernel_c(chunks(c)%field%x_min, &
-                              chunks(c)%field%x_max,     &
-                              chunks(c)%field%y_min,     &
-                              chunks(c)%field%y_max,     &
-                              chunks(c)%field%density0,  &
-                              chunks(c)%field%density1,  &
-                              chunks(c)%field%energy0,   &
-                              chunks(c)%field%energy1,   &
-                              chunks(c)%field%xvel0,     &
-                              chunks(c)%field%xvel1,     &
-                              chunks(c)%field%yvel0,     &
-                              chunks(c)%field%yvel1      )
-      ENDIF
-
-    ENDIF
+        CALL reset_field_kernel(chunk%tiles(tile)%t_xmin,   &
+                              chunk%tiles(tile)%t_xmax,     &
+                              chunk%tiles(tile)%t_ymin,     &
+                              chunk%tiles(tile)%t_ymax,     &
+                              chunk%tiles(tile)%field%density0,  &
+                              chunk%tiles(tile)%field%density1,  &
+                              chunk%tiles(tile)%field%energy0,   &
+                              chunk%tiles(tile)%field%energy1,   &
+                              chunk%tiles(tile)%field%xvel0,     &
+                              chunk%tiles(tile)%field%xvel1,     &
+                              chunk%tiles(tile)%field%yvel0,     &
+                              chunk%tiles(tile)%field%yvel1      )
 
   ENDDO
+!$OMP END DO
+!$OMP END PARALLEL
   IF(profiler_on) profiler%reset=profiler%reset+(timer()-kernel_time)
 
 END SUBROUTINE reset_field

@@ -55,79 +55,79 @@ SUBROUTINE initialise_chunk_kernel(x_min,x_max,y_min,y_max,       &
 
   INTEGER      :: j,k
 
-!$OMP PARALLEL
-!$OMP DO
+!!$OMP PARALLEL
+!!$OMP DO
   DO j=x_min-2,x_max+3
      vertexx(j)=xmin+dx*float(j-x_min)
   ENDDO
-!$OMP END DO
+!!$OMP END DO
 
-!$OMP DO
+!!$OMP DO
   DO j=x_min-2,x_max+3
     vertexdx(j)=dx
   ENDDO
-!$OMP END DO
+!!$OMP END DO
 
-!$OMP DO
+!!$OMP DO
   DO k=y_min-2,y_max+3
      vertexy(k)=ymin+dy*float(k-y_min)
   ENDDO
-!$OMP END DO
+!!$OMP END DO
 
-!$OMP DO
+!!$OMP DO
   DO k=y_min-2,y_max+3
     vertexdy(k)=dy
   ENDDO
-!$OMP END DO
+!!$OMP END DO
 
-!$OMP DO
+!!$OMP DO
   DO j=x_min-2,x_max+2
      cellx(j)=0.5*(vertexx(j)+vertexx(j+1))
   ENDDO
-!$OMP END DO
+!!$OMP END DO
 
-!$OMP DO
+!!$OMP DO
   DO j=x_min-2,x_max+2
      celldx(j)=dx
   ENDDO
-!$OMP END DO
+!!$OMP END DO
 
-!$OMP DO
+!!$OMP DO
   DO k=y_min-2,y_max+2
      celly(k)=0.5*(vertexy(k)+vertexy(k+1))
   ENDDO
-!$OMP END DO
+!!$OMP END DO
 
-!$OMP DO
+!!$OMP DO
   DO k=y_min-2,y_max+2
      celldy(k)=dy
   ENDDO
-!$OMP END DO
+!!$OMP END DO
 
-!$OMP DO PRIVATE(j)
+!!$OMP DO PRIVATE(j)
   DO k=y_min-2,y_max+2
     DO j=x_min-2,x_max+2
         volume(j,k)=dx*dy
      ENDDO
   ENDDO
-!$OMP END DO
+!!$OMP END DO
 
-!$OMP DO PRIVATE(j)
+!!$OMP DO PRIVATE(j)
   DO k=y_min-2,y_max+2
     DO j=x_min-2,x_max+2
         xarea(j,k)=celldy(k)
      ENDDO
   ENDDO
-!$OMP END DO
+!!$OMP END DO
 
-!$OMP DO PRIVATE(j)
+!!$OMP DO PRIVATE(j)
   DO k=y_min-2,y_max+2
     DO j=x_min-2,x_max+2
         yarea(j,k)=celldx(j)
      ENDDO
   ENDDO
-!$OMP END DO
-!$OMP END PARALLEL
+!!$OMP END DO
+!!$OMP END PARALLEL
 
 END SUBROUTINE initialise_chunk_kernel
 

@@ -62,6 +62,9 @@ MODULE definitions_module
    INTEGER      :: step
 
    LOGICAL      :: advect_x
+   
+   
+   INTEGER  :: tiles_per_chunk
 
    INTEGER      :: error_condition
 
@@ -135,20 +138,6 @@ MODULE definitions_module
      REAL(KIND=8),    DIMENSION(:,:), ALLOCATABLE :: work_array6 !pre_vol, post_ener
      REAL(KIND=8),    DIMENSION(:,:), ALLOCATABLE :: work_array7 !post_vol, ener_flux
 
-     INTEGER         :: left            &
-                       ,right           &
-                       ,bottom          &
-                       ,top             &
-                       ,left_boundary   &
-                       ,right_boundary  &
-                       ,bottom_boundary &
-                       ,top_boundary
-
-     INTEGER         :: x_min  &
-                       ,y_min  &
-                       ,x_max  &
-                       ,y_max
-
      REAL(KIND=8), DIMENSION(:),   ALLOCATABLE :: cellx    &
                                                  ,celly    &
                                                  ,vertexx  &
@@ -163,28 +152,60 @@ MODULE definitions_module
                                                  ,yarea
 
    END TYPE field_type
+
+
+    TYPE tile_type
+
+        TYPE(field_type):: field
+        INTEGER :: tile_neighbours(4)
+        INTEGER :: external_tile_mask(4)
+
+        INTEGER :: t_xmin, t_xmax, t_ymin, t_ymax
+
+        INTEGER :: t_left, t_right, t_bottom, t_top
+
+    END TYPE tile_type
+
    
-   TYPE chunk_type
+    TYPE chunk_type
 
-     INTEGER         :: task   !mpi task
+        INTEGER         :: task   !mpi task
 
-     INTEGER         :: chunk_neighbours(4) ! Chunks, not tasks, so we can overload in the future
+        INTEGER         :: chunk_neighbours(4) ! Chunks, not tasks, so we can overload in the future
 
-     ! Idealy, create an array to hold the buffers for each field so a commuincation only needs
-     !  one send and one receive per face, rather than per field.
-     ! If chunks are overloaded, i.e. more chunks than tasks, might need to pack for a task to task comm 
-     !  rather than a chunk to chunk comm. See how performance is at high core counts before deciding
-     REAL(KIND=8),ALLOCATABLE:: left_rcv_buffer(:),right_rcv_buffer(:),bottom_rcv_buffer(:),top_rcv_buffer(:)
-     REAL(KIND=8),ALLOCATABLE:: left_snd_buffer(:),right_snd_buffer(:),bottom_snd_buffer(:),top_snd_buffer(:)
+        ! Idealy, create an array to hold the buffers for each field so a commuincation only needs
+        !  one send and one receive per face, rather than per field.
+        ! If chunks are overloaded, i.e. more chunks than tasks, might need to pack for a task to task comm 
+        !  rather than a chunk to chunk comm. See how performance is at high core counts before deciding
+        REAL(KIND=8),ALLOCATABLE:: left_rcv_buffer(:),right_rcv_buffer(:),bottom_rcv_buffer(:),top_rcv_buffer(:)
+        REAL(KIND=8),ALLOCATABLE:: left_snd_buffer(:),right_snd_buffer(:),bottom_snd_buffer(:),top_snd_buffer(:)
 
-     TYPE(field_type):: field
+        !TYPE(field_type):: field
+        TYPE(tile_type), DIMENSION(:), ALLOCATABLE :: tiles
 
-  END TYPE chunk_type
+        INTEGER         :: x_min  &
+                          ,y_min  &
+                          ,x_max  &
+                          ,y_max
+
+        INTEGER         :: left            &
+                          ,right           &
+                          ,bottom          &
+                          ,top             &
+                          ,left_boundary   &
+                          ,right_boundary  &
+                          ,bottom_boundary &
+                          ,top_boundary
+    END TYPE chunk_type
 
 
-  TYPE(chunk_type),  ALLOCATABLE       :: chunks(:)
-  INTEGER                              :: number_of_chunks
 
-  TYPE(grid_type)                      :: grid
+
+
+
+  TYPE(chunk_type)       :: chunk
+  INTEGER                :: number_of_chunks
+
+  TYPE(grid_type)        :: grid
 
 END MODULE definitions_module

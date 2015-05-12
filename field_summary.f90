@@ -33,11 +33,12 @@ SUBROUTINE field_summary()
   IMPLICIT NONE
 
   REAL(KIND=8) :: vol,mass,ie,ke,press
+ REAL(KIND=8) :: t_vol,t_mass,t_ie,t_ke,t_press
   REAL(KIND=8) :: qa_diff
 
 !$ INTEGER :: OMP_GET_THREAD_NUM
 
-  INTEGER      :: c
+  INTEGER      :: tile
 
   REAL(KIND=8) :: kernel_time,timer
 
@@ -48,45 +49,54 @@ SUBROUTINE field_summary()
   ENDIF
 
   IF(profiler_on) kernel_time=timer()
-  DO c=1,chunks_per_task
-    CALL ideal_gas(c,.FALSE.)
+!$OMP PARALLEL
+!$OMP DO
+  DO tile=1,tiles_per_chunk
+    CALL ideal_gas(tile,.FALSE.)
   ENDDO
+!$OMP END DO
+!$OMP END PARALLEL
+
   IF(profiler_on) profiler%ideal_gas=profiler%ideal_gas+(timer()-kernel_time)
 
   IF(profiler_on) kernel_time=timer()
-  IF(use_fortran_kernels)THEN
-    DO c=1,chunks_per_task
-      IF(chunks(c)%task.EQ.parallel%task) THEN
-        CALL field_summary_kernel(chunks(c)%field%x_min,                   &
-                                  chunks(c)%field%x_max,                   &
-                                  chunks(c)%field%y_min,                   &
-                                  chunks(c)%field%y_max,                   &
-                                  chunks(c)%field%volume,                  &
-                                  chunks(c)%field%density0,                &
-                                  chunks(c)%field%energy0,                 &
-                                  chunks(c)%field%pressure,                &
-                                  chunks(c)%field%xvel0,                   &
-                                  chunks(c)%field%yvel0,                   &
+
+    t_vol=0.0
+    t_mass=0.0
+    t_ie=0.0
+    t_ke=0.0
+    t_press=0.0
+
+!$OMP PARALLEL PRIVATE(vol, mass, ie, ke, press) REDUCTION(+ : t_vol, t_mass, t_ie, t_ke, t_press)
+!$OMP DO
+    DO tile=1,tiles_per_chunk
+        CALL field_summary_kernel(chunk%tiles(tile)%t_xmin,                   &
+                                  chunk%tiles(tile)%t_xmax,                   &
+                                  chunk%tiles(tile)%t_ymin,                   &
+                                  chunk%tiles(tile)%t_ymax,                   &
+                                  chunk%tiles(tile)%field%volume,                  &
+                                  chunk%tiles(tile)%field%density0,                &
+                                  chunk%tiles(tile)%field%energy0,                 &
+                                  chunk%tiles(tile)%field%pressure,                &
+                                  chunk%tiles(tile)%field%xvel0,                   &
+                                  chunk%tiles(tile)%field%yvel0,                   &
                                   vol,mass,ie,ke,press                     )
-      ENDIF
+       t_vol=t_vol+vol
+       t_mass=t_mass+mass
+       t_ie=t_ie+ie
+       t_ke=t_ke+ke
+       t_press=t_press+press
+      
     ENDDO
-  ELSEIF(use_C_kernels)THEN
-    DO c=1,chunks_per_task
-      IF(chunks(c)%task.EQ.parallel%task) THEN
-        CALL field_summary_kernel_c(chunks(c)%field%x_min,                 &
-                                  chunks(c)%field%x_max,                   &
-                                  chunks(c)%field%y_min,                   &
-                                  chunks(c)%field%y_max,                   &
-                                  chunks(c)%field%volume,                  &
-                                  chunks(c)%field%density0,                &
-                                  chunks(c)%field%energy0,                 &
-                                  chunks(c)%field%pressure,                &
-                                  chunks(c)%field%xvel0,                   &
-                                  chunks(c)%field%yvel0,                   &
-                                  vol,mass,ie,ke,press                     )
-      ENDIF
-    ENDDO
-  ENDIF
+!$OMP END DO
+!$OMP END PARALLEL
+    
+   vol=t_vol
+   ie=t_ie
+   ke=t_ke
+   mass=t_mass
+   press=t_press
+
 
   ! For mpi I need a reduction here
   CALL clover_sum(vol)
