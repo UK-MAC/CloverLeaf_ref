@@ -79,6 +79,7 @@ CONTAINS
   REAL(KIND=8), DIMENSION(x_min-2:x_max+3,y_min-2:y_max+3) :: xvel0_right, xvel1_right, yvel0_right, yvel1_right
 
 !$OMP PARALLEL
+    ! FIXME
     IF (fields(FIELD_DENSITY0).EQ.1) THEN
       CALL update_internal_halo_cell_left_right(x_min, x_max, y_min, y_max, density0, &
         x_min_right, x_max_right, y_min_right, y_max_right, density0_right, &

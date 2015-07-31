@@ -32,21 +32,21 @@ MODULE update_halo_kernel_module
                             ,EXTERNAL_FACE=-1
 
   INTEGER,PRIVATE,PARAMETER :: FIELD_DENSITY0   = 1         &
-                            ,FIELD_DENSITY1   = 2         &
-                            ,FIELD_ENERGY0    = 3         &
-                            ,FIELD_ENERGY1    = 4         &
-                            ,FIELD_PRESSURE   = 5         &
-                            ,FIELD_VISCOSITY  = 6         &
-                            ,FIELD_SOUNDSPEED = 7         &
-                            ,FIELD_XVEL0      = 8         &
-                            ,FIELD_XVEL1      = 9         &
-                            ,FIELD_YVEL0      =10         &
-                            ,FIELD_YVEL1      =11         &
-                            ,FIELD_VOL_FLUX_X =12         &
-                            ,FIELD_VOL_FLUX_Y =13         &
-                            ,FIELD_MASS_FLUX_X=14         &
-                            ,FIELD_MASS_FLUX_Y=15       &
-                            ,NUM_FIELDS       =15
+                              ,FIELD_DENSITY1   = 2         &
+                              ,FIELD_ENERGY0    = 3         &
+                              ,FIELD_ENERGY1    = 4         &
+                              ,FIELD_PRESSURE   = 5         &
+                              ,FIELD_VISCOSITY  = 6         &
+                              ,FIELD_SOUNDSPEED = 7         &
+                              ,FIELD_XVEL0      = 8         &
+                              ,FIELD_XVEL1      = 9         &
+                              ,FIELD_YVEL0      =10         &
+                              ,FIELD_YVEL1      =11         &
+                              ,FIELD_VOL_FLUX_X =12         &
+                              ,FIELD_VOL_FLUX_Y =13         &
+                              ,FIELD_MASS_FLUX_X=14         &
+                              ,FIELD_MASS_FLUX_Y=15       &
+                              ,NUM_FIELDS       =15
 
 CONTAINS
 
@@ -85,61 +85,55 @@ CONTAINS
 !$OMP PARALLEL
 
   ! Update values in external halo cells based on depth and fields requested
-#define UPDATE_CELL_CHECK(array) IF (fields(FIELD_##array).EQ.1) CALL update_halo_cell(x_min, x_max, y_min, y_max, chunk_neighbours, tile_neighbours, array, depth)
-  
-  UPDATE_CELL_CHECK(density0)
-  UPDATE_CELL_CHECK(density1)
-  UPDATE_CELL_CHECK(energy0)
-  UPDATE_CELL_CHECK(energy1)
-  UPDATE_CELL_CHECK(pressure)
-  UPDATE_CELL_CHECK(soundspeed)
-  UPDATE_CELL_CHECK(viscosity)
+
+  IF (fields(FIELD_DENSITY0   ).EQ.1) CALL update_halo_inner(x_min, x_max, y_min, y_max, chunk_neighbours, tile_neighbours, density0,    depth, 0, 0,  1.0_8,  1.0_8)
+  IF (fields(FIELD_DENSITY1   ).EQ.1) CALL update_halo_inner(x_min, x_max, y_min, y_max, chunk_neighbours, tile_neighbours, energy0,     depth, 0, 0,  1.0_8,  1.0_8)
+  IF (fields(FIELD_ENERGY0    ).EQ.1) CALL update_halo_inner(x_min, x_max, y_min, y_max, chunk_neighbours, tile_neighbours, pressure,    depth, 0, 0,  1.0_8,  1.0_8)
+  IF (fields(FIELD_ENERGY1    ).EQ.1) CALL update_halo_inner(x_min, x_max, y_min, y_max, chunk_neighbours, tile_neighbours, viscosity,   depth, 0, 0,  1.0_8,  1.0_8)
+  IF (fields(FIELD_PRESSURE   ).EQ.1) CALL update_halo_inner(x_min, x_max, y_min, y_max, chunk_neighbours, tile_neighbours, soundspeed,  depth, 0, 0,  1.0_8,  1.0_8)
+  IF (fields(FIELD_VISCOSITY  ).EQ.1) CALL update_halo_inner(x_min, x_max, y_min, y_max, chunk_neighbours, tile_neighbours, density1,    depth, 0, 0,  1.0_8,  1.0_8)
+  IF (fields(FIELD_SOUNDSPEED ).EQ.1) CALL update_halo_inner(x_min, x_max, y_min, y_max, chunk_neighbours, tile_neighbours, energy1,     depth, 0, 0,  1.0_8,  1.0_8)
+
+  IF (fields(FIELD_XVEL0      ).EQ.1) CALL update_halo_inner(x_min, x_max, y_min, y_max, chunk_neighbours, tile_neighbours, xvel0,       depth, 1, 1, -1.0_8,  1.0_8)
+  IF (fields(FIELD_XVEL1      ).EQ.1) CALL update_halo_inner(x_min, x_max, y_min, y_max, chunk_neighbours, tile_neighbours, yvel0,       depth, 1, 1, -1.0_8,  1.0_8)
+
+  IF (fields(FIELD_YVEL0      ).EQ.1) CALL update_halo_inner(x_min, x_max, y_min, y_max, chunk_neighbours, tile_neighbours, xvel1,       depth, 1, 1,  1.0_8, -1.0_8)
+  IF (fields(FIELD_YVEL1      ).EQ.1) CALL update_halo_inner(x_min, x_max, y_min, y_max, chunk_neighbours, tile_neighbours, yvel1,       depth, 1, 1,  1.0_8, -1.0_8)
+
+  IF (fields(FIELD_VOL_FLUX_X ).EQ.1) CALL update_halo_inner(x_min, x_max, y_min, y_max, chunk_neighbours, tile_neighbours, vol_flux_x,  depth, 1, 0, -1.0_8,  1.0_8)
+  IF (fields(FIELD_MASS_FLUX_X).EQ.1) CALL update_halo_inner(x_min, x_max, y_min, y_max, chunk_neighbours, tile_neighbours, mass_flux_x, depth, 1, 0, -1.0_8,  1.0_8)
+
+  IF (fields(FIELD_VOL_FLUX_Y ).EQ.1) CALL update_halo_inner(x_min, x_max, y_min, y_max, chunk_neighbours, tile_neighbours, vol_flux_y,  depth, 0, 1,  1.0_8, -1.0_8)
+  IF (fields(FIELD_MASS_FLUX_Y).EQ.1) CALL update_halo_inner(x_min, x_max, y_min, y_max, chunk_neighbours, tile_neighbours, mass_flux_y, depth, 0, 1,  1.0_8, -1.0_8)
 
 !$OMP END PARALLEL
 
 END SUBROUTINE update_halo_kernel
 
-SUBROUTINE update_halo_cell(x_min,x_max,y_min,y_max, &
+SUBROUTINE update_halo_inner(x_min,x_max,y_min,y_max, &
                         chunk_neighbours,               &
                         tile_neighbours,               &
-                        cell_mesh,                           &
-                        depth                           )
+                        mesh,                           &
+                        depth,                      &
+                        x_extra,y_extra,            &
+                        x_invert,y_invert)
   IMPLICIT NONE
 
   INTEGER :: x_min,x_max,y_min,y_max
+  INTEGER :: x_extra, y_extra
   INTEGER, DIMENSION(4) :: chunk_neighbours, tile_neighbours
-  REAL(KIND=8), DIMENSION(x_min-2:x_max+2,y_min-2:y_max+2) :: cell_mesh
+  REAL(KIND=8), DIMENSION(x_min-2:x_max+2,y_min-2:y_max+2) :: mesh
+  REAL(KIND=8) :: x_invert, y_invert
 
   INTEGER :: depth
 
   INTEGER :: j,k
 
-  IF (chunk_neighbours(CHUNK_LEFT).EQ.EXTERNAL_FACE .AND. tile_neighbours(CHUNK_LEFT).EQ.EXTERNAL_FACE) THEN
-!$OMP DO COLLAPSE(2)
-    DO k=y_min-depth,y_max+depth
-      DO j=1,depth
-        cell_mesh(1-j,k)=cell_mesh(0+j,k)
-      ENDDO
-    ENDDO
-!$OMP END DO NOWAIT
-  ENDIF
-  IF (chunk_neighbours(CHUNK_RIGHT).EQ.EXTERNAL_FACE .AND. tile_neighbours(CHUNK_RIGHT).EQ.EXTERNAL_FACE) THEN
-!$OMP DO COLLAPSE(2)
-    DO k=y_min-depth,y_max+depth
-      DO j=1,depth
-        cell_mesh(x_max+j,k)=cell_mesh(x_max+1-j,k)
-      ENDDO
-    ENDDO
-!$OMP END DO NOWAIT
-  ENDIF
-
-!$OMP BARRIER
-
   IF (chunk_neighbours(CHUNK_BOTTOM).EQ.EXTERNAL_FACE .AND. tile_neighbours(CHUNK_BOTTOM).EQ.EXTERNAL_FACE) THEN
 !$OMP DO COLLAPSE(2)
     DO k=1,depth
       DO j=x_min-depth,x_max+depth
-        cell_mesh(j,1-k)=cell_mesh(j,0+k)
+        mesh(j,1-k)=y_invert*mesh(j,y_extra+k)
       ENDDO
     ENDDO
 !$OMP END DO NOWAIT
@@ -148,12 +142,34 @@ SUBROUTINE update_halo_cell(x_min,x_max,y_min,y_max, &
 !$OMP DO COLLAPSE(2)
     DO k=1,depth
       DO j=x_min-depth,x_max+depth
-        cell_mesh(j,y_max+k)=cell_mesh(j,y_max+1-k)
+        mesh(j,y_max+y_extra+k)=mesh(j,y_max+1-k)
       ENDDO
     ENDDO
 !$OMP END DO NOWAIT
   ENDIF
 
-END SUBROUTINE update_halo_cell
+!$OMP BARRIER
+
+  IF (chunk_neighbours(CHUNK_LEFT).EQ.EXTERNAL_FACE .AND. tile_neighbours(CHUNK_LEFT).EQ.EXTERNAL_FACE) THEN
+!$OMP DO COLLAPSE(2)
+    DO k=y_min-depth,y_max+depth
+      DO j=1,depth
+        mesh(1-j,k)=x_invert*mesh(x_extra+j,k)
+      ENDDO
+    ENDDO
+!$OMP END DO NOWAIT
+  ENDIF
+  IF (chunk_neighbours(CHUNK_RIGHT).EQ.EXTERNAL_FACE .AND. tile_neighbours(CHUNK_RIGHT).EQ.EXTERNAL_FACE) THEN
+!$OMP DO COLLAPSE(2)
+    DO k=y_min-depth,y_max+depth
+      DO j=1,depth
+        mesh(x_max+x_extra+j,k)=mesh(x_max+1-j,k)
+      ENDDO
+    ENDDO
+!$OMP END DO NOWAIT
+  ENDIF
+
+END SUBROUTINE update_halo_inner
 
 END MODULE update_halo_kernel_module
+

@@ -61,7 +61,7 @@ MODULE data_module
    INTEGER,         PARAMETER :: CELL_DATA     = 1,        &
                                  VERTEX_DATA   = 2,        &
                                  X_FACE_DATA   = 3,        &
-                                 y_FACE_DATA   = 4
+                                 Y_FACE_DATA   = 4
 
 
    ! Time step control constants

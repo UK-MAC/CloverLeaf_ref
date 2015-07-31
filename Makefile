@@ -71,9 +71,9 @@ OMP_PATHSCALE = -mp
 OMP_XL        = -qsmp=omp -qthreaded
 OMP=$(OMP_$(COMPILER))
 
-FLAGS_INTEL     = -O3 -no-prec-div -fpp -align array64byte -ip
+FLAGS_INTEL     = -O3 -no-prec-div -fpp -align array64byte -ip -g
 FLAGS_SUN       = -fast -xipo=2 -Xlistv4
-FLAGS_GNU       = -O3 -funroll-loops
+FLAGS_GNU       = -O3 -funroll-loops -cpp -ffree-line-length-none
 FLAGS_CRAY      = -em -ra -h acc_model=fast_addr:no_deep_copy:auto_async_all
 FLAGS_PGI       = -fastsse -Mipa=fast -Mlist
 FLAGS_PATHSCALE = -O3

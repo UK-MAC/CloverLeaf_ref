@@ -81,6 +81,8 @@ SUBROUTINE read_input()
   profiler%flux=0.0
   profiler%halo_exchange=0.0
 
+  tiles_per_task = 1
+
   IF(parallel%boss)WRITE(g_out,*) 'Reading input file'
   IF(parallel%boss)WRITE(g_out,*)
 
