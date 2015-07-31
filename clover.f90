@@ -247,7 +247,7 @@ SUBROUTINE clover_decompose_tiles(x_cells, y_cells)
 
 END SUBROUTINE clover_decompose_tiles
 
-SUBROUTINE clover_allocate_buffers(chunk)
+SUBROUTINE clover_allocate_buffers()
 
   IMPLICIT NONE
 
@@ -256,10 +256,10 @@ SUBROUTINE clover_allocate_buffers(chunk)
 
   INTEGER           :: allocate_extra_size
 
-  allocate_extra_size = max(2, halo_exchange_depth)
+  allocate_extra_size = 2
 
-  lr_size = num_buffered*(chunk%y_cells + 2*allocate_extra_size)*halo_exchange_depth
-  bt_size = num_buffered*(chunk%x_cells + 2*allocate_extra_size)*halo_exchange_depth
+  lr_size = num_buffered*(chunk%y_cells + 2*allocate_extra_size)*2
+  bt_size = num_buffered*(chunk%x_cells + 2*allocate_extra_size)*2
 
   ! Unallocated buffers for external boundaries caused issues on some systems so they are now
   !  all allocated

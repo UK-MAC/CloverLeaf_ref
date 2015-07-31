@@ -19,7 +19,7 @@
 !>  @author Wayne Gaudin
 !>  @details Invoked the users specified chunk generator.
 
-SUBROUTINE generate_chunk(chunk)
+SUBROUTINE generate_chunk()
 
   USE clover_module
   USE generate_chunk_kernel_module
@@ -53,14 +53,15 @@ SUBROUTINE generate_chunk(chunk)
       CALL generate_chunk_kernel(chunk%tiles(t)%field%x_min,             &
                                  chunk%tiles(t)%field%x_max,             &
                                  chunk%tiles(t)%field%y_min,             &
-                                 chunk%tiles(t)%field%y_max,halo_exchange_depth,             &
+                                 chunk%tiles(t)%field%y_max,        &
                                  chunk%tiles(t)%field%vertexx,           &
                                  chunk%tiles(t)%field%vertexy,           &
                                  chunk%tiles(t)%field%cellx,             &
                                  chunk%tiles(t)%field%celly,             &
-                                 chunk%tiles(t)%field%density,           &
+                                 chunk%tiles(t)%field%density0,           &
                                  chunk%tiles(t)%field%energy0,           &
-                                 chunk%tiles(t)%field%u,                 &
+                                 chunk%tiles(t)%field%xvel0,           &
+                                 chunk%tiles(t)%field%yvel0,           &
                                  number_of_states,                      &
                                  state_density,                         &
                                  state_energy,                          &

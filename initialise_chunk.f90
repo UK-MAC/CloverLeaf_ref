@@ -19,7 +19,7 @@
 !>  @author Wayne Gaudin
 !>  @details Invokes the user specified chunk initialisation kernel.
 
-SUBROUTINE initialise_chunk(chunk)
+SUBROUTINE initialise_chunk()
 
   USE clover_module
   USE initialise_chunk_kernel_module

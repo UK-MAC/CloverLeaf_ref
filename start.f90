@@ -107,7 +107,7 @@ SUBROUTINE start
   fields(FIELD_XVEL1)=1
   fields(FIELD_YVEL1)=1
 
-  CALL update_halo(fields,halo_exchange_depth)
+  CALL update_halo(fields,2)
 
   IF (parallel%boss)THEN
     WRITE(g_out,*)

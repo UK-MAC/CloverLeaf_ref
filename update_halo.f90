@@ -22,6 +22,8 @@
 
 MODULE update_halo_module
 
+  USE definitions_module
+
 CONTAINS
 
 SUBROUTINE update_halo(fields,depth)
@@ -50,7 +52,7 @@ SUBROUTINE update_boundary(fields,depth)
 
   IF (profiler_on) halo_time=timer()
 
-  IF (reflective_boundary .EQV. .TRUE. .AND. ANY(chunk%chunk_neighbours .EQ. EXTERNAL_FACE)) THEN
+  IF (ANY(chunk%chunk_neighbours .EQ. EXTERNAL_FACE)) THEN
     IF (use_fortran_kernels)THEN
 !$OMP PARALLEL
 !$OMP DO
@@ -59,15 +61,23 @@ SUBROUTINE update_boundary(fields,depth)
                                 chunk%tiles(t)%field%x_max,          &
                                 chunk%tiles(t)%field%y_min,          &
                                 chunk%tiles(t)%field%y_max,          &
-                                halo_exchange_depth,          &
                                 chunk%chunk_neighbours,     &
                                 chunk%tiles(t)%tile_neighbours,     &
-                                chunk%tiles(t)%field%density,        &
-                                chunk%tiles(t)%field%energy0,        &
-                                chunk%tiles(t)%field%energy1,        &
-                                chunk%tiles(t)%field%u,              &
-                                chunk%tiles(t)%field%vector_p,       &
-                                chunk%tiles(t)%field%vector_sd,      &
+                  chunk%tiles(t)%field%density0,                      &
+                  chunk%tiles(t)%field%energy0,                       &
+                  chunk%tiles(t)%field%pressure,                      &
+                  chunk%tiles(t)%field%viscosity,                     &
+                  chunk%tiles(t)%field%soundspeed,                    &
+                  chunk%tiles(t)%field%density1,                      &
+                  chunk%tiles(t)%field%energy1,                       &
+                  chunk%tiles(t)%field%xvel0,                         &
+                  chunk%tiles(t)%field%yvel0,                         &
+                  chunk%tiles(t)%field%xvel1,                         &
+                  chunk%tiles(t)%field%yvel1,                         &
+                  chunk%tiles(t)%field%vol_flux_x,                    &
+                  chunk%tiles(t)%field%vol_flux_y,                    &
+                  chunk%tiles(t)%field%mass_flux_x,                   &
+                  chunk%tiles(t)%field%mass_flux_y,                   &
                                 fields,                         &
                                 depth                           )
       ENDDO
@@ -102,23 +112,6 @@ SUBROUTINE update_tile_boundary(fields, depth)
                                   chunk%tiles(t)%field%x_max,          &
                                   chunk%tiles(t)%field%y_min,          &
                                   chunk%tiles(t)%field%y_max,          &
-                                  chunk%tiles(t)%field%density,        &
-                                  chunk%tiles(t)%field%energy0,        &
-                                  chunk%tiles(t)%field%energy1,        &
-                                  chunk%tiles(t)%field%u,              &
-                                  chunk%tiles(t)%field%vector_p,       &
-                                  chunk%tiles(t)%field%vector_sd,      &
-                                  chunk%tiles(right_idx)%field%x_min,          &
-                                  chunk%tiles(right_idx)%field%x_max,          &
-                                  chunk%tiles(right_idx)%field%y_min,          &
-                                  chunk%tiles(right_idx)%field%y_max,          &
-                                  chunk%tiles(right_idx)%field%density,        &
-                                  chunk%tiles(right_idx)%field%energy0,        &
-                                  chunk%tiles(right_idx)%field%energy1,        &
-                                  chunk%tiles(right_idx)%field%u,              &
-                                  chunk%tiles(right_idx)%field%vector_p,       &
-                                  chunk%tiles(right_idx)%field%vector_sd,      &
-                                  halo_exchange_depth,          &
                                   fields,                         &
                                   depth                           )
         ENDIF
@@ -139,23 +132,6 @@ SUBROUTINE update_tile_boundary(fields, depth)
                                   chunk%tiles(t)%field%x_max,          &
                                   chunk%tiles(t)%field%y_min,          &
                                   chunk%tiles(t)%field%y_max,          &
-                                  chunk%tiles(t)%field%density,        &
-                                  chunk%tiles(t)%field%energy0,        &
-                                  chunk%tiles(t)%field%energy1,        &
-                                  chunk%tiles(t)%field%u,              &
-                                  chunk%tiles(t)%field%vector_p,       &
-                                  chunk%tiles(t)%field%vector_sd,      &
-                                  chunk%tiles(up_idx)%field%x_min,          &
-                                  chunk%tiles(up_idx)%field%x_max,          &
-                                  chunk%tiles(up_idx)%field%y_min,          &
-                                  chunk%tiles(up_idx)%field%y_max,          &
-                                  chunk%tiles(up_idx)%field%density,        &
-                                  chunk%tiles(up_idx)%field%energy0,        &
-                                  chunk%tiles(up_idx)%field%energy1,        &
-                                  chunk%tiles(up_idx)%field%u,              &
-                                  chunk%tiles(up_idx)%field%vector_p,       &
-                                  chunk%tiles(up_idx)%field%vector_sd,      &
-                                  halo_exchange_depth,          &
                                   fields,                         &
                                   depth                           )
         ENDIF

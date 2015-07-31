@@ -55,34 +55,37 @@ SUBROUTINE field_summary()
   press=0.0
 
   IF(profiler_on) kernel_time=timer()
-  CALL ideal_gas(c,.FALSE.)
+  CALL ideal_gas(.FALSE.)
   IF(profiler_on) profiler%ideal_gas=profiler%ideal_gas+(timer()-kernel_time)
 
   IF(profiler_on) kernel_time=timer()
   IF(use_fortran_kernels)THEN
-!$OMP PARALLEL PRIVATE(tile_vol,tile_mass,tile_ie,tile_temp)
-!$OMP DO REDUCTION(+ : vol,mass,ie,temp)
+!$OMP PARALLEL PRIVATE(tile_vol,tile_mass,tile_ie,tile_ke,tile_press)
+!$OMP DO REDUCTION(+ : vol,mass,ie,ke,press)
     DO t=1,tiles_per_task
       tile_vol=0.0
       tile_mass=0.0
       tile_ie=0.0
-      tile_temp=0.0
+      tile_ke=0.0
+      tile_press=0.0
 
       CALL field_summary_kernel(chunk%tiles(t)%field%x_min,                   &
                                 chunk%tiles(t)%field%x_max,                   &
                                 chunk%tiles(t)%field%y_min,                   &
                                 chunk%tiles(t)%field%y_max,                   &
-                                halo_exchange_depth,                          &
                                 chunk%tiles(t)%field%volume,                  &
-                                chunk%tiles(t)%field%density,                 &
+                                chunk%tiles(t)%field%density1,                &
                                 chunk%tiles(t)%field%energy1,                 &
-                                chunk%tiles(t)%field%u,                       &
-                                tile_vol,tile_mass,tile_ie,tile_temp)
+                                chunk%tiles(t)%field%pressure,                 &
+                                chunk%tiles(t)%field%xvel0,                 &
+                                chunk%tiles(t)%field%yvel0,                 &
+                                tile_vol,tile_mass,tile_ie,tile_ke,tile_press)
 
       vol = vol + tile_vol
       mass = mass + tile_mass
       ie = ie + tile_ie
-      temp = temp + tile_temp
+      ke = ke + tile_ke
+      press = press + tile_press
     ENDDO
 !$OMP END DO NOWAIT
 !$OMP END PARALLEL
