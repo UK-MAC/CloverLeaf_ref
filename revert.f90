@@ -31,6 +31,9 @@ SUBROUTINE revert()
   IMPLICIT NONE
 
   INTEGER :: t
+  REAL(KIND=8) :: kernel_time,timer
+
+  IF(profiler_on) kernel_time=timer()
 
   IF(use_fortran_kernels)THEN
 !$OMP PARALLEL
@@ -48,6 +51,8 @@ SUBROUTINE revert()
 !$OMP END DO NOWAIT
 !$OMP END PARALLEL
   ENDIF
+
+  IF(profiler_on) profiler%revert=profiler%revert+(timer()-kernel_time)
 
 END SUBROUTINE revert
 

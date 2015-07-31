@@ -17,4 +17,6 @@
  end_step=87
  test_problem 2
 
+ summary_frequency=1
+
 *endclover

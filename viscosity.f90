@@ -32,6 +32,9 @@ SUBROUTINE viscosity()
   IMPLICIT NONE
 
   INTEGER :: t
+  REAL(KIND=8) :: kernel_time, timer
+
+  IF(profiler_on) kernel_time=timer()
 
   IF(use_fortran_kernels)THEN
 !$OMP PARALLEL
@@ -52,6 +55,8 @@ SUBROUTINE viscosity()
 !$OMP END DO NOWAIT
 !$OMP END PARALLEL
   ENDIF
+
+  IF(profiler_on) profiler%viscosity=profiler%viscosity+(timer()-kernel_time)
 
 END SUBROUTINE viscosity
 

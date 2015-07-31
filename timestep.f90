@@ -54,9 +54,7 @@ SUBROUTINE timestep()
   dt    = g_big
   small=0
 
-  IF(profiler_on) kernel_time=timer()
   CALL ideal_gas(.FALSE.)
-  IF(profiler_on) profiler%ideal_gas=profiler%ideal_gas+(timer()-kernel_time)
 
   fields=0
   fields(FIELD_PRESSURE)=1
@@ -64,19 +62,13 @@ SUBROUTINE timestep()
   fields(FIELD_DENSITY0)=1
   fields(FIELD_XVEL0)=1
   fields(FIELD_YVEL0)=1
-  IF(profiler_on) kernel_time=timer()
   CALL update_halo(fields,1)
-  IF(profiler_on) profiler%halo_exchange=profiler%halo_exchange+(timer()-kernel_time)
 
-  IF(profiler_on) kernel_time=timer()
   CALL viscosity()
-  IF(profiler_on) profiler%viscosity=profiler%viscosity+(timer()-kernel_time)
 
   fields=0
   fields(FIELD_VISCOSITY)=1
-  IF(profiler_on) kernel_time=timer()
   CALL update_halo(fields,1)
-  IF(profiler_on) profiler%halo_exchange=profiler%halo_exchange+(timer()-kernel_time)
 
   IF(profiler_on) kernel_time=timer()
   CALL calc_dt(dt,dt_control,x_pos,y_pos)

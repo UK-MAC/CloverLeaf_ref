@@ -46,6 +46,7 @@ SUBROUTINE PdV(predict)
   error_condition=0 ! Not used yet due to issue with OpenA reduction
 
   IF(profiler_on) kernel_time=timer()
+
   IF(use_fortran_kernels)THEN
 !$OMP PARALLEL
 !$OMP DO
@@ -83,20 +84,14 @@ SUBROUTINE PdV(predict)
   ENDIF
 
   IF(predict)THEN
-    IF(profiler_on) kernel_time=timer()
     CALL ideal_gas(.TRUE.)
-    IF(profiler_on) profiler%ideal_gas=profiler%ideal_gas+(timer()-kernel_time)
     fields=0
     fields(FIELD_PRESSURE)=1
-    IF(profiler_on) kernel_time=timer()
     CALL update_halo(fields,1)
-    IF(profiler_on) profiler%halo_exchange=profiler%halo_exchange+(timer()-kernel_time)
   ENDIF
 
   IF ( predict ) THEN
-    IF(profiler_on) kernel_time=timer()
     CALL revert()
-    IF(profiler_on) profiler%revert=profiler%revert+(timer()-kernel_time)
   ENDIF
 
 END SUBROUTINE PdV

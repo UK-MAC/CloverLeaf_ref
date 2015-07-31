@@ -34,6 +34,9 @@ SUBROUTINE ideal_gas(predict)
   INTEGER :: t
 
   LOGICAL :: predict
+  REAL(KIND=8) :: kernel_time, timer
+
+  IF(profiler_on) kernel_time=timer()
 
   IF (.NOT. predict) THEN
     IF(use_fortran_kernels)THEN
@@ -70,6 +73,8 @@ SUBROUTINE ideal_gas(predict)
 !$OMP END PARALLEL
     ENDIF
   ENDIF
+
+  IF(profiler_on) profiler%ideal_gas=profiler%ideal_gas+(timer()-kernel_time)
 
 END SUBROUTINE ideal_gas
 
