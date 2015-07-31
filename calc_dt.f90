@@ -74,7 +74,7 @@ SUBROUTINE calc_dt(local_dt,local_control,x_pos,y_pos)
                           chunk%tiles(t)%field%xvel0,     &
                           chunk%tiles(t)%field%yvel0,     &
                           chunk%tiles(t)%field%work_array1,&
-                          local_dt,                      &
+                          dtlp,                      &
                           l_control,                     &
                           xl_pos,                        &
                           yl_pos,                        &
@@ -83,13 +83,13 @@ SUBROUTINE calc_dt(local_dt,local_control,x_pos,y_pos)
                           small                          )
 
 !$OMP CRITICAL
-    IF(dtlp.LE.dt) THEN
-      dt=dtlp
-      x_pos=xl_pos
-      y_pos=yl_pos
-      jdt=jldt
-      kdt=kldt
-    ENDIF
+      IF(dtlp.LE.dt) THEN
+        dt=dtlp
+        x_pos=xl_pos
+        y_pos=yl_pos
+        jdt=jldt
+        kdt=kldt
+      ENDIF
 !$OMP END CRITICAL
 
     ENDDO

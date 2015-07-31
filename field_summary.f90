@@ -91,7 +91,6 @@ SUBROUTINE field_summary()
 !$OMP END PARALLEL
   ENDIF
 
-
   ! For mpi I need a reduction here
   CALL clover_sum(vol)
   CALL clover_sum(mass)
