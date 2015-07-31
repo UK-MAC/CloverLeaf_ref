@@ -38,8 +38,6 @@ SUBROUTINE build_field()
     chunk%tiles(t)%field%x_max=chunk%tiles(t)%x_cells
     chunk%tiles(t)%field%y_max=chunk%tiles(t)%y_cells
 
-    ! TODO only allocate extra halo on external tiles
-
     ALLOCATE(chunk%tiles(t)%field%density0 (chunk%tiles(t)%field%x_min-2:chunk%tiles(t)%field%x_max+2, &
          chunk%tiles(t)%field%y_min-2:chunk%tiles(t)%field%y_max+2))
     ALLOCATE(chunk%tiles(t)%field%density1 (chunk%tiles(t)%field%x_min-2:chunk%tiles(t)%field%x_max+2, &
@@ -118,6 +116,10 @@ SUBROUTINE build_field()
       chunk%tiles(t)%field%energy0(j,k)=0.0
       chunk%tiles(t)%field%energy1(j,k)=0.0
 
+      chunk%tiles(t)%field%pressure(j,k)=0.0
+      chunk%tiles(t)%field%soundspeed(j,k)=0.0
+      chunk%tiles(t)%field%viscosity(j,k)=0.0
+
       chunk%tiles(t)%field%work_array1(j,k)=0.0
       chunk%tiles(t)%field%work_array2(j,k)=0.0
       chunk%tiles(t)%field%work_array3(j,k)=0.0
@@ -128,6 +130,36 @@ SUBROUTINE build_field()
     ENDDO
   ENDDO
 !$OMP ENDDO
+
+!$OMP DO
+  DO k=chunk%tiles(t)%field%y_min-2,chunk%tiles(t)%field%y_max+2
+    DO j=chunk%tiles(t)%field%x_min-2,chunk%tiles(t)%field%x_max+3
+      chunk%tiles(t)%field%vol_flux_x(j,k)=0.0
+      chunk%tiles(t)%field%mass_flux_x(j,k)=0.0
+    ENDDO
+  ENDDO
+!$OMP ENDDO
+
+!$OMP DO
+  DO k=chunk%tiles(t)%field%y_min-2,chunk%tiles(t)%field%y_max+3
+    DO j=chunk%tiles(t)%field%x_min-2,chunk%tiles(t)%field%x_max+2
+      chunk%tiles(t)%field%vol_flux_y(j,k)=0.0
+      chunk%tiles(t)%field%mass_flux_y(j,k)=0.0
+    ENDDO
+  ENDDO
+!$OMP ENDDO
+
+!$OMP DO
+  DO k=chunk%tiles(t)%field%y_min-2,chunk%tiles(t)%field%y_max+3
+    DO j=chunk%tiles(t)%field%x_min-2,chunk%tiles(t)%field%x_max+3
+      chunk%tiles(t)%field%xvel0(j,k)=0.0
+      chunk%tiles(t)%field%xvel1(j,k)=0.0
+      chunk%tiles(t)%field%yvel0(j,k)=0.0
+      chunk%tiles(t)%field%yvel1(j,k)=0.0
+    ENDDO
+  ENDDO
+!$OMP ENDDO
+
 !$OMP DO
   DO k=chunk%tiles(t)%field%y_min-2,chunk%tiles(t)%field%y_max+2
     DO j=chunk%tiles(t)%field%x_min-2,chunk%tiles(t)%field%x_max+2
