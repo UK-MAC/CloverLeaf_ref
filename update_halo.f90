@@ -155,9 +155,7 @@ SUBROUTINE update_tile_boundary(fields, depth)
       ENDDO
 !$OMP END DO NOWAIT
 
-!$  IF (depth .GT. 1) THEN
 !$OMP BARRIER
-!$  ENDIF
 
 !$OMP DO
       DO t=1,tiles_per_task

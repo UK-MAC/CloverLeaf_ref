@@ -87,12 +87,12 @@ CONTAINS
   ! Update values in external halo cells based on depth and fields requested
 
   IF (fields(FIELD_DENSITY0   ).EQ.1) CALL update_halo_inner(x_min, x_max, y_min, y_max, chunk_neighbours, tile_neighbours, density0,    depth, 0, 0,  1.0_8,  1.0_8)
-  IF (fields(FIELD_DENSITY1   ).EQ.1) CALL update_halo_inner(x_min, x_max, y_min, y_max, chunk_neighbours, tile_neighbours, energy0,     depth, 0, 0,  1.0_8,  1.0_8)
-  IF (fields(FIELD_ENERGY0    ).EQ.1) CALL update_halo_inner(x_min, x_max, y_min, y_max, chunk_neighbours, tile_neighbours, pressure,    depth, 0, 0,  1.0_8,  1.0_8)
-  IF (fields(FIELD_ENERGY1    ).EQ.1) CALL update_halo_inner(x_min, x_max, y_min, y_max, chunk_neighbours, tile_neighbours, viscosity,   depth, 0, 0,  1.0_8,  1.0_8)
-  IF (fields(FIELD_PRESSURE   ).EQ.1) CALL update_halo_inner(x_min, x_max, y_min, y_max, chunk_neighbours, tile_neighbours, soundspeed,  depth, 0, 0,  1.0_8,  1.0_8)
-  IF (fields(FIELD_VISCOSITY  ).EQ.1) CALL update_halo_inner(x_min, x_max, y_min, y_max, chunk_neighbours, tile_neighbours, density1,    depth, 0, 0,  1.0_8,  1.0_8)
-  IF (fields(FIELD_SOUNDSPEED ).EQ.1) CALL update_halo_inner(x_min, x_max, y_min, y_max, chunk_neighbours, tile_neighbours, energy1,     depth, 0, 0,  1.0_8,  1.0_8)
+  IF (fields(FIELD_DENSITY1   ).EQ.1) CALL update_halo_inner(x_min, x_max, y_min, y_max, chunk_neighbours, tile_neighbours, density1,    depth, 0, 0,  1.0_8,  1.0_8)
+  IF (fields(FIELD_ENERGY0    ).EQ.1) CALL update_halo_inner(x_min, x_max, y_min, y_max, chunk_neighbours, tile_neighbours, energy0,     depth, 0, 0,  1.0_8,  1.0_8)
+  IF (fields(FIELD_ENERGY1    ).EQ.1) CALL update_halo_inner(x_min, x_max, y_min, y_max, chunk_neighbours, tile_neighbours, energy1,     depth, 0, 0,  1.0_8,  1.0_8)
+  IF (fields(FIELD_PRESSURE   ).EQ.1) CALL update_halo_inner(x_min, x_max, y_min, y_max, chunk_neighbours, tile_neighbours, pressure,    depth, 0, 0,  1.0_8,  1.0_8)
+  IF (fields(FIELD_VISCOSITY  ).EQ.1) CALL update_halo_inner(x_min, x_max, y_min, y_max, chunk_neighbours, tile_neighbours, viscosity,   depth, 0, 0,  1.0_8,  1.0_8)
+  IF (fields(FIELD_SOUNDSPEED ).EQ.1) CALL update_halo_inner(x_min, x_max, y_min, y_max, chunk_neighbours, tile_neighbours, soundspeed,  depth, 0, 0,  1.0_8,  1.0_8)
 
   IF (fields(FIELD_XVEL0      ).EQ.1) CALL update_halo_inner(x_min, x_max, y_min, y_max, chunk_neighbours, tile_neighbours, xvel0,       depth, 1, 1, -1.0_8,  1.0_8)
   IF (fields(FIELD_XVEL1      ).EQ.1) CALL update_halo_inner(x_min, x_max, y_min, y_max, chunk_neighbours, tile_neighbours, yvel0,       depth, 1, 1, -1.0_8,  1.0_8)
