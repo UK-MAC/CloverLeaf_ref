@@ -64,8 +64,6 @@ SUBROUTINE read_input()
   dtdiv_safe=0.7_8
 
   use_fortran_kernels=.TRUE.
-  use_C_kernels=.FALSE.
-  use_OA_kernels=.FALSE.
   profiler_on=.FALSE.
   profiler%timestep=0.0
   profiler%acceleration=0.0
@@ -165,16 +163,6 @@ SUBROUTINE read_input()
         IF(parallel%boss)WRITE(g_out,"(1x,a25,i12)")'summary_frequency',summary_frequency
       CASE('use_fortran_kernels')
         use_fortran_kernels=.TRUE.
-        use_C_kernels=.FALSE.
-        use_OA_kernels=.FALSE.
-      CASE('use_c_kernels')
-        use_fortran_kernels=.FALSE.
-        use_C_kernels=.TRUE.
-        use_OA_kernels=.FALSE.
-      CASE('use_oa_kernels')
-        use_fortran_kernels=.FALSE.
-        use_C_kernels=.FALSE.
-        use_OA_kernels=.TRUE.
       CASE('profiler_on')
         profiler_on=.TRUE.
         IF(parallel%boss)WRITE(g_out,"(1x,a25)")'Profiler on'
@@ -247,10 +235,6 @@ SUBROUTINE read_input()
     WRITE(g_out,*)
     IF(use_fortran_kernels) THEN
       WRITE(g_out,"(1x,a25)")'Using Fortran Kernels'
-    ELSEIF(use_c_kernels) THEN
-      WRITE(g_out,"(1x,a25)")'Using C Kernels'
-    ELSEIF(use_oa_kernels) THEN
-      WRITE(g_out,"(1x,a25)")'Using OpenAcc Kernels'
     ENDIF
     WRITE(g_out,*)
     WRITE(g_out,*) 'Input read finished.'

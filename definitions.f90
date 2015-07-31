@@ -69,8 +69,6 @@ MODULE definitions_module
    LOGICAL      :: complete
 
    LOGICAL      :: use_fortran_kernels
-   LOGICAL      :: use_C_kernels
-   LOGICAL      :: use_OA_kernels
 
    LOGICAL      :: profiler_on ! Internal code profiler to make comparisons across systems easier
 
