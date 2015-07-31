@@ -34,8 +34,8 @@ SUBROUTINE viscosity()
   INTEGER :: t
 
   IF(use_fortran_kernels)THEN
-!$OMP PARALLEL PRIVATE(tile_vol,tile_mass,tile_ie,tile_ke,tile_press)
-!$OMP DO REDUCTION(+ : vol,mass,ie,ke,press)
+!$OMP PARALLEL
+!$OMP DO
     DO t=1,tiles_per_task
       CALL viscosity_kernel(chunk%tiles(t)%field%x_min,                   &
                           chunk%tiles(t)%field%x_max,                     &
@@ -48,10 +48,10 @@ SUBROUTINE viscosity()
                           chunk%tiles(t)%field%viscosity,                 &
                           chunk%tiles(t)%field%xvel0,                     &
                           chunk%tiles(t)%field%yvel0                      )
-    ENDIF
+    ENDDO
 !$OMP END DO NOWAIT
 !$OMP END PARALLEL
-  ENDDO
+  ENDIF
 
 END SUBROUTINE viscosity
 

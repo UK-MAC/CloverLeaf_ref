@@ -39,12 +39,11 @@ SUBROUTINE timestep()
 
   INTEGER :: t
 
-  REAL(KIND=8)    :: dtlp
-  REAL(KIND=8)    :: x_pos,y_pos,xl_pos,yl_pos
+  REAL(KIND=8)    :: x_pos,y_pos
 
   REAL(KIND=8)    :: kernel_time,timer
 
-  CHARACTER(LEN=8) :: dt_control,dtl_control
+  CHARACTER(LEN=8) :: dt_control
 
   INTEGER :: small
 
@@ -56,9 +55,7 @@ SUBROUTINE timestep()
   small=0
 
   IF(profiler_on) kernel_time=timer()
-  DO c = 1, chunks_per_task
-    CALL ideal_gas(c,.FALSE.)
-  END DO
+  CALL ideal_gas(.FALSE.)
   IF(profiler_on) profiler%ideal_gas=profiler%ideal_gas+(timer()-kernel_time)
 
   fields=0
@@ -82,24 +79,7 @@ SUBROUTINE timestep()
   IF(profiler_on) profiler%halo_exchange=profiler%halo_exchange+(timer()-kernel_time)
 
   IF(profiler_on) kernel_time=timer()
-!$OMP PARALLEL PRIVATE(dtlp)
-!$OMP DO
-  DO t=1,tiles_per_task
-    CALL calc_dt(dtlp)
-
-!$OMP CRITICAL
-    IF(dtlp.LE.dt) THEN
-      dt=dtlp
-      dt_control=dtl_control
-      x_pos=xl_pos
-      y_pos=yl_pos
-      jdt=jldt
-      kdt=kldt
-    ENDIF
-!$OMP END CRITICAL
-  END DO
-!$OMP END DO NOWAIT
-!$OMP END PARALLEL
+  CALL calc_dt(dt,dt_control,x_pos,y_pos)
 
   dt = MIN(dt, (dtold * dtrise), dtmax)
 
