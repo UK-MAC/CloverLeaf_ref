@@ -86,9 +86,7 @@ SUBROUTINE advection()
   fields(FIELD_YVEL1)=1
   fields(FIELD_MASS_FLUX_X)=1
   fields(FIELD_MASS_FLUX_y)=1
-  IF(profiler_on) kernel_time=timer()
   CALL update_halo(fields,2)
-  IF(profiler_on) profiler%halo_exchange=profiler%halo_exchange+(timer()-kernel_time)
 
   IF(profiler_on) kernel_time=timer()
   CALL advec_mom_driver(xvel,direction,sweep_number) 
