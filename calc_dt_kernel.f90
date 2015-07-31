@@ -44,7 +44,7 @@ SUBROUTINE calc_dt_kernel(x_min,x_max,y_min,y_max,             &
                           viscosity_a,                         &
                           soundspeed,                          &
                           xvel0,yvel0,                         &
-                          dt_min,                              &
+                          cell_min_dt,                         &
                           dt_min_val,                          &
                           dtl_control,                         &
                           xl_pos,                              &
@@ -71,7 +71,7 @@ SUBROUTINE calc_dt_kernel(x_min,x_max,y_min,y_max,             &
   REAL(KIND=8), DIMENSION(x_min-2:x_max+2,y_min-2:y_max+2) :: viscosity_a
   REAL(KIND=8), DIMENSION(x_min-2:x_max+2,y_min-2:y_max+2) :: soundspeed
   REAL(KIND=8), DIMENSION(x_min-2:x_max+3,y_min-2:y_max+3) :: xvel0,yvel0
-  REAL(KIND=8), DIMENSION(x_min-2:x_max+3,y_min-2:y_max+3) :: dt_min
+  REAL(KIND=8), DIMENSION(x_min-2:x_max+3,y_min-2:y_max+3) :: cell_min_dt
 
   INTEGER          :: dtl_control
   REAL(KIND=8)     :: xl_pos,yl_pos
@@ -87,7 +87,6 @@ SUBROUTINE calc_dt_kernel(x_min,x_max,y_min,y_max,             &
   jk_control=1.1
 
 !$OMP PARALLEL
-
 !$OMP DO PRIVATE(dsx,dsy,cc,dv1,dv2,div,dtct,dtut,dtvt,dtdivt)
   DO k=y_min,y_max
     DO j=x_min,x_max
@@ -125,7 +124,7 @@ SUBROUTINE calc_dt_kernel(x_min,x_max,y_min,y_max,             &
          dtdivt=g_big
        ENDIF
 
-       dt_min(j,k)=MIN(dtct,dtut,dtvt,dtdivt)
+       cell_min_dt(j,k)=MIN(dtct,dtut,dtvt,dtdivt)
 
     ENDDO
   ENDDO
@@ -134,11 +133,10 @@ SUBROUTINE calc_dt_kernel(x_min,x_max,y_min,y_max,             &
 !$OMP DO REDUCTION(MIN : dt_min_val)
   DO k=y_min,y_max
     DO j=x_min,x_max
-      IF(dt_min(j,k).LT.dt_min_val) dt_min_val=dt_min(j,k)
+      IF(cell_min_dt(j,k).LT.dt_min_val) dt_min_val=cell_min_dt(j,k)
     ENDDO
   ENDDO
 !$OMP END DO
-
 !$OMP END PARALLEL
 
   ! Extract the mimimum timestep information

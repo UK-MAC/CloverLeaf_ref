@@ -58,7 +58,7 @@ SUBROUTINE initialise_chunk_kernel(x_min,x_max,y_min,y_max,       &
 !$OMP PARALLEL PRIVATE(j)
 !$OMP DO
   DO j=x_min-2,x_max+3
-     vertexx(j)=xmin+dx*float(j-x_min)
+     vertexx(j)=xmin+dx*REAL(j-x_min)
   ENDDO
 !$OMP END DO
 
@@ -70,7 +70,7 @@ SUBROUTINE initialise_chunk_kernel(x_min,x_max,y_min,y_max,       &
 
 !$OMP DO
   DO k=y_min-2,y_max+3
-     vertexy(k)=ymin+dy*float(k-y_min)
+     vertexy(k)=ymin+dy*REAL(k-y_min)
   ENDDO
 !$OMP END DO
 

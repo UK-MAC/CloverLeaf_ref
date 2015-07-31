@@ -23,7 +23,7 @@ MODULE calc_dt_module
 
 CONTAINS
 
-SUBROUTINE calc_dt(local_dt,local_control,x_pos,y_pos)
+SUBROUTINE calc_dt(local_control,x_pos,y_pos)
 
   USE definitions_module
   USE calc_dt_kernel_module
@@ -31,23 +31,23 @@ SUBROUTINE calc_dt(local_dt,local_control,x_pos,y_pos)
   IMPLICIT NONE
 
   INTEGER          :: t
-  REAL(KIND=8)     :: local_dt,x_pos,y_pos
+  REAL(KIND=8)     :: x_pos,y_pos
   CHARACTER(LEN=8) :: local_control
 
   INTEGER          :: jldt,kldt
-  REAL(KIND=8)     :: xl_pos,yl_pos,dtlp
+  REAL(KIND=8)     :: xl_pos,yl_pos,tile_dt
 
   INTEGER          :: l_control
   INTEGER          :: small
 
-  local_dt=g_big
-
   small = 0
 
   IF(use_fortran_kernels)THEN
-!$OMP PARALLEL PRIVATE(dtlp)
+!$OMP PARALLEL PRIVATE(tile_dt)
 !$OMP DO
     DO t=1,tiles_per_task
+      tile_dt = g_big
+
       CALL calc_dt_kernel(chunk%tiles(t)%field%x_min,     &
                           chunk%tiles(t)%field%x_max,     &
                           chunk%tiles(t)%field%y_min,     &
@@ -74,7 +74,7 @@ SUBROUTINE calc_dt(local_dt,local_control,x_pos,y_pos)
                           chunk%tiles(t)%field%xvel0,     &
                           chunk%tiles(t)%field%yvel0,     &
                           chunk%tiles(t)%field%work_array1,&
-                          dtlp,                         &
+                          tile_dt,                         &
                           l_control,                     &
                           xl_pos,                        &
                           yl_pos,                        &
@@ -83,8 +83,8 @@ SUBROUTINE calc_dt(local_dt,local_control,x_pos,y_pos)
                           small                          )
 
 !$OMP CRITICAL
-      IF(dtlp.LE.dt) THEN
-        dt=dtlp
+      IF(tile_dt.LE.dt) THEN
+        dt=tile_dt
         x_pos=xl_pos
         y_pos=yl_pos
         jdt=jldt

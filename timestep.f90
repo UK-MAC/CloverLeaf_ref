@@ -71,7 +71,7 @@ SUBROUTINE timestep()
   CALL update_halo(fields,1)
 
   IF(profiler_on) kernel_time=timer()
-  CALL calc_dt(dt,dt_control,x_pos,y_pos)
+  CALL calc_dt(dt_control,x_pos,y_pos)
 
   dt = MIN(dt, (dtold * dtrise), dtmax)
 
