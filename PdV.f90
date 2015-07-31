@@ -38,7 +38,7 @@ SUBROUTINE PdV(predict)
 
   INTEGER :: prdct
 
-  INTEGER :: c
+  INTEGER :: t
   INTEGER :: fields(NUM_FIELDS)
 
   REAL(KIND=8) :: kernel_time,timer
@@ -46,63 +46,34 @@ SUBROUTINE PdV(predict)
   error_condition=0 ! Not used yet due to issue with OpenA reduction
 
   IF(profiler_on) kernel_time=timer()
-  DO c=1,chunks_per_task
-
-    IF(chunks(c)%task.EQ.parallel%task) THEN
-
-      IF(use_fortran_kernels)THEN
-        CALL PdV_kernel(predict,                  &
-                      chunks(c)%field%x_min,      &
-                      chunks(c)%field%x_max,      &
-                      chunks(c)%field%y_min,      &
-                      chunks(c)%field%y_max,      &
-                      dt,                         &
-                      chunks(c)%field%xarea,      &
-                      chunks(c)%field%yarea,      &
-                      chunks(c)%field%volume ,    &
-                      chunks(c)%field%density0,   &
-                      chunks(c)%field%density1,   &
-                      chunks(c)%field%energy0,    &
-                      chunks(c)%field%energy1,    &
-                      chunks(c)%field%pressure,   &
-                      chunks(c)%field%viscosity,  &
-                      chunks(c)%field%xvel0,      &
-                      chunks(c)%field%xvel1,      &
-                      chunks(c)%field%yvel0,      &
-                      chunks(c)%field%yvel1,      &
-                      chunks(c)%field%work_array1 )
-      ELSEIF(use_C_kernels)THEN
-
-        IF(predict) THEN
-          prdct=0
-        ELSE
-          prdct=1
-        ENDIF
-
-        CALL PdV_kernel_c(prdct,                  &
-                      chunks(c)%field%x_min,      &
-                      chunks(c)%field%x_max,      &
-                      chunks(c)%field%y_min,      &
-                      chunks(c)%field%y_max,      &
-                      dt,                         &
-                      chunks(c)%field%xarea,      &
-                      chunks(c)%field%yarea,      &
-                      chunks(c)%field%volume ,    &
-                      chunks(c)%field%density0,   &
-                      chunks(c)%field%density1,   &
-                      chunks(c)%field%energy0,    &
-                      chunks(c)%field%energy1,    &
-                      chunks(c)%field%pressure,   &
-                      chunks(c)%field%viscosity,  &
-                      chunks(c)%field%xvel0,      &
-                      chunks(c)%field%xvel1,      &
-                      chunks(c)%field%yvel0,      &
-                      chunks(c)%field%yvel1,      &
-                      chunks(c)%field%work_array1 )
-      ENDIF
-    ENDIF
-
-  ENDDO
+  IF(use_fortran_kernels)THEN
+!$OMP PARALLEL
+!$OMP DO
+    DO t=1,tiles_per_task
+      CALL PdV_kernel(predict,                  &
+                    chunk%tiles(t)%field%x_min,      &
+                    chunk%tiles(t)%field%x_max,      &
+                    chunk%tiles(t)%field%y_min,      &
+                    chunk%tiles(t)%field%y_max,      &
+                    dt,                         &
+                    chunk%tiles(t)%field%xarea,      &
+                    chunk%tiles(t)%field%yarea,      &
+                    chunk%tiles(t)%field%volume ,    &
+                    chunk%tiles(t)%field%density0,   &
+                    chunk%tiles(t)%field%density1,   &
+                    chunk%tiles(t)%field%energy0,    &
+                    chunk%tiles(t)%field%energy1,    &
+                    chunk%tiles(t)%field%pressure,   &
+                    chunk%tiles(t)%field%viscosity,  &
+                    chunk%tiles(t)%field%xvel0,      &
+                    chunk%tiles(t)%field%xvel1,      &
+                    chunk%tiles(t)%field%yvel0,      &
+                    chunk%tiles(t)%field%yvel1,      &
+                    chunk%tiles(t)%field%work_array1 )
+    ENDDO
+!$OMP END DO NOWAIT
+!$OMP END PARALLEL
+  ENDIF
 
   CALL clover_check_error(error_condition)
   IF(profiler_on) profiler%PdV=profiler%PdV+(timer()-kernel_time)
@@ -113,9 +84,7 @@ SUBROUTINE PdV(predict)
 
   IF(predict)THEN
     IF(profiler_on) kernel_time=timer()
-    DO c=1,chunks_per_task
-      CALL ideal_gas(c,.TRUE.)
-    ENDDO
+    CALL ideal_gas(.TRUE.)
     IF(profiler_on) profiler%ideal_gas=profiler%ideal_gas+(timer()-kernel_time)
     fields=0
     fields(FIELD_PRESSURE)=1

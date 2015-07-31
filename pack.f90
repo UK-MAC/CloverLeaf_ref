@@ -7,7 +7,7 @@ MODULE pack_module
 
 CONTAINS
 
-SUBROUTINE tea_pack_buffers(fields, depth, face, mpi_buffer, offsets)
+SUBROUTINE clover_pack_buffers(fields, depth, face, mpi_buffer, offsets)
 
   IMPLICIT NONE
 
@@ -20,7 +20,7 @@ SUBROUTINE tea_pack_buffers(fields, depth, face, mpi_buffer, offsets)
 
 END SUBROUTINE
 
-SUBROUTINE tea_unpack_buffers(fields, depth, face, mpi_buffer, offsets)
+SUBROUTINE clover_unpack_buffers(fields, depth, face, mpi_buffer, offsets)
 
   IMPLICIT NONE
 

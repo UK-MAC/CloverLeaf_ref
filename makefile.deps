@@ -85,8 +85,8 @@ initialise_chunk.o :  \
 	clover.o
 
 calc_dt.o :  \
-	clover.o \
-	calc_dt_kernel.o
+	calc_dt_kernel.o \
+	definitions.o
 
 revert.o :  \
 	clover.o \
@@ -135,7 +135,11 @@ initialise_chunk_kernel.o :
 
 viscosity_kernel.o : 
 
-update_halo.o : 
+update_halo.o :  \
+	update_halo_kernel.o \
+	clover.o \
+	update_internal_halo_kernel.o \
+	definitions.o
 
 global_mpi.o :  \
 	definitions.o
@@ -170,4 +174,5 @@ initialise.o :  \
 	parse.o
 
 report.o :  \
+	global_mpi.o \
 	data.o

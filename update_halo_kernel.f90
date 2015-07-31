@@ -24,7 +24,6 @@
 
 MODULE update_halo_kernel_module
 
-
   ! These need to be kept consistent with the data module to avoid use statement
   INTEGER,PRIVATE,PARAMETER :: CHUNK_LEFT   =1    &
                             ,CHUNK_RIGHT  =2    &
@@ -48,6 +47,7 @@ MODULE update_halo_kernel_module
                             ,FIELD_MASS_FLUX_X=14         &
                             ,FIELD_MASS_FLUX_Y=15       &
                             ,NUM_FIELDS       =15
+
 CONTAINS
 
   SUBROUTINE update_halo_kernel(x_min,x_max,y_min,y_max,                            &

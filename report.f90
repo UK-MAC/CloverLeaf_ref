@@ -22,6 +22,7 @@
 MODULE report_module
 
   USE data_module
+  USE global_mpi_module
  
 CONTAINS
 

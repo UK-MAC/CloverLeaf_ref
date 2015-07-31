@@ -23,6 +23,9 @@
 MODULE update_halo_module
 
   USE definitions_module
+  USE clover_module
+  USE update_halo_kernel_module
+  USE update_internal_halo_kernel_module
 
 CONTAINS
 
@@ -34,7 +37,7 @@ SUBROUTINE update_halo(fields,depth)
   REAL(KIND=8) :: timer,halo_time
 
   IF (profiler_on) halo_time=timer()
-  CALL tea_exchange(fields,depth)
+  CALL clover_exchange(fields,depth)
   IF (profiler_on) profiler%halo_exchange = profiler%halo_exchange + (timer() - halo_time)
 
   CALL update_boundary(fields, depth)
@@ -112,6 +115,40 @@ SUBROUTINE update_tile_boundary(fields, depth)
                                   chunk%tiles(t)%field%x_max,          &
                                   chunk%tiles(t)%field%y_min,          &
                                   chunk%tiles(t)%field%y_max,          &
+                  chunk%tiles(t)%field%density0,                      &
+                  chunk%tiles(t)%field%energy0,                       &
+                  chunk%tiles(t)%field%pressure,                      &
+                  chunk%tiles(t)%field%viscosity,                     &
+                  chunk%tiles(t)%field%soundspeed,                    &
+                  chunk%tiles(t)%field%density1,                      &
+                  chunk%tiles(t)%field%energy1,                       &
+                  chunk%tiles(t)%field%xvel0,                         &
+                  chunk%tiles(t)%field%yvel0,                         &
+                  chunk%tiles(t)%field%xvel1,                         &
+                  chunk%tiles(t)%field%yvel1,                         &
+                  chunk%tiles(t)%field%vol_flux_x,                    &
+                  chunk%tiles(t)%field%vol_flux_y,                    &
+                  chunk%tiles(t)%field%mass_flux_x,                   &
+                  chunk%tiles(t)%field%mass_flux_y,                   &
+                                  chunk%tiles(right_idx)%field%x_min,          &
+                                  chunk%tiles(right_idx)%field%x_max,          &
+                                  chunk%tiles(right_idx)%field%y_min,          &
+                                  chunk%tiles(right_idx)%field%y_max,          &
+                  chunk%tiles(right_idx)%field%density0,                      &
+                  chunk%tiles(right_idx)%field%energy0,                       &
+                  chunk%tiles(right_idx)%field%pressure,                      &
+                  chunk%tiles(right_idx)%field%viscosity,                     &
+                  chunk%tiles(right_idx)%field%soundspeed,                    &
+                  chunk%tiles(right_idx)%field%density1,                      &
+                  chunk%tiles(right_idx)%field%energy1,                       &
+                  chunk%tiles(right_idx)%field%xvel0,                         &
+                  chunk%tiles(right_idx)%field%yvel0,                         &
+                  chunk%tiles(right_idx)%field%xvel1,                         &
+                  chunk%tiles(right_idx)%field%yvel1,                         &
+                  chunk%tiles(right_idx)%field%vol_flux_x,                    &
+                  chunk%tiles(right_idx)%field%vol_flux_y,                    &
+                  chunk%tiles(right_idx)%field%mass_flux_x,                   &
+                  chunk%tiles(right_idx)%field%mass_flux_y,                   &
                                   fields,                         &
                                   depth                           )
         ENDIF
@@ -132,6 +169,40 @@ SUBROUTINE update_tile_boundary(fields, depth)
                                   chunk%tiles(t)%field%x_max,          &
                                   chunk%tiles(t)%field%y_min,          &
                                   chunk%tiles(t)%field%y_max,          &
+                  chunk%tiles(t)%field%density0,                      &
+                  chunk%tiles(t)%field%energy0,                       &
+                  chunk%tiles(t)%field%pressure,                      &
+                  chunk%tiles(t)%field%viscosity,                     &
+                  chunk%tiles(t)%field%soundspeed,                    &
+                  chunk%tiles(t)%field%density1,                      &
+                  chunk%tiles(t)%field%energy1,                       &
+                  chunk%tiles(t)%field%xvel0,                         &
+                  chunk%tiles(t)%field%yvel0,                         &
+                  chunk%tiles(t)%field%xvel1,                         &
+                  chunk%tiles(t)%field%yvel1,                         &
+                  chunk%tiles(t)%field%vol_flux_x,                    &
+                  chunk%tiles(t)%field%vol_flux_y,                    &
+                  chunk%tiles(t)%field%mass_flux_x,                   &
+                  chunk%tiles(t)%field%mass_flux_y,                   &
+                                  chunk%tiles(up_idx)%field%x_min,          &
+                                  chunk%tiles(up_idx)%field%x_max,          &
+                                  chunk%tiles(up_idx)%field%y_min,          &
+                                  chunk%tiles(up_idx)%field%y_max,          &
+                  chunk%tiles(up_idx)%field%density0,                      &
+                  chunk%tiles(up_idx)%field%energy0,                       &
+                  chunk%tiles(up_idx)%field%pressure,                      &
+                  chunk%tiles(up_idx)%field%viscosity,                     &
+                  chunk%tiles(up_idx)%field%soundspeed,                    &
+                  chunk%tiles(up_idx)%field%density1,                      &
+                  chunk%tiles(up_idx)%field%energy1,                       &
+                  chunk%tiles(up_idx)%field%xvel0,                         &
+                  chunk%tiles(up_idx)%field%yvel0,                         &
+                  chunk%tiles(up_idx)%field%xvel1,                         &
+                  chunk%tiles(up_idx)%field%yvel1,                         &
+                  chunk%tiles(up_idx)%field%vol_flux_x,                    &
+                  chunk%tiles(up_idx)%field%vol_flux_y,                    &
+                  chunk%tiles(up_idx)%field%mass_flux_x,                   &
+                  chunk%tiles(up_idx)%field%mass_flux_y,                   &
                                   fields,                         &
                                   depth                           )
         ENDIF

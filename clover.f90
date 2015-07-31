@@ -331,11 +331,11 @@ SUBROUTINE clover_exchange(fields,depth)
 
     IF (chunk%chunk_neighbours(CHUNK_LEFT).NE.EXTERNAL_FACE) THEN
       ! do left exchanges
-      CALL tea_pack_buffers(fields, depth, CHUNK_LEFT, &
+      CALL clover_pack_buffers(fields, depth, CHUNK_LEFT, &
         chunk%left_snd_buffer, left_right_offset)
 
       !send and recv messagse to the left
-      CALL tea_send_recv_message_left(chunk%left_snd_buffer,                      &
+      CALL clover_send_recv_message_left(chunk%left_snd_buffer,                      &
                                          chunk%left_rcv_buffer,                      &
                                          end_pack_index_left_right,                    &
                                          1, 2,                                               &
@@ -345,11 +345,11 @@ SUBROUTINE clover_exchange(fields,depth)
 
     IF (chunk%chunk_neighbours(CHUNK_RIGHT).NE.EXTERNAL_FACE) THEN
       ! do right exchanges
-      CALL tea_pack_buffers(fields, depth, CHUNK_RIGHT, &
+      CALL clover_pack_buffers(fields, depth, CHUNK_RIGHT, &
         chunk%right_snd_buffer, left_right_offset)
 
       !send message to the right
-      CALL tea_send_recv_message_right(chunk%right_snd_buffer,                     &
+      CALL clover_send_recv_message_right(chunk%right_snd_buffer,                     &
                                           chunk%right_rcv_buffer,                     &
                                           end_pack_index_left_right,                    &
                                           2, 1,                                               &
@@ -370,24 +370,24 @@ SUBROUTINE clover_exchange(fields,depth)
     IF (test_complete .EQV. .TRUE.) THEN
       !unpack in left direction
       IF (chunk%chunk_neighbours(CHUNK_LEFT).NE.EXTERNAL_FACE) THEN
-        CALL tea_unpack_buffers(fields, depth, CHUNK_LEFT, &
+        CALL clover_unpack_buffers(fields, depth, CHUNK_LEFT, &
           chunk%left_rcv_buffer, left_right_offset)
       ENDIF
 
       !unpack in right direction
       IF (chunk%chunk_neighbours(CHUNK_RIGHT).NE.EXTERNAL_FACE) THEN
-        CALL tea_unpack_buffers(fields, depth, CHUNK_RIGHT, &
+        CALL clover_unpack_buffers(fields, depth, CHUNK_RIGHT, &
           chunk%right_rcv_buffer, left_right_offset)
       ENDIF
     ENDIF
 
     IF (chunk%chunk_neighbours(CHUNK_BOTTOM).NE.EXTERNAL_FACE) THEN
       ! do bottom exchanges
-      CALL tea_pack_buffers(fields, depth, CHUNK_BOTTOM, &
+      CALL clover_pack_buffers(fields, depth, CHUNK_BOTTOM, &
         chunk%bottom_snd_buffer, bottom_top_offset)
 
       !send message downwards
-      CALL tea_send_recv_message_bottom(chunk%bottom_snd_buffer,                     &
+      CALL clover_send_recv_message_bottom(chunk%bottom_snd_buffer,                     &
                                            chunk%bottom_rcv_buffer,                     &
                                            end_pack_index_bottom_top,                     &
                                            3, 4,                                                &
@@ -397,11 +397,11 @@ SUBROUTINE clover_exchange(fields,depth)
 
     IF (chunk%chunk_neighbours(CHUNK_TOP).NE.EXTERNAL_FACE) THEN
       ! do top exchanges
-      CALL tea_pack_buffers(fields, depth, CHUNK_TOP, &
+      CALL clover_pack_buffers(fields, depth, CHUNK_TOP, &
         chunk%top_snd_buffer, bottom_top_offset)
 
       !send message upwards
-      CALL tea_send_recv_message_top(chunk%top_snd_buffer,                           &
+      CALL clover_send_recv_message_top(chunk%top_snd_buffer,                           &
                                         chunk%top_rcv_buffer,                           &
                                         end_pack_index_bottom_top,                        &
                                         4, 3,                                                   &
@@ -415,13 +415,13 @@ SUBROUTINE clover_exchange(fields,depth)
 
       !unpack in left direction
       IF (chunk%chunk_neighbours(CHUNK_LEFT).NE.EXTERNAL_FACE) THEN
-        CALL tea_unpack_buffers(fields, depth, CHUNK_LEFT, &
+        CALL clover_unpack_buffers(fields, depth, CHUNK_LEFT, &
           chunk%left_rcv_buffer, left_right_offset)
       ENDIF
 
       !unpack in right direction
       IF (chunk%chunk_neighbours(CHUNK_RIGHT).NE.EXTERNAL_FACE) THEN
-        CALL tea_unpack_buffers(fields, depth, CHUNK_RIGHT, &
+        CALL clover_unpack_buffers(fields, depth, CHUNK_RIGHT, &
           chunk%right_rcv_buffer, left_right_offset)
       ENDIF
     ENDIF
@@ -431,13 +431,13 @@ SUBROUTINE clover_exchange(fields,depth)
 
     !unpack in top direction
     IF (chunk%chunk_neighbours(CHUNK_TOP).NE.EXTERNAL_FACE) THEN
-      CALL tea_unpack_buffers(fields, depth, CHUNK_TOP, &
+      CALL clover_unpack_buffers(fields, depth, CHUNK_TOP, &
         chunk%top_rcv_buffer, bottom_top_offset)
     ENDIF
 
     !unpack in bottom direction
     IF (chunk%chunk_neighbours(CHUNK_BOTTOM).NE.EXTERNAL_FACE) THEN
-      CALL tea_unpack_buffers(fields, depth, CHUNK_BOTTOM, &
+      CALL clover_unpack_buffers(fields, depth, CHUNK_BOTTOM, &
         chunk%bottom_rcv_buffer, bottom_top_offset)
     ENDIF
 

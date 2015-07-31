@@ -123,21 +123,6 @@ MPI_COMPILER=mpif90
 C_MPI_COMPILER=mpicc
 
 C_FILES= \
-	accelerate_kernel_c.o           \
-	PdV_kernel_c.o                  \
-	flux_calc_kernel_c.o            \
-	revert_kernel_c.o               \
-	reset_field_kernel_c.o          \
-	ideal_gas_kernel_c.o            \
-	viscosity_kernel_c.o            \
-	advec_mom_kernel_c.o            \
-	advec_cell_kernel_c.o           \
-	calc_dt_kernel_c.o		\
-	field_summary_kernel_c.o	\
-	update_halo_kernel_c.o		\
-	pack_kernel_c.o			\
-	generate_chunk_kernel_c.o	\
-	initialise_chunk_kernel_c.o	\
 	timer_c.o
 
 FORTRAN_FILES=\
@@ -149,6 +134,9 @@ FORTRAN_FILES=\
 	timer.o			\
 	parse.o			\
 	read_input.o			\
+	global_mpi.o			\
+	update_internal_halo_kernel.o			\
+	pack.o			\
 	initialise_chunk_kernel.o	\
 	initialise_chunk.o		\
 	build_field.o			\

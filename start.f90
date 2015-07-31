@@ -54,7 +54,7 @@ SUBROUTINE start
 
   CALL clover_barrier
 
-  CALL tea_decompose(grid%x_cells, grid%y_cells)
+  CALL clover_decompose(grid%x_cells, grid%y_cells)
 
   ALLOCATE(chunk%tiles(tiles_per_task))
 
@@ -66,7 +66,7 @@ SUBROUTINE start
   chunk%chunk_x_max = chunk%x_cells
   chunk%chunk_y_max = chunk%y_cells
 
-  CALL tea_decompose_tiles(chunk%x_cells, chunk%y_cells)
+  CALL clover_decompose_tiles(chunk%x_cells, chunk%y_cells)
 
   DO t=1,tiles_per_task
     chunk%tiles(t)%x_cells = chunk%tiles(t)%right -chunk%tiles(t)%left  +1
@@ -84,7 +84,7 @@ SUBROUTINE start
 
   CALL build_field()
 
-  CALL tea_allocate_buffers()
+  CALL clover_allocate_buffers()
 
   CALL initialise_chunk()
 

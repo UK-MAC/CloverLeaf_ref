@@ -30,48 +30,34 @@ SUBROUTINE flux_calc()
 
   IMPLICIT NONE
 
-  INTEGER :: c
+  INTEGER :: t
 
   REAL(KIND=8) :: kernel_time,timer
 
   IF(profiler_on) kernel_time=timer()
-  DO c=1,chunks_per_task
 
-    IF(chunks(c)%task.EQ.parallel%task) THEN
+  IF(use_fortran_kernels)THEN
+!$OMP PARALLEL
+!$OMP DO
+    DO t=1,tiles_per_task
+      CALL flux_calc_kernel(chunk%tiles(t)%field%x_min,         &
+                          chunk%tiles(t)%field%x_max,           &
+                          chunk%tiles(t)%field%y_min,           &
+                          chunk%tiles(t)%field%y_max,           &
+                          dt,                              &
+                          chunk%tiles(t)%field%xarea,           &
+                          chunk%tiles(t)%field%yarea,           &
+                          chunk%tiles(t)%field%xvel0,           &
+                          chunk%tiles(t)%field%yvel0,           &
+                          chunk%tiles(t)%field%xvel1,           &
+                          chunk%tiles(t)%field%yvel1,           &
+                          chunk%tiles(t)%field%vol_flux_x,      &
+                          chunk%tiles(t)%field%vol_flux_y       )
+    ENDDO
+!$OMP END DO NOWAIT
+!$OMP END PARALLEL
+  ENDIF
 
-      IF(use_fortran_kernels)THEN
-        CALL flux_calc_kernel(chunks(c)%field%x_min,         &
-                            chunks(c)%field%x_max,           &
-                            chunks(c)%field%y_min,           &
-                            chunks(c)%field%y_max,           &
-                            dt,                              &
-                            chunks(c)%field%xarea,           &
-                            chunks(c)%field%yarea,           &
-                            chunks(c)%field%xvel0,           &
-                            chunks(c)%field%yvel0,           &
-                            chunks(c)%field%xvel1,           &
-                            chunks(c)%field%yvel1,           &
-                            chunks(c)%field%vol_flux_x,      &
-                            chunks(c)%field%vol_flux_y       )
-      ELSEIF(use_C_kernels)THEN
-        CALL flux_calc_kernel_c(chunks(c)%field%x_min,       &
-                            chunks(c)%field%x_max,           &
-                            chunks(c)%field%y_min,           &
-                            chunks(c)%field%y_max,           &
-                            dt,                              &
-                            chunks(c)%field%xarea,           &
-                            chunks(c)%field%yarea,           &
-                            chunks(c)%field%xvel0,           &
-                            chunks(c)%field%yvel0,           &
-                            chunks(c)%field%xvel1,           &
-                            chunks(c)%field%yvel1,           &
-                            chunks(c)%field%vol_flux_x,      &
-                            chunks(c)%field%vol_flux_y       )
-      ENDIF
-
-    ENDIF
-
-  ENDDO
   IF(profiler_on) profiler%flux=profiler%flux+(timer()-kernel_time)
 
 END SUBROUTINE flux_calc

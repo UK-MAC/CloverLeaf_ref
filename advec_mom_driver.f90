@@ -23,69 +23,46 @@ MODULE advec_mom_driver_module
 
 CONTAINS
 
-SUBROUTINE advec_mom_driver(chunk,which_vel,direction,sweep_number)
+SUBROUTINE advec_mom_driver(which_vel,direction,sweep_number)
 
   USE clover_module
   USE advec_mom_kernel_mod
 
   IMPLICIT NONE
 
-  INTEGER :: chunk,which_vel,direction,sweep_number
+  INTEGER :: t,which_vel,direction,sweep_number
 
-  IF(chunks(chunk)%task.EQ.parallel%task) THEN
-
-    IF(use_fortran_kernels)THEN
-      CALL advec_mom_kernel(chunks(chunk)%field%x_min,            &
-                          chunks(chunk)%field%x_max,              &
-                          chunks(chunk)%field%y_min,              &
-                          chunks(chunk)%field%y_max,              &
-                          chunks(chunk)%field%xvel1,              &
-                          chunks(chunk)%field%yvel1,              &
-                          chunks(chunk)%field%mass_flux_x,        &
-                          chunks(chunk)%field%vol_flux_x,         &
-                          chunks(chunk)%field%mass_flux_y,        &
-                          chunks(chunk)%field%vol_flux_y,         &
-                          chunks(chunk)%field%volume,             &
-                          chunks(chunk)%field%density1,           &
-                          chunks(chunk)%field%work_array1,        &
-                          chunks(chunk)%field%work_array2,        &
-                          chunks(chunk)%field%work_array3,        &
-                          chunks(chunk)%field%work_array4,        &
-                          chunks(chunk)%field%work_array5,        &
-                          chunks(chunk)%field%work_array6,        &
-                          chunks(chunk)%field%work_array7,        &
-                          chunks(chunk)%field%celldx,             &
-                          chunks(chunk)%field%celldy,             &
+  IF(use_fortran_kernels)THEN
+!$OMP PARALLEL
+!$OMP DO
+    DO t=1,tiles_per_task
+      CALL advec_mom_kernel(chunk%tiles(t)%field%x_min,            &
+                          chunk%tiles(t)%field%x_max,              &
+                          chunk%tiles(t)%field%y_min,              &
+                          chunk%tiles(t)%field%y_max,              &
+                          chunk%tiles(t)%field%xvel1,              &
+                          chunk%tiles(t)%field%yvel1,              &
+                          chunk%tiles(t)%field%mass_flux_x,        &
+                          chunk%tiles(t)%field%vol_flux_x,         &
+                          chunk%tiles(t)%field%mass_flux_y,        &
+                          chunk%tiles(t)%field%vol_flux_y,         &
+                          chunk%tiles(t)%field%volume,             &
+                          chunk%tiles(t)%field%density1,           &
+                          chunk%tiles(t)%field%work_array1,        &
+                          chunk%tiles(t)%field%work_array2,        &
+                          chunk%tiles(t)%field%work_array3,        &
+                          chunk%tiles(t)%field%work_array4,        &
+                          chunk%tiles(t)%field%work_array5,        &
+                          chunk%tiles(t)%field%work_array6,        &
+                          chunk%tiles(t)%field%work_array7,        &
+                          chunk%tiles(t)%field%celldx,             &
+                          chunk%tiles(t)%field%celldy,             &
                           which_vel,                              &
                           sweep_number,                           &
                           direction                               )
-    ELSEIF(use_C_kernels)THEN
-      CALL advec_mom_kernel_c(chunks(chunk)%field%x_min,          &
-                          chunks(chunk)%field%x_max,              &
-                          chunks(chunk)%field%y_min,              &
-                          chunks(chunk)%field%y_max,              &
-                          chunks(chunk)%field%xvel1,              &
-                          chunks(chunk)%field%yvel1,              &
-                          chunks(chunk)%field%mass_flux_x,        &
-                          chunks(chunk)%field%vol_flux_x,         &
-                          chunks(chunk)%field%mass_flux_y,        &
-                          chunks(chunk)%field%vol_flux_y,         &
-                          chunks(chunk)%field%volume,             &
-                          chunks(chunk)%field%density1,           &
-                          chunks(chunk)%field%work_array1,        &
-                          chunks(chunk)%field%work_array2,        &
-                          chunks(chunk)%field%work_array3,        &
-                          chunks(chunk)%field%work_array4,        &
-                          chunks(chunk)%field%work_array5,        &
-                          chunks(chunk)%field%work_array6,        &
-                          chunks(chunk)%field%work_array7,        &
-                          chunks(chunk)%field%celldx,             &
-                          chunks(chunk)%field%celldy,             &
-                          which_vel,                              &
-                          sweep_number,                           &
-                          direction                               )
-    ENDIF
-
+    ENDDO
+!$OMP END DO NOWAIT
+!$OMP END PARALLEL
   ENDIF
 
 END SUBROUTINE advec_mom_driver
