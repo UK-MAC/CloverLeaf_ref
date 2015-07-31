@@ -45,7 +45,7 @@ SUBROUTINE field_summary()
   IF(parallel%boss) THEN
     WRITE(g_out,*)
     WRITE(g_out,*) 'Time ',time
-    WRITE(g_out,'(a13,7a16)')'           ','Volume','Mass','Density','Pressure','Internal Energy','Kinetic Energy','Total Energy'
+    WRITE(g_out,'(a13,7a18)')'           ','Volume','Mass','Density','Pressure','Internal Energy','Kinetic Energy','Total Energy'
   ENDIF
 
   vol=0.0
@@ -74,8 +74,8 @@ SUBROUTINE field_summary()
                                 chunk%tiles(t)%field%y_min,                   &
                                 chunk%tiles(t)%field%y_max,                   &
                                 chunk%tiles(t)%field%volume,                  &
-                                chunk%tiles(t)%field%density1,                &
-                                chunk%tiles(t)%field%energy1,                 &
+                                chunk%tiles(t)%field%density0,                &
+                                chunk%tiles(t)%field%energy0,                 &
                                 chunk%tiles(t)%field%pressure,                 &
                                 chunk%tiles(t)%field%xvel0,                 &
                                 chunk%tiles(t)%field%yvel0,                 &
@@ -91,6 +91,7 @@ SUBROUTINE field_summary()
 !$OMP END PARALLEL
   ENDIF
 
+
   ! For mpi I need a reduction here
   CALL clover_sum(vol)
   CALL clover_sum(mass)
@@ -101,7 +102,7 @@ SUBROUTINE field_summary()
 
   IF(parallel%boss) THEN
 !$  IF(OMP_GET_THREAD_NUM().EQ.0) THEN
-      WRITE(g_out,'(a6,i7,7e16.4)')' step:',step,vol,mass,mass/vol,press/vol,ie,ke,ie+ke
+      WRITE(g_out,'(a6,i7,7e18.10)')' step:',step,vol,mass,mass/vol,press/vol,ie,ke,ie+ke
       WRITE(g_out,*)
 !$  ENDIF
   ENDIF

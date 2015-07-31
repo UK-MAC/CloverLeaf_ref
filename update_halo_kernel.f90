@@ -26,10 +26,10 @@ MODULE update_halo_kernel_module
 
   ! These need to be kept consistent with the data module to avoid use statement
   INTEGER,PRIVATE,PARAMETER :: CHUNK_LEFT   =1    &
-                            ,CHUNK_RIGHT  =2    &
-                            ,CHUNK_BOTTOM =3    &
-                            ,CHUNK_TOP    =4    &
-                            ,EXTERNAL_FACE=-1
+                              ,CHUNK_RIGHT  =2    &
+                              ,CHUNK_BOTTOM =3    &
+                              ,CHUNK_TOP    =4    &
+                              ,EXTERNAL_FACE=-1
 
   INTEGER,PRIVATE,PARAMETER :: FIELD_DENSITY0   = 1         &
                               ,FIELD_DENSITY1   = 2         &

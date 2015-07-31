@@ -130,7 +130,6 @@ SUBROUTINE build_field()
     ENDDO
   ENDDO
 !$OMP ENDDO
-
 !$OMP DO
   DO k=chunk%tiles(t)%field%y_min-2,chunk%tiles(t)%field%y_max+2
     DO j=chunk%tiles(t)%field%x_min-2,chunk%tiles(t)%field%x_max+3
@@ -139,7 +138,6 @@ SUBROUTINE build_field()
     ENDDO
   ENDDO
 !$OMP ENDDO
-
 !$OMP DO
   DO k=chunk%tiles(t)%field%y_min-2,chunk%tiles(t)%field%y_max+3
     DO j=chunk%tiles(t)%field%x_min-2,chunk%tiles(t)%field%x_max+2
@@ -148,7 +146,6 @@ SUBROUTINE build_field()
     ENDDO
   ENDDO
 !$OMP ENDDO
-
 !$OMP DO
   DO k=chunk%tiles(t)%field%y_min-2,chunk%tiles(t)%field%y_max+3
     DO j=chunk%tiles(t)%field%x_min-2,chunk%tiles(t)%field%x_max+3
@@ -159,7 +156,6 @@ SUBROUTINE build_field()
     ENDDO
   ENDDO
 !$OMP ENDDO
-
 !$OMP DO
   DO k=chunk%tiles(t)%field%y_min-2,chunk%tiles(t)%field%y_max+2
     DO j=chunk%tiles(t)%field%x_min-2,chunk%tiles(t)%field%x_max+2
