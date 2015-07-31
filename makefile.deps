@@ -7,8 +7,9 @@ build_field.o :  \
 	clover.o
 
 clover.o :  \
-	data.o \
-	pack_kernel.o \
+	pack.o \
+	global_mpi.o \
+	report.o \
 	definitions.o
 
 reset_field.o :  \
@@ -22,6 +23,11 @@ generate_chunk.o :  \
 	generate_chunk_kernel.o
 
 calc_dt_kernel.o : 
+
+pack.o :  \
+	report.o \
+	pack_kernel.o \
+	definitions.o
 
 field_summary_kernel.o : 
 
@@ -45,6 +51,8 @@ parse.o :  \
 	report.o \
 	clover.o \
 	data.o
+
+update_internal_halo_kernel.o : 
 
 visit.o :  \
 	viscosity.o \
@@ -123,13 +131,14 @@ hydro.o :  \
 
 reset_field_kernel.o : 
 
+initialise_chunk_kernel.o : 
+
 viscosity_kernel.o : 
 
-update_halo.o :  \
-	update_halo_kernel.o \
-	clover.o
+update_halo.o : 
 
-initialise_chunk_kernel.o : 
+global_mpi.o :  \
+	definitions.o
 
 timer.o : 
 
@@ -161,5 +170,4 @@ initialise.o :  \
 	parse.o
 
 report.o :  \
-	clover.o \
 	data.o

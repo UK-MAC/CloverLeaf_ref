@@ -33,59 +33,59 @@ SUBROUTINE field_summary()
   IMPLICIT NONE
 
   REAL(KIND=8) :: vol,mass,ie,ke,press
+  REAL(KIND=8) :: tile_vol,tile_mass,tile_ie,tile_ke,tile_press
   REAL(KIND=8) :: qa_diff
 
 !$ INTEGER :: OMP_GET_THREAD_NUM
 
-  INTEGER      :: c
+  INTEGER      :: t
 
   REAL(KIND=8) :: kernel_time,timer
 
-  IF(parallel%boss)THEN
+  IF(parallel%boss) THEN
     WRITE(g_out,*)
     WRITE(g_out,*) 'Time ',time
     WRITE(g_out,'(a13,7a16)')'           ','Volume','Mass','Density','Pressure','Internal Energy','Kinetic Energy','Total Energy'
   ENDIF
 
+  vol=0.0
+  mass=0.0
+  ie=0.0
+  ke=0.0
+  press=0.0
+
   IF(profiler_on) kernel_time=timer()
-  DO c=1,chunks_per_task
-    CALL ideal_gas(c,.FALSE.)
-  ENDDO
+  CALL ideal_gas(c,.FALSE.)
   IF(profiler_on) profiler%ideal_gas=profiler%ideal_gas+(timer()-kernel_time)
 
   IF(profiler_on) kernel_time=timer()
   IF(use_fortran_kernels)THEN
-    DO c=1,chunks_per_task
-      IF(chunks(c)%task.EQ.parallel%task) THEN
-        CALL field_summary_kernel(chunks(c)%field%x_min,                   &
-                                  chunks(c)%field%x_max,                   &
-                                  chunks(c)%field%y_min,                   &
-                                  chunks(c)%field%y_max,                   &
-                                  chunks(c)%field%volume,                  &
-                                  chunks(c)%field%density0,                &
-                                  chunks(c)%field%energy0,                 &
-                                  chunks(c)%field%pressure,                &
-                                  chunks(c)%field%xvel0,                   &
-                                  chunks(c)%field%yvel0,                   &
-                                  vol,mass,ie,ke,press                     )
-      ENDIF
+!$OMP PARALLEL PRIVATE(tile_vol,tile_mass,tile_ie,tile_temp)
+!$OMP DO REDUCTION(+ : vol,mass,ie,temp)
+    DO t=1,tiles_per_task
+      tile_vol=0.0
+      tile_mass=0.0
+      tile_ie=0.0
+      tile_temp=0.0
+
+      CALL field_summary_kernel(chunk%tiles(t)%field%x_min,                   &
+                                chunk%tiles(t)%field%x_max,                   &
+                                chunk%tiles(t)%field%y_min,                   &
+                                chunk%tiles(t)%field%y_max,                   &
+                                halo_exchange_depth,                          &
+                                chunk%tiles(t)%field%volume,                  &
+                                chunk%tiles(t)%field%density,                 &
+                                chunk%tiles(t)%field%energy1,                 &
+                                chunk%tiles(t)%field%u,                       &
+                                tile_vol,tile_mass,tile_ie,tile_temp)
+
+      vol = vol + tile_vol
+      mass = mass + tile_mass
+      ie = ie + tile_ie
+      temp = temp + tile_temp
     ENDDO
-  ELSEIF(use_C_kernels)THEN
-    DO c=1,chunks_per_task
-      IF(chunks(c)%task.EQ.parallel%task) THEN
-        CALL field_summary_kernel_c(chunks(c)%field%x_min,                 &
-                                  chunks(c)%field%x_max,                   &
-                                  chunks(c)%field%y_min,                   &
-                                  chunks(c)%field%y_max,                   &
-                                  chunks(c)%field%volume,                  &
-                                  chunks(c)%field%density0,                &
-                                  chunks(c)%field%energy0,                 &
-                                  chunks(c)%field%pressure,                &
-                                  chunks(c)%field%xvel0,                   &
-                                  chunks(c)%field%yvel0,                   &
-                                  vol,mass,ie,ke,press                     )
-      ENDIF
-    ENDDO
+!$OMP END DO NOWAIT
+!$OMP END PARALLEL
   ENDIF
 
   ! For mpi I need a reduction here
@@ -101,7 +101,7 @@ SUBROUTINE field_summary()
       WRITE(g_out,'(a6,i7,7e16.4)')' step:',step,vol,mass,mass/vol,press/vol,ie,ke,ie+ke
       WRITE(g_out,*)
 !$  ENDIF
-   ENDIF
+  ENDIF
 
   !Check if this is the final call and if it is a test problem, check the result.
   IF(complete) THEN
@@ -126,6 +126,5 @@ SUBROUTINE field_summary()
 !$    ENDIF
     ENDIF
   ENDIF
-
 
 END SUBROUTINE field_summary

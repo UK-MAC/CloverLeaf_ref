@@ -22,7 +22,6 @@
 MODULE report_module
 
   USE data_module
-  USE clover_module
  
 CONTAINS
 

@@ -80,18 +80,25 @@ MODULE data_module
 
 
    TYPE parallel_type
-      LOGICAL           ::      parallel &
-                               ,boss
+      LOGICAL         ::        boss
       INTEGER         ::        max_task &
-                               ,task     &
-                               ,boss_task
-
+                               ,boss_task &
+                               ,task
    END TYPE parallel_type
-   
+
    TYPE(parallel_type) :: parallel
-     
+
    INTEGER,        PARAMETER ::g_len_max=500
 
-   INTEGER,        PARAMETER :: chunks_per_task = 1
+   INTEGER                   ::tiles_per_task
+
+   ! cartesian communicator
+   INTEGER                   ::mpi_cart_comm
+   ! dimensions of mpi grid
+   INTEGER, dimension(2)     ::mpi_dims
+   ! this rank's coordinates
+   INTEGER, dimension(2)     ::mpi_coords
+
+   INTEGER                   ::lr_pack_buffer_size,bt_pack_buffer_size
 
 END MODULE data_module

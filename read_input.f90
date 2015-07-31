@@ -255,14 +255,16 @@ SUBROUTINE read_input()
     WRITE(g_out,*)
   ENDIF
 
+  CALL flush(g_out)
+
   ! If a state boundary falls exactly on a cell boundary then round off can
   ! cause the state to be put one cell further that expected. This is compiler
   ! /system dependent. To avoid this, a state boundary is reduced/increased by a 100th
   ! of a cell width so it lies well with in the intended cell.
   ! Because a cell is either full or empty of a specified state, this small
   ! modification to the state extents does not change the answers.
-  dx=(grid%xmax-grid%xmin)/float(grid%x_cells)
-  dy=(grid%ymax-grid%ymin)/float(grid%y_cells)
+  dx=(grid%xmax-grid%xmin)/REAL(grid%x_cells)
+  dy=(grid%ymax-grid%ymin)/REAL(grid%y_cells)
   DO n=2,number_of_states
     states(n)%xmin=states(n)%xmin+(dx/100.0_8)
     states(n)%ymin=states(n)%ymin+(dy/100.0_8)

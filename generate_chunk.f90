@@ -26,14 +26,14 @@ SUBROUTINE generate_chunk(chunk)
 
   IMPLICIT NONE
 
-  INTEGER         :: chunk
+  INTEGER         :: t
 
   INTEGER         :: state
   REAL(KIND=8), DIMENSION(number_of_states) :: state_density,state_energy,state_xvel,state_yvel
   REAL(KIND=8), DIMENSION(number_of_states) :: state_xmin,state_xmax,state_ymin,state_ymax,state_radius
   INTEGER,      DIMENSION(number_of_states) :: state_geometry
 
-  DO state=1,number_of_states 
+  DO state=1,number_of_states
    state_density(state)=states(state)%density
    state_energy(state)=states(state)%energy
    state_xvel(state)=states(state)%xvel
@@ -47,45 +47,20 @@ SUBROUTINE generate_chunk(chunk)
   ENDDO
 
   IF(use_fortran_kernels) THEN
-    CALL generate_chunk_kernel(chunks(chunk)%field%x_min,             &
-                               chunks(chunk)%field%x_max,             &
-                               chunks(chunk)%field%y_min,             &
-                               chunks(chunk)%field%y_max,             &
-                               chunks(chunk)%field%vertexx,           &
-                               chunks(chunk)%field%vertexy,           &
-                               chunks(chunk)%field%cellx,             &
-                               chunks(chunk)%field%celly,             &
-                               chunks(chunk)%field%density0,          &
-                               chunks(chunk)%field%energy0,           &
-                               chunks(chunk)%field%xvel0,             &
-                               chunks(chunk)%field%yvel0,             &
-                               number_of_states,                      &
-                               state_density,                         &
-                               state_energy,                          &
-                               state_xvel,                            &
-                               state_yvel,                            &
-                               state_xmin,                            &
-                               state_xmax,                            &
-                               state_ymin,                            &
-                               state_ymax,                            &
-                               state_radius,                          &
-                               state_geometry,                        &
-                               g_rect,                                &
-                               g_circ,                                &
-                               g_point)
-      ELSEIF(use_C_kernels)THEN
-        CALL generate_chunk_kernel_c(chunks(chunk)%field%x_min,         &
-                                 chunks(chunk)%field%x_max,             &
-                                 chunks(chunk)%field%y_min,             &
-                                 chunks(chunk)%field%y_max,             &
-                                 chunks(chunk)%field%vertexx,           &
-                                 chunks(chunk)%field%vertexy,           &
-                                 chunks(chunk)%field%cellx,             &
-                                 chunks(chunk)%field%celly,             &
-                                 chunks(chunk)%field%density0,          &
-                                 chunks(chunk)%field%energy0,           &
-                                 chunks(chunk)%field%xvel0,             &
-                                 chunks(chunk)%field%yvel0,             &
+!$OMP PARALLEL
+!$OMP DO
+    DO t=1,tiles_per_task
+      CALL generate_chunk_kernel(chunk%tiles(t)%field%x_min,             &
+                                 chunk%tiles(t)%field%x_max,             &
+                                 chunk%tiles(t)%field%y_min,             &
+                                 chunk%tiles(t)%field%y_max,halo_exchange_depth,             &
+                                 chunk%tiles(t)%field%vertexx,           &
+                                 chunk%tiles(t)%field%vertexy,           &
+                                 chunk%tiles(t)%field%cellx,             &
+                                 chunk%tiles(t)%field%celly,             &
+                                 chunk%tiles(t)%field%density,           &
+                                 chunk%tiles(t)%field%energy0,           &
+                                 chunk%tiles(t)%field%u,                 &
                                  number_of_states,                      &
                                  state_density,                         &
                                  state_energy,                          &
@@ -100,6 +75,9 @@ SUBROUTINE generate_chunk(chunk)
                                  g_rect,                                &
                                  g_circ,                                &
                                  g_point)
-      ENDIF
+    ENDDO
+!$OMP END DO NOWAIT
+!$OMP END PARALLEL
+  ENDIF
 
 END SUBROUTINE generate_chunk

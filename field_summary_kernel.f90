@@ -51,8 +51,8 @@ SUBROUTINE field_summary_kernel(x_min,x_max,y_min,y_max, &
   ke=0.0
   press=0.0
 
-!$OMP PARALLEL
-!$OMP DO PRIVATE(vsqrd,cell_vol,cell_mass) REDUCTION(+ : vol,mass,press,ie,ke)
+!$OMP PARALLEL PRIVATE(vsqrd,cell_vol,cell_mass) REDUCTION(+ : vol,mass,press,ie,ke)
+!$OMP DO
   DO k=y_min,y_max
     DO j=x_min,x_max
       vsqrd=0.0

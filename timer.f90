@@ -27,7 +27,7 @@ FUNCTION timer()
   IMPLICIT none
 
   REAL(KIND=8) :: timer
-  
+
   CALL timer_c(timer)
 
 END FUNCTION
