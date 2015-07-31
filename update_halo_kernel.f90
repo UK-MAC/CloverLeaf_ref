@@ -95,9 +95,9 @@ CONTAINS
   IF (fields(FIELD_SOUNDSPEED ).EQ.1) CALL update_halo_inner(x_min, x_max, y_min, y_max, chunk_neighbours, tile_neighbours, soundspeed,  depth, 0, 0,  1.0_8,  1.0_8)
 
   IF (fields(FIELD_XVEL0      ).EQ.1) CALL update_halo_inner(x_min, x_max, y_min, y_max, chunk_neighbours, tile_neighbours, xvel0,       depth, 1, 1, -1.0_8,  1.0_8)
-  IF (fields(FIELD_XVEL1      ).EQ.1) CALL update_halo_inner(x_min, x_max, y_min, y_max, chunk_neighbours, tile_neighbours, yvel0,       depth, 1, 1, -1.0_8,  1.0_8)
+  IF (fields(FIELD_XVEL1      ).EQ.1) CALL update_halo_inner(x_min, x_max, y_min, y_max, chunk_neighbours, tile_neighbours, xvel1,       depth, 1, 1, -1.0_8,  1.0_8)
 
-  IF (fields(FIELD_YVEL0      ).EQ.1) CALL update_halo_inner(x_min, x_max, y_min, y_max, chunk_neighbours, tile_neighbours, xvel1,       depth, 1, 1,  1.0_8, -1.0_8)
+  IF (fields(FIELD_YVEL0      ).EQ.1) CALL update_halo_inner(x_min, x_max, y_min, y_max, chunk_neighbours, tile_neighbours, yvel0,       depth, 1, 1,  1.0_8, -1.0_8)
   IF (fields(FIELD_YVEL1      ).EQ.1) CALL update_halo_inner(x_min, x_max, y_min, y_max, chunk_neighbours, tile_neighbours, yvel1,       depth, 1, 1,  1.0_8, -1.0_8)
 
   IF (fields(FIELD_VOL_FLUX_X ).EQ.1) CALL update_halo_inner(x_min, x_max, y_min, y_max, chunk_neighbours, tile_neighbours, vol_flux_x,  depth, 1, 0, -1.0_8,  1.0_8)
@@ -122,7 +122,7 @@ SUBROUTINE update_halo_inner(x_min,x_max,y_min,y_max, &
   INTEGER :: x_min,x_max,y_min,y_max
   INTEGER :: x_extra, y_extra
   INTEGER, DIMENSION(4) :: chunk_neighbours, tile_neighbours
-  REAL(KIND=8), DIMENSION(x_min-2:x_max+2,y_min-2:y_max+2) :: mesh
+  REAL(KIND=8), DIMENSION(x_min-2:x_max+2+x_extra,y_min-2:y_max+2+y_extra) :: mesh
   REAL(KIND=8) :: x_invert, y_invert
 
   INTEGER :: depth
