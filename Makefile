@@ -71,9 +71,9 @@ OMP_PATHSCALE = -mp
 OMP_XL        = -qsmp=omp -qthreaded
 OMP=$(OMP_$(COMPILER))
 
-FLAGS_INTEL     = -O3 -no-prec-div
+FLAGS_INTEL     = -O3 -no-prec-div -fpp -align array64byte -ip
 FLAGS_SUN       = -fast -xipo=2 -Xlistv4
-FLAGS_GNU       = -O3 -march=native -funroll-loops
+FLAGS_GNU       = -O3 -funroll-loops
 FLAGS_CRAY      = -em -ra -h acc_model=fast_addr:no_deep_copy:auto_async_all
 FLAGS_PGI       = -fastsse -Mipa=fast -Mlist
 FLAGS_PATHSCALE = -O3
@@ -81,7 +81,7 @@ FLAGS_XL       = -O5 -qipa=partition=large -g -qfullpath -Q -qsigtrap -qextname=
 FLAGS_          = -O3
 CFLAGS_INTEL     = -O3 -no-prec-div -restrict -fno-alias
 CFLAGS_SUN       = -fast -xipo=2
-CFLAGS_GNU       = -O3 -march=native -funroll-loops
+CFLAGS_GNU       = -O3 -funroll-loops
 CFLAGS_CRAY      = -em -h list=a
 CFLAGS_PGI       = -fastsse -Mipa=fast -Mlist
 CFLAGS_PATHSCALE = -O3
@@ -122,52 +122,7 @@ CFLAGS=$(CFLAGS_$(COMPILER)) $(OMP) $(I3E) $(C_OPTIONS) -c
 MPI_COMPILER=mpif90
 C_MPI_COMPILER=mpicc
 
-clover_leaf: c_lover *.f90 Makefile
-	$(MPI_COMPILER) $(FLAGS)	\
-	data.f90			\
-	definitions.f90			\
-	pack_kernel.f90			\
-	clover.f90			\
-	report.f90			\
-	timer.f90			\
-	parse.f90			\
-	read_input.f90			\
-	initialise_chunk_kernel.f90	\
-	initialise_chunk.f90		\
-	build_field.f90			\
-	update_halo_kernel.f90		\
-	update_halo.f90			\
-	ideal_gas_kernel.f90		\
-	ideal_gas.f90			\
-	start.f90			\
-	generate_chunk_kernel.f90	\
-	generate_chunk.f90		\
-	initialise.f90			\
-	field_summary_kernel.f90	\
-	field_summary.f90		\
-	viscosity_kernel.f90		\
-	viscosity.f90			\
-	calc_dt_kernel.f90		\
-	calc_dt.f90			\
-	timestep.f90			\
-	accelerate_kernel.f90		\
-	accelerate.f90			\
-	revert_kernel.f90		\
-	revert.f90			\
-	PdV_kernel.f90			\
-	PdV.f90				\
-	flux_calc_kernel.f90		\
-	flux_calc.f90			\
-	advec_cell_kernel.f90		\
-	advec_cell_driver.f90		\
-	advec_mom_kernel.f90		\
-	advec_mom_driver.f90		\
-	advection.f90			\
-	reset_field_kernel.f90		\
-	reset_field.f90			\
-	hydro.f90			\
-	visit.f90			\
-	clover_leaf.f90			\
+C_FILES= \
 	accelerate_kernel_c.o           \
 	PdV_kernel_c.o                  \
 	flux_calc_kernel_c.o            \
@@ -180,31 +135,72 @@ clover_leaf: c_lover *.f90 Makefile
 	calc_dt_kernel_c.o		\
 	field_summary_kernel_c.o	\
 	update_halo_kernel_c.o		\
-	timer_c.o                       \
 	pack_kernel_c.o			\
 	generate_chunk_kernel_c.o	\
 	initialise_chunk_kernel_c.o	\
-	-o clover_leaf; echo $(MESSAGE)
+	timer_c.o
 
-c_lover: *.c Makefile
-	$(C_MPI_COMPILER) $(CFLAGS)     \
-	accelerate_kernel_c.c           \
-	PdV_kernel_c.c                  \
-	flux_calc_kernel_c.c            \
-	revert_kernel_c.c               \
-	reset_field_kernel_c.c          \
-	ideal_gas_kernel_c.c            \
-	viscosity_kernel_c.c            \
-	advec_mom_kernel_c.c            \
-	advec_cell_kernel_c.c           \
-	calc_dt_kernel_c.c		\
-	field_summary_kernel_c.c	\
-	update_halo_kernel_c.c		\
-	pack_kernel_c.c			\
-	generate_chunk_kernel_c.c	\
-	initialise_chunk_kernel_c.c	\
-	timer_c.c
+FORTRAN_FILES=\
+	data.o			\
+	definitions.o			\
+	pack_kernel.o			\
+	clover.o			\
+	report.o			\
+	timer.o			\
+	parse.o			\
+	read_input.o			\
+	initialise_chunk_kernel.o	\
+	initialise_chunk.o		\
+	build_field.o			\
+	update_halo_kernel.o		\
+	update_halo.o			\
+	ideal_gas_kernel.o		\
+	ideal_gas.o			\
+	start.o			\
+	generate_chunk_kernel.o	\
+	generate_chunk.o		\
+	initialise.o			\
+	field_summary_kernel.o	\
+	field_summary.o		\
+	viscosity_kernel.o		\
+	viscosity.o			\
+	calc_dt_kernel.o		\
+	calc_dt.o			\
+	timestep.o			\
+	accelerate_kernel.o		\
+	accelerate.o			\
+	revert_kernel.o		\
+	revert.o			\
+	PdV_kernel.o			\
+	PdV.o				\
+	flux_calc_kernel.o		\
+	flux_calc.o			\
+	advec_cell_kernel.o		\
+	advec_cell_driver.o		\
+	advec_mom_kernel.o		\
+	advec_mom_driver.o		\
+	advection.o			\
+	reset_field_kernel.o		\
+	reset_field.o			\
+	hydro.o			\
+	visit.o			\
+	clover_leaf.o			\
 
+clover_leaf: $(FORTRAN_FILES) $(C_FILES) Makefile
+	$(MPI_COMPILER) $(FLAGS)	\
+	$(C_FILES) \
+	$(FORTRAN_FILES) \
+	-o clover_leaf
+	@echo $(MESSAGE)
+
+include makefile.deps
+
+%_module.mod: %.f90 %.o
+	@true
+%.o: %.f90 Makefile makefile.deps
+	$(MPI_COMPILER) $(FLAGS) -c $< -o $@
+%.o: %.c Makefile makefile.deps
+	$(C_MPI_COMPILER) $(CFLAGS) -c $< -o $@
 
 clean:
 	rm -f *.o *.mod *genmod* *cuda* *hmd* *.cu *.oo *.hmf *.lst *.cub *.ptx *.cl clover_leaf
