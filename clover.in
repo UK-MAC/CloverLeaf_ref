@@ -19,6 +19,6 @@
 
  profiler_on
 
- tiles_per_task=2
+ tiles_per_task=60
 
 *endclover

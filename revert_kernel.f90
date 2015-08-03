@@ -46,7 +46,7 @@ SUBROUTINE revert_kernel(x_min,x_max,y_min,y_max,density0,density1,energy0,energ
       density1(j,k)=density0(j,k)
     ENDDO
   ENDDO
-!$OMP END DO
+!$OMP END DO NOWAIT
 
 !$OMP DO
   DO k=y_min,y_max
@@ -54,7 +54,7 @@ SUBROUTINE revert_kernel(x_min,x_max,y_min,y_max,density0,density1,energy0,energ
       energy1(j,k)=energy0(j,k)
     ENDDO
   ENDDO
-!$OMP END DO
+!$OMP END DO NOWAIT
 
 !$OMP END PARALLEL
 

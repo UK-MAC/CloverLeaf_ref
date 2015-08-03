@@ -80,7 +80,7 @@ SUBROUTINE accelerate_kernel(x_min,x_max,y_min,y_max,dt,     &
                                             +xarea(j  ,k-1)*(pressure(j  ,k-1)-pressure(j-1,k-1)))
     ENDDO
   ENDDO
-!$OMP END DO
+!$OMP END DO NOWAIT
 
 !$OMP DO
   DO k=y_min,y_max+1
@@ -91,7 +91,7 @@ SUBROUTINE accelerate_kernel(x_min,x_max,y_min,y_max,dt,     &
 
     ENDDO
   ENDDO
-!$OMP END DO
+!$OMP END DO NOWAIT
 
 !$OMP DO
   DO k=y_min,y_max+1
@@ -102,7 +102,7 @@ SUBROUTINE accelerate_kernel(x_min,x_max,y_min,y_max,dt,     &
 
     ENDDO
   ENDDO
-!$OMP END DO
+!$OMP END DO NOWAIT
 
 !$OMP DO
   DO k=y_min,y_max+1
@@ -113,7 +113,7 @@ SUBROUTINE accelerate_kernel(x_min,x_max,y_min,y_max,dt,     &
 
     ENDDO
   ENDDO
-!$OMP END DO
+!$OMP END DO NOWAIT
 
 !$OMP END PARALLEL
 

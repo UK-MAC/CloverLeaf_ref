@@ -86,8 +86,8 @@ SUBROUTINE calc_dt_kernel(x_min,x_max,y_min,y_max,             &
   dt_min_val = g_big
   jk_control=1.1
 
-!$OMP PARALLEL
-!$OMP DO PRIVATE(dsx,dsy,cc,dv1,dv2,div,dtct,dtut,dtvt,dtdivt)
+!$OMP PARALLEL PRIVATE(dsx,dsy,cc,dv1,dv2,div,dtct,dtut,dtvt,dtdivt)
+!$OMP DO
   DO k=y_min,y_max
     DO j=x_min,x_max
 
@@ -136,7 +136,7 @@ SUBROUTINE calc_dt_kernel(x_min,x_max,y_min,y_max,             &
       IF(cell_min_dt(j,k).LT.dt_min_val) dt_min_val=cell_min_dt(j,k)
     ENDDO
   ENDDO
-!$OMP END DO
+!$OMP END DO NOWAIT
 !$OMP END PARALLEL
 
   ! Extract the mimimum timestep information

@@ -63,12 +63,12 @@ SUBROUTINE PdV_kernel(predict,                                          &
   REAL(KIND=8)  :: recip_volume,energy_change,min_cell_volume
   REAL(KIND=8)  :: right_flux,left_flux,top_flux,bottom_flux,total_flux
 
-!$OMP PARALLEL
+!$OMP PARALLEL PRIVATE(right_flux,left_flux,top_flux,bottom_flux,total_flux,min_cell_volume, &
+!$OMP            energy_change,recip_volume)
 
   IF(predict)THEN
 
-!$OMP DO PRIVATE(right_flux,left_flux,top_flux,bottom_flux,total_flux,min_cell_volume, &
-!$OMP            energy_change,recip_volume)
+!$OMP DO
     DO k=y_min,y_max
       DO j=x_min,x_max
 
@@ -98,12 +98,11 @@ SUBROUTINE PdV_kernel(predict,                                          &
 
       ENDDO
     ENDDO
-!$OMP END DO
+!$OMP END DO NOWAIT
 
   ELSE
 
-!$OMP DO PRIVATE(right_flux,left_flux,top_flux,bottom_flux,total_flux,min_cell_volume, &
-!$OMP            energy_change,recip_volume)
+!$OMP DO
     DO k=y_min,y_max
       DO j=x_min,x_max
 
@@ -133,7 +132,7 @@ SUBROUTINE PdV_kernel(predict,                                          &
 
       ENDDO
     ENDDO
-!$OMP END DO
+!$OMP END DO NOWAIT
 
   ENDIF
 

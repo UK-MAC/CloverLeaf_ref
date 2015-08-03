@@ -51,7 +51,7 @@ SUBROUTINE reset_field_kernel(x_min,x_max,y_min,y_max,    &
         density0(j,k)=density1(j,k)
      ENDDO
   ENDDO
-!$OMP END DO
+!$OMP END DO NOWAIT
 
 !$OMP DO
   DO k=y_min,y_max
@@ -59,7 +59,7 @@ SUBROUTINE reset_field_kernel(x_min,x_max,y_min,y_max,    &
         energy0(j,k)=energy1(j,k)
      ENDDO
   ENDDO
-!$OMP END DO
+!$OMP END DO NOWAIT
 
 !$OMP DO
   DO k=y_min,y_max+1
@@ -67,7 +67,7 @@ SUBROUTINE reset_field_kernel(x_min,x_max,y_min,y_max,    &
         xvel0(j,k)=xvel1(j,k)
      ENDDO
   ENDDO
-!$OMP END DO
+!$OMP END DO NOWAIT
 
 !$OMP DO
   DO k=y_min,y_max+1
@@ -75,7 +75,7 @@ SUBROUTINE reset_field_kernel(x_min,x_max,y_min,y_max,    &
         yvel0(j,k)=yvel1(j,k)
      ENDDO
   ENDDO
-!$OMP END DO
+!$OMP END DO NOWAIT
 !$OMP END PARALLEL
 
 END SUBROUTINE reset_field_kernel

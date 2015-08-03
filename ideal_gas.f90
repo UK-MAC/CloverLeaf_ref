@@ -44,13 +44,13 @@ SUBROUTINE ideal_gas(predict)
 !$OMP DO
       DO t=1,tiles_per_task
         CALL ideal_gas_kernel(chunk%tiles(t)%field%x_min,    &
-                          chunk%tiles(t)%field%x_max,      &
-                          chunk%tiles(t)%field%y_min,      &
-                          chunk%tiles(t)%field%y_max,      &
-                          chunk%tiles(t)%field%density0,   &
-                          chunk%tiles(t)%field%energy0,    &
-                          chunk%tiles(t)%field%pressure,   &
-                          chunk%tiles(t)%field%soundspeed  )
+                              chunk%tiles(t)%field%x_max,      &
+                              chunk%tiles(t)%field%y_min,      &
+                              chunk%tiles(t)%field%y_max,      &
+                              chunk%tiles(t)%field%density0,   &
+                              chunk%tiles(t)%field%energy0,    &
+                              chunk%tiles(t)%field%pressure,   &
+                              chunk%tiles(t)%field%soundspeed  )
       ENDDO
 !$OMP END DO NOWAIT
 !$OMP END PARALLEL
@@ -61,13 +61,13 @@ SUBROUTINE ideal_gas(predict)
 !$OMP DO
       DO t=1,tiles_per_task
         CALL ideal_gas_kernel(chunk%tiles(t)%field%x_min,    &
-                          chunk%tiles(t)%field%x_max,      &
-                          chunk%tiles(t)%field%y_min,      &
-                          chunk%tiles(t)%field%y_max,      &
-                          chunk%tiles(t)%field%density1,   &
-                          chunk%tiles(t)%field%energy1,    &
-                          chunk%tiles(t)%field%pressure,   &
-                          chunk%tiles(t)%field%soundspeed  )
+                              chunk%tiles(t)%field%x_max,      &
+                              chunk%tiles(t)%field%y_min,      &
+                              chunk%tiles(t)%field%y_max,      &
+                              chunk%tiles(t)%field%density1,   &
+                              chunk%tiles(t)%field%energy1,    &
+                              chunk%tiles(t)%field%pressure,   &
+                              chunk%tiles(t)%field%soundspeed  )
       ENDDO
 !$OMP END DO NOWAIT
 !$OMP END PARALLEL
