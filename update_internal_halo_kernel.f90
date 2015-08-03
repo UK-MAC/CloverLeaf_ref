@@ -133,15 +133,16 @@ CONTAINS
       DO k=1,depth
 !DIR$ IVDEP
         DO j=x_min_1-depth,x_max_1+depth+x_extra
-          mesh_2(j,1-k)=mesh_1(j,y_max_1+1-k)
+          mesh_1(j,y_max_1+y_extra+k)=mesh_2(j,y_extra+k)
         ENDDO
       ENDDO
 !$OMP END DO NOWAIT
+
 !$OMP DO
       DO k=1,depth
 !DIR$ IVDEP
         DO j=x_min_1-depth,x_max_1+depth+x_extra
-          mesh_1(j,y_max_1+k)=mesh_2(j,0+k)
+          mesh_2(j,1-k)=mesh_1(j,y_max_1+1-k)
         ENDDO
       ENDDO
 !$OMP END DO NOWAIT
@@ -152,15 +153,16 @@ CONTAINS
       DO k=y_min_1-depth,y_max_1+depth+y_extra
 !DIR$ IVDEP
         DO j=1,depth
-          mesh_2(1-j,k)=mesh_1(x_max_1+1-j,k)
+          mesh_1(x_max_1+x_extra+j,k)=mesh_2(x_extra+j,k)
         ENDDO
       ENDDO
 !$OMP END DO NOWAIT
+
 !$OMP DO
       DO k=y_min_1-depth,y_max_1+depth+y_extra
 !DIR$ IVDEP
         DO j=1,depth
-          mesh_1(x_max_1+j,k)=mesh_2(0+j,k)
+          mesh_2(1-j,k)=mesh_1(x_max_1+1-j,k)
         ENDDO
       ENDDO
 !$OMP END DO NOWAIT
