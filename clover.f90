@@ -303,7 +303,6 @@ SUBROUTINE clover_exchange(fields,depth)
     INTEGER      :: exchange_size_lr, exchange_size_ud
     INTEGER, DIMENSION(4)                 :: request_lr, request_ud
     INTEGER, DIMENSION(MPI_STATUS_SIZE,4) :: status_lr, status_ud
-    LOGICAL :: test_complete
 
     IF (ALL(chunk%chunk_neighbours .eq. EXTERNAL_FACE)) return
 
@@ -357,29 +356,20 @@ SUBROUTINE clover_exchange(fields,depth)
       message_count_lr = message_count_lr + 2
     ENDIF
 
-    IF (depth .EQ. 1) THEN
-      test_complete = .false.
-      ! don't have to transfer now
-      CALL MPI_TESTALL(message_count_lr, request_lr, test_complete, status_lr, err)
-    ELSE
-      test_complete = .true.
-      !make a call to wait / sync
-      CALL MPI_WAITALL(message_count_lr,request_lr,status_lr,err)
+    CALL MPI_WAITALL(message_count_lr,request_lr,status_lr,err)
+
+    !unpack in left direction
+    IF (chunk%chunk_neighbours(CHUNK_LEFT).NE.EXTERNAL_FACE) THEN
+      CALL clover_unpack_buffers(fields, depth, CHUNK_LEFT, &
+        chunk%left_rcv_buffer, left_right_offset)
     ENDIF
 
-    IF (test_complete .EQV. .TRUE.) THEN
-      !unpack in left direction
-      IF (chunk%chunk_neighbours(CHUNK_LEFT).NE.EXTERNAL_FACE) THEN
-        CALL clover_unpack_buffers(fields, depth, CHUNK_LEFT, &
-          chunk%left_rcv_buffer, left_right_offset)
-      ENDIF
-
-      !unpack in right direction
-      IF (chunk%chunk_neighbours(CHUNK_RIGHT).NE.EXTERNAL_FACE) THEN
-        CALL clover_unpack_buffers(fields, depth, CHUNK_RIGHT, &
-          chunk%right_rcv_buffer, left_right_offset)
-      ENDIF
+    !unpack in right direction
+    IF (chunk%chunk_neighbours(CHUNK_RIGHT).NE.EXTERNAL_FACE) THEN
+      CALL clover_unpack_buffers(fields, depth, CHUNK_RIGHT, &
+        chunk%right_rcv_buffer, left_right_offset)
     ENDIF
+
 
     IF (chunk%chunk_neighbours(CHUNK_BOTTOM).NE.EXTERNAL_FACE) THEN
       ! do bottom exchanges
@@ -407,23 +397,6 @@ SUBROUTINE clover_exchange(fields,depth)
                                         4, 3,                                                   &
                                         request_ud(message_count_ud+1), request_ud(message_count_ud+2))
       message_count_ud = message_count_ud + 2
-    ENDIF
-
-    IF (test_complete .EQV. .FALSE.) THEN
-      !make a call to wait / sync
-      CALL MPI_WAITALL(message_count_lr,request_lr,status_lr,err)
-
-      !unpack in left direction
-      IF (chunk%chunk_neighbours(CHUNK_LEFT).NE.EXTERNAL_FACE) THEN
-        CALL clover_unpack_buffers(fields, depth, CHUNK_LEFT, &
-          chunk%left_rcv_buffer, left_right_offset)
-      ENDIF
-
-      !unpack in right direction
-      IF (chunk%chunk_neighbours(CHUNK_RIGHT).NE.EXTERNAL_FACE) THEN
-        CALL clover_unpack_buffers(fields, depth, CHUNK_RIGHT, &
-          chunk%right_rcv_buffer, left_right_offset)
-      ENDIF
     ENDIF
 
     !need to make a call to wait / sync
