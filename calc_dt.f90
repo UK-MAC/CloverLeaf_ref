@@ -44,7 +44,7 @@ SUBROUTINE calc_dt(local_control,x_pos,y_pos)
 
   IF(use_fortran_kernels)THEN
 !$OMP PARALLEL PRIVATE(tile_dt)
-!$OMP DO
+!$OMP DO LASTPRIVATE(l_control)
     DO t=1,tiles_per_task
       tile_dt = g_big
 

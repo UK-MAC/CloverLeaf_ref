@@ -79,7 +79,7 @@ SUBROUTINE read_input()
   profiler%flux=0.0
   profiler%halo_exchange=0.0
 
-  tiles_per_task = 1
+  tiles_per_task = 2
 
   IF(parallel%boss)WRITE(g_out,*) 'Reading input file'
   IF(parallel%boss)WRITE(g_out,*)
@@ -158,6 +158,9 @@ SUBROUTINE read_input()
       CASE('visit_frequency')
         visit_frequency=parse_getival(parse_getword(.TRUE.))
         IF(parallel%boss)WRITE(g_out,"(1x,a25,i12)")'visit_frequency',visit_frequency
+      CASE('tiles_per_task')
+        tiles_per_task=parse_getival(parse_getword(.TRUE.))
+        IF(parallel%boss)WRITE(g_out,"(1x,a25,i12)")'tiles_per_task',tiles_per_task
       CASE('summary_frequency')
         summary_frequency=parse_getival(parse_getword(.TRUE.))
         IF(parallel%boss)WRITE(g_out,"(1x,a25,i12)")'summary_frequency',summary_frequency

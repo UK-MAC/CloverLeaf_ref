@@ -110,7 +110,7 @@ SUBROUTINE update_tile_boundary(fields, depth)
         right_idx = chunk%tiles(t)%tile_neighbours(CHUNK_RIGHT)
 
         IF (right_idx .NE. EXTERNAL_FACE) THEN
-          CALL update_internal_halo_left_right_kernel(                &
+          CALL update_internal_halo_kernel(                &
                                   chunk%tiles(t)%field%x_min,          &
                                   chunk%tiles(t)%field%x_max,          &
                                   chunk%tiles(t)%field%y_min,          &
@@ -150,7 +150,8 @@ SUBROUTINE update_tile_boundary(fields, depth)
                   chunk%tiles(right_idx)%field%mass_flux_x,                   &
                   chunk%tiles(right_idx)%field%mass_flux_y,                   &
                                   fields,                         &
-                                  depth                           )
+                                  depth,                            &
+                                  CHUNK_LEFT                           )
         ENDIF
       ENDDO
 !$OMP END DO NOWAIT
@@ -162,7 +163,7 @@ SUBROUTINE update_tile_boundary(fields, depth)
         up_idx = chunk%tiles(t)%tile_neighbours(CHUNK_TOP)
 
         IF (up_idx .NE. EXTERNAL_FACE) THEN
-          CALL update_internal_halo_bottom_top_kernel(                &
+          CALL update_internal_halo_kernel(                &
                                   chunk%tiles(t)%field%x_min,          &
                                   chunk%tiles(t)%field%x_max,          &
                                   chunk%tiles(t)%field%y_min,          &
@@ -202,7 +203,8 @@ SUBROUTINE update_tile_boundary(fields, depth)
                   chunk%tiles(up_idx)%field%mass_flux_x,                   &
                   chunk%tiles(up_idx)%field%mass_flux_y,                   &
                                   fields,                         &
-                                  depth                           )
+                                  depth,                            &
+                                  CHUNK_BOTTOM)
         ENDIF
       ENDDO
 !$OMP END DO NOWAIT
