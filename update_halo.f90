@@ -60,29 +60,31 @@ SUBROUTINE update_boundary(fields,depth)
 !$OMP PARALLEL
 !$OMP DO
       DO t=1,tiles_per_task
-        CALL update_halo_kernel(chunk%tiles(t)%field%x_min,          &
-                                chunk%tiles(t)%field%x_max,          &
-                                chunk%tiles(t)%field%y_min,          &
-                                chunk%tiles(t)%field%y_max,          &
-                                chunk%chunk_neighbours,     &
-                                chunk%tiles(t)%tile_neighbours,     &
-                  chunk%tiles(t)%field%density0,                      &
-                  chunk%tiles(t)%field%energy0,                       &
-                  chunk%tiles(t)%field%pressure,                      &
-                  chunk%tiles(t)%field%viscosity,                     &
-                  chunk%tiles(t)%field%soundspeed,                    &
-                  chunk%tiles(t)%field%density1,                      &
-                  chunk%tiles(t)%field%energy1,                       &
-                  chunk%tiles(t)%field%xvel0,                         &
-                  chunk%tiles(t)%field%yvel0,                         &
-                  chunk%tiles(t)%field%xvel1,                         &
-                  chunk%tiles(t)%field%yvel1,                         &
-                  chunk%tiles(t)%field%vol_flux_x,                    &
-                  chunk%tiles(t)%field%vol_flux_y,                    &
-                  chunk%tiles(t)%field%mass_flux_x,                   &
-                  chunk%tiles(t)%field%mass_flux_y,                   &
-                                fields,                         &
-                                depth                           )
+        IF (ANY(chunk%tiles(t)%tile_neighbours .EQ. EXTERNAL_FACE)) THEN
+          CALL update_halo_kernel(chunk%tiles(t)%field%x_min,          &
+                                  chunk%tiles(t)%field%x_max,          &
+                                  chunk%tiles(t)%field%y_min,          &
+                                  chunk%tiles(t)%field%y_max,          &
+                                  chunk%chunk_neighbours,     &
+                                  chunk%tiles(t)%tile_neighbours,     &
+                    chunk%tiles(t)%field%density0,                      &
+                    chunk%tiles(t)%field%energy0,                       &
+                    chunk%tiles(t)%field%pressure,                      &
+                    chunk%tiles(t)%field%viscosity,                     &
+                    chunk%tiles(t)%field%soundspeed,                    &
+                    chunk%tiles(t)%field%density1,                      &
+                    chunk%tiles(t)%field%energy1,                       &
+                    chunk%tiles(t)%field%xvel0,                         &
+                    chunk%tiles(t)%field%yvel0,                         &
+                    chunk%tiles(t)%field%xvel1,                         &
+                    chunk%tiles(t)%field%yvel1,                         &
+                    chunk%tiles(t)%field%vol_flux_x,                    &
+                    chunk%tiles(t)%field%vol_flux_y,                    &
+                    chunk%tiles(t)%field%mass_flux_x,                   &
+                    chunk%tiles(t)%field%mass_flux_y,                   &
+                                  fields,                         &
+                                  depth                           )
+        ENDIF
       ENDDO
 !$OMP END DO NOWAIT
 !$OMP END PARALLEL

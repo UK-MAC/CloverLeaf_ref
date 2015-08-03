@@ -72,20 +72,20 @@ SUBROUTINE build_field()
     ALLOCATE(chunk%tiles(t)%field%mass_flux_y(chunk%tiles(t)%field%x_min-2:chunk%tiles(t)%field%x_max+2, &
                                              chunk%tiles(t)%field%y_min-2:chunk%tiles(t)%field%y_max+3))
 
-    ALLOCATE(chunk%tiles(t)%field%work_array1 (chunk%tiles(t)%field%x_min-2:chunk%tiles(t)%field%x_max+2, &
-         chunk%tiles(t)%field%y_min-2:chunk%tiles(t)%field%y_max+2))
-    ALLOCATE(chunk%tiles(t)%field%work_array2(chunk%tiles(t)%field%x_min-2:chunk%tiles(t)%field%x_max+2, &
-         chunk%tiles(t)%field%y_min-2:chunk%tiles(t)%field%y_max+2))
-    ALLOCATE(chunk%tiles(t)%field%work_array3 (chunk%tiles(t)%field%x_min-2:chunk%tiles(t)%field%x_max+2, &
-         chunk%tiles(t)%field%y_min-2:chunk%tiles(t)%field%y_max+2))
-    ALLOCATE(chunk%tiles(t)%field%work_array4 (chunk%tiles(t)%field%x_min-2:chunk%tiles(t)%field%x_max+2, &
-         chunk%tiles(t)%field%y_min-2:chunk%tiles(t)%field%y_max+2))
-    ALLOCATE(chunk%tiles(t)%field%work_array5(chunk%tiles(t)%field%x_min-2:chunk%tiles(t)%field%x_max+2, &
-         chunk%tiles(t)%field%y_min-2:chunk%tiles(t)%field%y_max+2))
-    ALLOCATE(chunk%tiles(t)%field%work_array6(chunk%tiles(t)%field%x_min-2:chunk%tiles(t)%field%x_max+2, &
-         chunk%tiles(t)%field%y_min-2:chunk%tiles(t)%field%y_max+2))
-    ALLOCATE(chunk%tiles(t)%field%work_array7 (chunk%tiles(t)%field%x_min-2:chunk%tiles(t)%field%x_max+2, &
-         chunk%tiles(t)%field%y_min-2:chunk%tiles(t)%field%y_max+2))
+    ALLOCATE(chunk%tiles(t)%field%work_array1 (chunk%tiles(t)%field%x_min-2:chunk%tiles(t)%field%x_max+3, &
+         chunk%tiles(t)%field%y_min-2:chunk%tiles(t)%field%y_max+3))
+    ALLOCATE(chunk%tiles(t)%field%work_array2(chunk%tiles(t)%field%x_min-2:chunk%tiles(t)%field%x_max+3, &
+         chunk%tiles(t)%field%y_min-2:chunk%tiles(t)%field%y_max+3))
+    ALLOCATE(chunk%tiles(t)%field%work_array3 (chunk%tiles(t)%field%x_min-2:chunk%tiles(t)%field%x_max+3, &
+         chunk%tiles(t)%field%y_min-2:chunk%tiles(t)%field%y_max+3))
+    ALLOCATE(chunk%tiles(t)%field%work_array4 (chunk%tiles(t)%field%x_min-2:chunk%tiles(t)%field%x_max+3, &
+         chunk%tiles(t)%field%y_min-2:chunk%tiles(t)%field%y_max+3))
+    ALLOCATE(chunk%tiles(t)%field%work_array5(chunk%tiles(t)%field%x_min-2:chunk%tiles(t)%field%x_max+3, &
+         chunk%tiles(t)%field%y_min-2:chunk%tiles(t)%field%y_max+3))
+    ALLOCATE(chunk%tiles(t)%field%work_array6(chunk%tiles(t)%field%x_min-2:chunk%tiles(t)%field%x_max+3, &
+         chunk%tiles(t)%field%y_min-2:chunk%tiles(t)%field%y_max+3))
+    ALLOCATE(chunk%tiles(t)%field%work_array7 (chunk%tiles(t)%field%x_min-2:chunk%tiles(t)%field%x_max+3, &
+         chunk%tiles(t)%field%y_min-2:chunk%tiles(t)%field%y_max+3))
 
     ALLOCATE(chunk%tiles(t)%field%cellx   (chunk%tiles(t)%field%x_min-2:chunk%tiles(t)%field%x_max+2))
     ALLOCATE(chunk%tiles(t)%field%celly   (chunk%tiles(t)%field%y_min-2:chunk%tiles(t)%field%y_max+2))
@@ -119,14 +119,6 @@ SUBROUTINE build_field()
       chunk%tiles(t)%field%pressure(j,k)=0.0
       chunk%tiles(t)%field%soundspeed(j,k)=0.0
       chunk%tiles(t)%field%viscosity(j,k)=0.0
-
-      chunk%tiles(t)%field%work_array1(j,k)=0.0
-      chunk%tiles(t)%field%work_array2(j,k)=0.0
-      chunk%tiles(t)%field%work_array3(j,k)=0.0
-      chunk%tiles(t)%field%work_array4(j,k)=0.0
-      chunk%tiles(t)%field%work_array5(j,k)=0.0
-      chunk%tiles(t)%field%work_array6(j,k)=0.0
-      chunk%tiles(t)%field%work_array7(j,k)=0.0
     ENDDO
   ENDDO
 !$OMP ENDDO
@@ -153,6 +145,14 @@ SUBROUTINE build_field()
       chunk%tiles(t)%field%xvel1(j,k)=0.0
       chunk%tiles(t)%field%yvel0(j,k)=0.0
       chunk%tiles(t)%field%yvel1(j,k)=0.0
+
+      chunk%tiles(t)%field%work_array1(j,k)=0.0
+      chunk%tiles(t)%field%work_array2(j,k)=0.0
+      chunk%tiles(t)%field%work_array3(j,k)=0.0
+      chunk%tiles(t)%field%work_array4(j,k)=0.0
+      chunk%tiles(t)%field%work_array5(j,k)=0.0
+      chunk%tiles(t)%field%work_array6(j,k)=0.0
+      chunk%tiles(t)%field%work_array7(j,k)=0.0
     ENDDO
   ENDDO
 !$OMP ENDDO
