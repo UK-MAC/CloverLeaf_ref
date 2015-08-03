@@ -32,6 +32,10 @@ SUBROUTINE advec_mom_driver(which_vel,direction,sweep_number)
 
   INTEGER :: t,which_vel,direction,sweep_number
 
+  REAL(KIND=8) :: kernel_time,timer
+
+  IF(profiler_on) kernel_time=timer()
+
   IF(use_fortran_kernels)THEN
 !$OMP PARALLEL
 !$OMP DO
@@ -64,6 +68,8 @@ SUBROUTINE advec_mom_driver(which_vel,direction,sweep_number)
 !$OMP END DO NOWAIT
 !$OMP END PARALLEL
   ENDIF
+
+  IF(profiler_on) profiler%mom_advection=profiler%mom_advection+(timer()-kernel_time)
 
 END SUBROUTINE advec_mom_driver
 

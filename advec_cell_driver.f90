@@ -32,6 +32,10 @@ SUBROUTINE advec_cell_driver(sweep_number,dir)
 
   INTEGER :: t,sweep_number,dir
 
+  REAL(KIND=8) :: kernel_time,timer
+
+  IF(profiler_on) kernel_time=timer()
+
   IF(use_fortran_kernels)THEN
 !$OMP PARALLEL
 !$OMP DO
@@ -62,6 +66,8 @@ SUBROUTINE advec_cell_driver(sweep_number,dir)
 !$OMP END DO NOWAIT
 !$OMP END PARALLEL
   ENDIF
+
+  IF(profiler_on) profiler%cell_advection=profiler%cell_advection+(timer()-kernel_time)
 
 END SUBROUTINE advec_cell_driver
 
