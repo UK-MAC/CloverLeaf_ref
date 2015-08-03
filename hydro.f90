@@ -107,7 +107,7 @@ SUBROUTINE hydro
         kernel_total=profiler%timestep+profiler%ideal_gas+profiler%viscosity+profiler%PdV          &
                     +profiler%revert+profiler%acceleration+profiler%flux+profiler%cell_advection   &
                     +profiler%mom_advection+profiler%reset+profiler%halo_exchange+profiler%summary &
-                    +profiler%visit
+                    +profiler%visit+profiler%halo_update+profiler%internal_halo_update 
         CALL clover_allgather(kernel_total,totals)
         ! So then what I do is use the individual kernel times for the
         ! maximum kernel time task for the profile print
@@ -135,6 +135,10 @@ SUBROUTINE hydro
         profiler%reset=totals(loc(1))
         CALL clover_allgather(profiler%halo_exchange,totals)
         profiler%halo_exchange=totals(loc(1))
+        CALL clover_allgather(profiler%halo_update,totals)
+        profiler%halo_update=totals(loc(1))
+        CALL clover_allgather(profiler%internal_halo_update,totals)
+        profiler%internal_halo_update=totals(loc(1))
         CALL clover_allgather(profiler%summary,totals)
         profiler%summary=totals(loc(1))
         CALL clover_allgather(profiler%visit,totals)
@@ -154,6 +158,8 @@ SUBROUTINE hydro
           WRITE(g_out,'(a23,2f16.4)')"Momentum Advection    :",profiler%mom_advection,100.0*(profiler%mom_advection/wall_clock)
           WRITE(g_out,'(a23,2f16.4)')"Reset                 :",profiler%reset,100.0*(profiler%reset/wall_clock)
           WRITE(g_out,'(a23,2f16.4)')"Halo Exchange         :",profiler%halo_exchange,100.0*(profiler%halo_exchange/wall_clock)
+          WRITE(g_out,'(a23,2f16.4)')"Halo Update           :",profiler%halo_update,100.0*(profiler%halo_update/wall_clock)
+          WRITE(g_out,'(a23,2f16.4)')"internal Halo Update  :",profiler%internal_halo_update,100.0*(profiler%internal_halo_update/wall_clock)
           WRITE(g_out,'(a23,2f16.4)')"Summary               :",profiler%summary,100.0*(profiler%summary/wall_clock)
           WRITE(g_out,'(a23,2f16.4)')"Visit                 :",profiler%visit,100.0*(profiler%visit/wall_clock)
           WRITE(g_out,'(a23,2f16.4)')"Total                 :",kernel_total,100.0*(kernel_total/wall_clock)
