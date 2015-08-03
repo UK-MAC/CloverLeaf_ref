@@ -55,7 +55,7 @@ SUBROUTINE flux_calc_kernel(x_min,x_max,y_min,y_max,dt,              &
                      *(xvel0(j,k)+xvel0(j,k+1)+xvel1(j,k)+xvel1(j,k+1))
     ENDDO
   ENDDO
-!$OMP END DO
+!$OMP END DO NOWAIT
 
 !$OMP DO
   DO k=y_min,y_max+1
@@ -64,7 +64,7 @@ SUBROUTINE flux_calc_kernel(x_min,x_max,y_min,y_max,dt,              &
                      *(yvel0(j,k)+yvel0(j+1,k)+yvel1(j,k)+yvel1(j+1,k))
     ENDDO
   ENDDO
-!$OMP END DO
+!$OMP END DO NOWAIT
 
 !$OMP END PARALLEL
 

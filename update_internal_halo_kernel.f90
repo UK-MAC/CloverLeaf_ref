@@ -130,7 +130,6 @@ CONTAINS
     IF ((face .EQ. CHUNK_BOTTOM) .OR. (face .EQ. CHUNK_TOP)) THEN
 
 !$OMP DO COLLAPSE(2)
-!DIR$ IVDEP
       DO k=1,depth
         DO j=x_min_1-depth,x_max_1+depth+x_extra
           mesh_2(j,1-k)=mesh_1(j,y_max_1+1-k)
@@ -139,7 +138,6 @@ CONTAINS
 !$OMP END DO NOWAIT
 
 !$OMP DO COLLAPSE(2)
-!DIR$ IVDEP
       DO k=1,depth
         DO j=x_min_1-depth,x_max_1+depth+x_extra
           mesh_1(j,y_max_1+y_extra+k)=mesh_2(j,y_extra+k)
@@ -150,7 +148,6 @@ CONTAINS
     ELSEIF ((face .EQ. CHUNK_LEFT) .OR. (face .EQ. CHUNK_RIGHT)) THEN
 
 !$OMP DO COLLAPSE(2)
-!DIR$ IVDEP
       DO k=y_min_1-depth,y_max_1+depth+y_extra
         DO j=1,depth
           mesh_2(1-j,k)=mesh_1(x_max_1+1-j,k)
@@ -159,7 +156,6 @@ CONTAINS
 !$OMP END DO NOWAIT
 
 !$OMP DO COLLAPSE(2)
-!DIR$ IVDEP
       DO k=y_min_1-depth,y_max_1+depth+y_extra
         DO j=1,depth
           mesh_1(x_max_1+x_extra+j,k)=mesh_2(x_extra+j,k)
