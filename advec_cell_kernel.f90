@@ -77,7 +77,8 @@ SUBROUTINE advec_cell_kernel(x_min,       &
   REAL(KIND=8) :: diffuw,diffdw,limiter
   REAL(KIND=8) :: one_by_six=1.0_8/6.0_8
 
-!$OMP PARALLEL
+!$OMP PARALLEL PRIVATE(upwind,donor,downwind,dif,sigmat,sigma3,sigma4,sigmav,sigma,sigmam, &
+!$OMP            diffuw,diffdw,limiter,wind)
 
   IF(dir.EQ.g_xdir) THEN
 
@@ -101,8 +102,7 @@ SUBROUTINE advec_cell_kernel(x_min,       &
 !$OMP END DO
     ENDIF
 
-!$OMP DO PRIVATE(upwind,donor,downwind,dif,sigmat,sigma3,sigma4,sigmav,sigma,sigmam, &
-!$OMP            diffuw,diffdw,limiter,wind)
+!$OMP DO
     DO k=y_min,y_max
       DO j=x_min,x_max+2
 
@@ -190,8 +190,7 @@ SUBROUTINE advec_cell_kernel(x_min,       &
 !$OMP END DO
     ENDIF
 
-!$OMP DO PRIVATE(upwind,donor,downwind,dif,sigmat,sigma3,sigma4,sigmav,sigma,sigmam, &
-!$OMP            diffuw,diffdw,limiter,wind)
+!$OMP DO
     DO k=y_min,y_max+2
       DO j=x_min,x_max
 
