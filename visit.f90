@@ -47,17 +47,20 @@ SUBROUTINE visit
 
   name = 'clover'
 
-  IF(first_call) THEN
+  IF ( parallel%boss ) THEN
 
-    nblocks=number_of_chunks
-    filename = "clover.visit"
-    u=get_unit(dummy)
-    OPEN(UNIT=u,FILE=filename,STATUS='UNKNOWN',IOSTAT=err)
-    WRITE(u,'(a,i5)')'!NBLOCKS ',nblocks
-    CLOSE(u)
+    IF(first_call) THEN
 
-    first_call=.FALSE.
+      nblocks=number_of_chunks
+      filename = "clover.visit"
+      u=get_unit(dummy)
+      OPEN(UNIT=u,FILE=filename,STATUS='UNKNOWN',IOSTAT=err)
+      WRITE(u,'(a,i5)')'!NBLOCKS ',nblocks
+      CLOSE(u)
 
+      first_call=.FALSE.
+    ENDIF
+    
   ENDIF
 
   IF(profiler_on) kernel_time=timer()
