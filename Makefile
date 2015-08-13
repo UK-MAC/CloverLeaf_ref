@@ -119,51 +119,51 @@ endif
 
 FLAGS=$(FLAGS_$(COMPILER)) $(OMP) $(I3E) $(OPTIONS)
 CFLAGS=$(CFLAGS_$(COMPILER)) $(OMP) $(I3E) $(C_OPTIONS) -c
-MPI_COMPILER=mpif90
+MPI_COMPILER=scorep/bin/scorep --nocompiler --user mpif90
 C_MPI_COMPILER=mpicc
 
 clover_leaf: c_lover *.f90 Makefile
 	$(MPI_COMPILER) $(FLAGS)	\
 	data.f90			\
 	definitions.f90			\
-	pack_kernel.f90			\
+	pack_kernel.F90			\
 	clover.f90			\
 	report.f90			\
 	timer.f90			\
 	parse.f90			\
 	read_input.f90			\
-	initialise_chunk_kernel.f90	\
+	initialise_chunk_kernel.F90	\
 	initialise_chunk.f90		\
 	build_field.f90			\
-	update_halo_kernel.f90		\
+	update_halo_kernel.F90		\
 	update_halo.f90			\
-	ideal_gas_kernel.f90		\
+	ideal_gas_kernel.F90		\
 	ideal_gas.f90			\
 	start.f90			\
-	generate_chunk_kernel.f90	\
+	generate_chunk_kernel.F90	\
 	generate_chunk.f90		\
 	initialise.f90			\
-	field_summary_kernel.f90	\
+	field_summary_kernel.F90	\
 	field_summary.f90		\
-	viscosity_kernel.f90		\
+	viscosity_kernel.F90		\
 	viscosity.f90			\
-	calc_dt_kernel.f90		\
+	calc_dt_kernel.F90		\
 	calc_dt.f90			\
 	timestep.f90			\
-	accelerate_kernel.f90		\
+	accelerate_kernel.F90		\
 	accelerate.f90			\
-	revert_kernel.f90		\
+	revert_kernel.F90		\
 	revert.f90			\
-	PdV_kernel.f90			\
+	PdV_kernel.F90			\
 	PdV.f90				\
-	flux_calc_kernel.f90		\
+	flux_calc_kernel.F90		\
 	flux_calc.f90			\
-	advec_cell_kernel.f90		\
+	advec_cell_kernel.F90		\
 	advec_cell_driver.f90		\
-	advec_mom_kernel.f90		\
+	advec_mom_kernel.F90		\
 	advec_mom_driver.f90		\
 	advection.f90			\
-	reset_field_kernel.f90		\
+	reset_field_kernel.F90		\
 	reset_field.f90			\
 	hydro.f90			\
 	visit.f90			\

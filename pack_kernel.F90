@@ -21,6 +21,8 @@
 
 MODULE pack_kernel_module
 
+#include "scorep/SCOREP_User.inc"
+
 CONTAINS
 
 SUBROUTINE clover_pack_message_left(x_min,x_max,y_min,y_max,field,                &
@@ -29,14 +31,14 @@ SUBROUTINE clover_pack_message_left(x_min,x_max,y_min,y_max,field,              
                                     depth,field_type,                             &
                                     buffer_offset)
 
-  IMPLICIT NONE
-
   REAL(KIND=8) :: field(-1:,-1:) ! This seems to work for any type of mesh data
   REAL(KIND=8) :: left_snd_buffer(:)
 
   INTEGER      :: CELL_DATA,VERTEX_DATA,X_FACE_DATA,Y_FACE_DATA
   INTEGER      :: depth,field_type,x_min,x_max,y_min,y_max
   INTEGER      :: j,k,x_inc,y_inc,index,buffer_offset
+
+  SCOREP_USER_REGION_DEFINE(pack_left)
 
   ! Pack 
 
@@ -58,6 +60,8 @@ SUBROUTINE clover_pack_message_left(x_min,x_max,y_min,y_max,field,              
     y_inc=1
   ENDIF
 
+  SCOREP_USER_REGION_BEGIN(pack_left, "pack left", SCOREP_USER_REGION_TYPE_COMMON)
+
 !$OMP PARALLEL DO PRIVATE(index)
   DO k=y_min-depth,y_max+y_inc+depth
     DO j=1,depth
@@ -66,6 +70,8 @@ SUBROUTINE clover_pack_message_left(x_min,x_max,y_min,y_max,field,              
     ENDDO
   ENDDO
 !$OMP END PARALLEL DO
+
+  SCOREP_USER_REGION_END(pack_left)
 
 END SUBROUTINE clover_pack_message_left
 
@@ -84,6 +90,8 @@ SUBROUTINE clover_unpack_message_left(x_min,x_max,y_min,y_max,field,            
   INTEGER      :: depth,field_type,x_min,x_max,y_min,y_max
   INTEGER      :: j,k,x_inc,y_inc,index,buffer_offset
 
+  SCOREP_USER_REGION_DEFINE(unpack_left)
+
   ! Unpack 
 
   ! These array modifications still need to be added on, plus the donor data location changes as in update_halo
@@ -104,6 +112,8 @@ SUBROUTINE clover_unpack_message_left(x_min,x_max,y_min,y_max,field,            
     y_inc=1
   ENDIF
 
+  SCOREP_USER_REGION_BEGIN(unpack_left, "unpack left", SCOREP_USER_REGION_TYPE_COMMON)
+
 !$OMP PARALLEL DO PRIVATE(index)
   DO k=y_min-depth,y_max+y_inc+depth
     DO j=1,depth
@@ -112,6 +122,8 @@ SUBROUTINE clover_unpack_message_left(x_min,x_max,y_min,y_max,field,            
     ENDDO
   ENDDO
 !$OMP END PARALLEL DO
+
+  SCOREP_USER_REGION_END(unpack_left)
 
 END SUBROUTINE clover_unpack_message_left
 
@@ -130,6 +142,8 @@ SUBROUTINE clover_pack_message_right(x_min,x_max,y_min,y_max,field,             
   INTEGER      :: depth,field_type,x_min,x_max,y_min,y_max
   INTEGER      :: j,k,x_inc,y_inc,index,buffer_offset
 
+  SCOREP_USER_REGION_DEFINE(pack_right)
+
   ! Pack 
 
   ! These array modifications still need to be added on, plus the donor data location changes as in update_halo
@@ -150,6 +164,8 @@ SUBROUTINE clover_pack_message_right(x_min,x_max,y_min,y_max,field,             
     y_inc=1
   ENDIF
 
+  SCOREP_USER_REGION_BEGIN(pack_right, "pack right", SCOREP_USER_REGION_TYPE_COMMON)
+
 !$OMP PARALLEL DO PRIVATE(index)
   DO k=y_min-depth,y_max+y_inc+depth
     DO j=1,depth
@@ -158,6 +174,8 @@ SUBROUTINE clover_pack_message_right(x_min,x_max,y_min,y_max,field,             
     ENDDO
   ENDDO
 !$OMP END PARALLEL DO
+
+  SCOREP_USER_REGION_END(pack_right)
 
 END SUBROUTINE clover_pack_message_right
 
@@ -176,6 +194,8 @@ SUBROUTINE clover_unpack_message_right(x_min,x_max,y_min,y_max,field,           
   INTEGER      :: depth,field_type,x_min,x_max,y_min,y_max
   INTEGER      :: j,k,x_inc,y_inc,index,buffer_offset
 
+  SCOREP_USER_REGION_DEFINE(unpack_right)
+
   ! Unpack 
 
   ! These array modifications still need to be added on, plus the donor data location changes as in update_halo
@@ -196,6 +216,8 @@ SUBROUTINE clover_unpack_message_right(x_min,x_max,y_min,y_max,field,           
     y_inc=1
   ENDIF
 
+  SCOREP_USER_REGION_BEGIN(unpack_right, "unpack right", SCOREP_USER_REGION_TYPE_COMMON)
+
 !$OMP PARALLEL DO PRIVATE(index)
   DO k=y_min-depth,y_max+y_inc+depth
     DO j=1,depth
@@ -204,6 +226,8 @@ SUBROUTINE clover_unpack_message_right(x_min,x_max,y_min,y_max,field,           
     ENDDO
   ENDDO
 !$OMP END PARALLEL DO
+
+  SCOREP_USER_REGION_END(unpack_right)
 
 END SUBROUTINE clover_unpack_message_right
 
@@ -222,6 +246,8 @@ SUBROUTINE clover_pack_message_top(x_min,x_max,y_min,y_max,field,               
   INTEGER      :: depth,field_type,x_min,x_max,y_min,y_max
   INTEGER      :: j,k,x_inc,y_inc,index,buffer_offset
 
+  SCOREP_USER_REGION_DEFINE(pack_top)
+
   ! Pack 
 
   ! These array modifications still need to be added on, plus the donor data location changes as in update_halo
@@ -242,6 +268,8 @@ SUBROUTINE clover_pack_message_top(x_min,x_max,y_min,y_max,field,               
     y_inc=1
   ENDIF
 
+  SCOREP_USER_REGION_BEGIN(pack_top, "pack top", SCOREP_USER_REGION_TYPE_COMMON)
+
   DO k=1,depth
 !$OMP PARALLEL DO PRIVATE(index)
     DO j=x_min-depth,x_max+x_inc+depth
@@ -250,6 +278,8 @@ SUBROUTINE clover_pack_message_top(x_min,x_max,y_min,y_max,field,               
     ENDDO
 !$OMP END PARALLEL DO
   ENDDO
+
+  SCOREP_USER_REGION_END(pack_top)
 
 END SUBROUTINE clover_pack_message_top
 
@@ -268,6 +298,8 @@ SUBROUTINE clover_unpack_message_top(x_min,x_max,y_min,y_max,field,             
   INTEGER      :: depth,field_type,x_min,x_max,y_min,y_max
   INTEGER      :: j,k,x_inc,y_inc,index,buffer_offset
 
+  SCOREP_USER_REGION_DEFINE(unpack_top)
+
   ! Unpack 
 
   ! These array modifications still need to be added on, plus the donor data location changes as in update_halo
@@ -288,6 +320,8 @@ SUBROUTINE clover_unpack_message_top(x_min,x_max,y_min,y_max,field,             
     y_inc=1
   ENDIF
 
+  SCOREP_USER_REGION_BEGIN(unpack_top, "unpack top", SCOREP_USER_REGION_TYPE_COMMON)
+
   DO k=1,depth
 !$OMP PARALLEL DO PRIVATE(index)
     DO j=x_min-depth,x_max+x_inc+depth
@@ -296,6 +330,8 @@ SUBROUTINE clover_unpack_message_top(x_min,x_max,y_min,y_max,field,             
     ENDDO
 !$OMP END PARALLEL DO
   ENDDO
+
+  SCOREP_USER_REGION_END(unpack_top)
 
 END SUBROUTINE clover_unpack_message_top
 
@@ -313,6 +349,8 @@ SUBROUTINE clover_pack_message_bottom(x_min,x_max,y_min,y_max,field,            
   INTEGER      :: CELL_DATA,VERTEX_DATA,X_FACE_DATA,Y_FACE_DATA
   INTEGER      :: depth,field_type,x_min,x_max,y_min,y_max
   INTEGER      :: j,k,x_inc,y_inc,index,buffer_offset
+
+  SCOREP_USER_REGION_DEFINE(pack_bottom)
 
   ! Pack 
 
@@ -334,6 +372,8 @@ SUBROUTINE clover_pack_message_bottom(x_min,x_max,y_min,y_max,field,            
     y_inc=1
   ENDIF
 
+  SCOREP_USER_REGION_BEGIN(pack_bottom, "pack bottom", SCOREP_USER_REGION_TYPE_COMMON)
+
   DO k=1,depth
 !$OMP PARALLEL DO PRIVATE(index)
     DO j=x_min-depth,x_max+x_inc+depth
@@ -342,6 +382,8 @@ SUBROUTINE clover_pack_message_bottom(x_min,x_max,y_min,y_max,field,            
     ENDDO
 !$OMP END PARALLEL DO
   ENDDO
+
+  SCOREP_USER_REGION_END(pack_bottom)
 
 END SUBROUTINE clover_pack_message_bottom
 
@@ -359,6 +401,8 @@ SUBROUTINE clover_unpack_message_bottom(x_min,x_max,y_min,y_max,field,          
   INTEGER      :: CELL_DATA,VERTEX_DATA,X_FACE_DATA,Y_FACE_DATA
   INTEGER      :: depth,field_type,x_min,x_max,y_min,y_max
   INTEGER      :: j,k,x_inc,y_inc,index,buffer_offset
+
+  SCOREP_USER_REGION_DEFINE(unpack_bottom)
 
   ! Unpack 
 
@@ -380,6 +424,8 @@ SUBROUTINE clover_unpack_message_bottom(x_min,x_max,y_min,y_max,field,          
     y_inc=1
   ENDIF
 
+  SCOREP_USER_REGION_BEGIN(unpack_bottom, "unpack bottom", SCOREP_USER_REGION_TYPE_COMMON)
+
   DO k=1,depth
 !$OMP PARALLEL DO PRIVATE(index)
     DO j=x_min-depth,x_max+x_inc+depth
@@ -388,6 +434,8 @@ SUBROUTINE clover_unpack_message_bottom(x_min,x_max,y_min,y_max,field,          
     ENDDO
 !$OMP END PARALLEL DO
   ENDDO
+
+  SCOREP_USER_REGION_END(unpack_bottom)
 
 END SUBROUTINE clover_unpack_message_bottom
 

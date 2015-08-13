@@ -49,6 +49,9 @@ SUBROUTINE advec_cell_kernel(x_min,       &
 
   IMPLICIT NONE
 
+#include "scorep/SCOREP_User.inc"
+
+
   INTEGER :: x_min,x_max,y_min,y_max
   INTEGER :: sweep_number,dir
   INTEGER :: g_xdir=1,g_ydir=2
@@ -76,6 +79,9 @@ SUBROUTINE advec_cell_kernel(x_min,       &
   REAL(KIND=8) :: wind,sigma,sigmat,sigmav,sigmam,sigma3,sigma4
   REAL(KIND=8) :: diffuw,diffdw,limiter
   REAL(KIND=8) :: one_by_six=1.0_8/6.0_8
+
+  SCOREP_USER_REGION_DEFINE(advec_cell)
+  SCOREP_USER_REGION_BEGIN(advec_cell, "advec_cell", SCOREP_USER_REGION_TYPE_COMMON)
 
 !$OMP PARALLEL
 
@@ -259,6 +265,8 @@ SUBROUTINE advec_cell_kernel(x_min,       &
   ENDIF
 
 !$OMP END PARALLEL
+
+  SCOREP_USER_REGION_END(advec_cell)
 
 END SUBROUTINE advec_cell_kernel
 

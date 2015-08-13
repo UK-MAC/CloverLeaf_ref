@@ -24,6 +24,9 @@
 
 MODULE advec_mom_kernel_mod
 
+#include "scorep/SCOREP_User.inc"
+
+
 CONTAINS
 
 SUBROUTINE advec_mom_kernel(x_min,x_max,y_min,y_max,   &
@@ -49,7 +52,7 @@ SUBROUTINE advec_mom_kernel(x_min,x_max,y_min,y_max,   &
                             direction          )
 
   IMPLICIT NONE
-  
+
   INTEGER :: x_min,x_max,y_min,y_max
   INTEGER :: which_vel,sweep_number,direction
 
@@ -77,6 +80,8 @@ SUBROUTINE advec_mom_kernel(x_min,x_max,y_min,y_max,   &
   REAL(KIND=8) :: vdiffuw,vdiffdw,auw,adw,limiter
   REAL(KIND=8), POINTER, DIMENSION(:,:) :: vel1
 
+  SCOREP_USER_REGION_DEFINE(advec_mom)
+
   ! Choose the correct velocity, ideally, remove this pointer
   !  if it affects performance.
   ! Leave this one in as a test of performance
@@ -87,6 +92,8 @@ SUBROUTINE advec_mom_kernel(x_min,x_max,y_min,y_max,   &
   ENDIF
 
   mom_sweep=direction+2*(sweep_number-1)
+
+  SCOREP_USER_REGION_BEGIN(advec_mom, "advec mom", SCOREP_USER_REGION_TYPE_COMMON)
 
 !$OMP PARALLEL
 
@@ -269,6 +276,8 @@ SUBROUTINE advec_mom_kernel(x_min,x_max,y_min,y_max,   &
   ENDIF
 
 !$OMP END PARALLEL
+
+  SCOREP_USER_REGION_END(advec_mom)
 
 END SUBROUTINE advec_mom_kernel
 

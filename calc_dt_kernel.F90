@@ -23,6 +23,8 @@
 
 MODULE calc_dt_kernel_module
 
+#include "scorep/SCOREP_User.inc"
+
 CONTAINS
 
 SUBROUTINE calc_dt_kernel(x_min,x_max,y_min,y_max,             &
@@ -82,9 +84,13 @@ SUBROUTINE calc_dt_kernel(x_min,x_max,y_min,y_max,             &
 
   REAL(KIND=8)     :: div,dsx,dsy,dtut,dtvt,dtct,dtdivt,cc,dv1,dv2,jk_control
 
+  SCOREP_USER_REGION_DEFINE(calc_dt)
+
   small=0
   dt_min_val = g_big
   jk_control=1.1
+
+  SCOREP_USER_REGION_BEGIN(calc_dt, "calc dt", SCOREP_USER_REGION_TYPE_COMMON)
 
 !$OMP PARALLEL
 
@@ -140,6 +146,8 @@ SUBROUTINE calc_dt_kernel(x_min,x_max,y_min,y_max,             &
 !$OMP END DO
 
 !$OMP END PARALLEL
+
+  SCOREP_USER_REGION_END(calc_dt)
 
   ! Extract the mimimum timestep information
   dtl_control=10.01*(jk_control-INT(jk_control))

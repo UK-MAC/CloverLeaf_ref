@@ -21,6 +21,8 @@
 
 MODULE flux_calc_kernel_module
 
+#include "scorep/SCOREP_User.inc"
+
 CONTAINS
 
 SUBROUTINE flux_calc_kernel(x_min,x_max,y_min,y_max,dt,              &
@@ -46,6 +48,9 @@ SUBROUTINE flux_calc_kernel(x_min,x_max,y_min,y_max,dt,              &
 
   INTEGER :: j,k
 
+  SCOREP_USER_REGION_DEFINE(flux_calc)
+  SCOREP_USER_REGION_BEGIN(flux_calc, "flux calc", SCOREP_USER_REGION_TYPE_COMMON)
+
 !$OMP PARALLEL
 
 !$OMP DO
@@ -67,6 +72,8 @@ SUBROUTINE flux_calc_kernel(x_min,x_max,y_min,y_max,dt,              &
 !$OMP END DO
 
 !$OMP END PARALLEL
+
+  SCOREP_USER_REGION_END(flux_calc)
 
 END SUBROUTINE flux_calc_kernel
 

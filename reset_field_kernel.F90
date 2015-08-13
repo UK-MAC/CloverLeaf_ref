@@ -22,6 +22,8 @@
 
 MODULE reset_field_kernel_module
 
+#include "scorep/SCOREP_User.inc"
+
 CONTAINS
 
 SUBROUTINE reset_field_kernel(x_min,x_max,y_min,y_max,    &
@@ -43,6 +45,9 @@ SUBROUTINE reset_field_kernel(x_min,x_max,y_min,y_max,    &
   REAL(KIND=8), DIMENSION(x_min-2:x_max+3,y_min-2:y_max+3) :: xvel1,yvel1
 
   INTEGER :: j,k
+
+  SCOREP_USER_REGION_DEFINE(reset)
+  SCOREP_USER_REGION_BEGIN(reset, "reset", SCOREP_USER_REGION_TYPE_COMMON)
 
 !$OMP PARALLEL
 !$OMP DO
@@ -77,6 +82,8 @@ SUBROUTINE reset_field_kernel(x_min,x_max,y_min,y_max,    &
   ENDDO
 !$OMP END DO
 !$OMP END PARALLEL
+
+  SCOREP_USER_REGION_END(reset)
 
 END SUBROUTINE reset_field_kernel
 

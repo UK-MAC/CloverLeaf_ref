@@ -24,6 +24,8 @@
 
 MODULE update_halo_kernel_module
 
+#include "scorep/SCOREP_User.inc"
+
 CONTAINS
 
   SUBROUTINE update_halo_kernel(x_min,x_max,y_min,y_max,                            &
@@ -82,6 +84,9 @@ CONTAINS
                             ,FIELD_MASS_FLUX_Y=15
 
   INTEGER :: j,k
+
+  SCOREP_USER_REGION_DEFINE(update_halo)
+  SCOREP_USER_REGION_BEGIN(update_halo, "update_halo", SCOREP_USER_REGION_TYPE_COMMON)
 
 !$OMP PARALLEL PRIVATE(j)
 
@@ -675,6 +680,8 @@ CONTAINS
   ENDIF
 
 !$OMP END PARALLEL
+
+  SCOREP_USER_REGION_END(update_halo)
 
 END SUBROUTINE update_halo_kernel
 

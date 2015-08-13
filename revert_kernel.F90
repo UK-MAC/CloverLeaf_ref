@@ -24,6 +24,8 @@
 
 MODULE revert_kernel_module
 
+#include "scorep/SCOREP_User.inc"
+
 CONTAINS
 
 SUBROUTINE revert_kernel(x_min,x_max,y_min,y_max,density0,density1,energy0,energy1)
@@ -37,6 +39,9 @@ SUBROUTINE revert_kernel(x_min,x_max,y_min,y_max,density0,density1,energy0,energ
   REAL(KIND=8), DIMENSION(x_min-2:x_max+2,y_min-2:y_max+2)    :: energy1
 
   INTEGER :: j,k
+
+  SCOREP_USER_REGION_DEFINE(revert)
+  SCOREP_USER_REGION_BEGIN(revert, "revert", SCOREP_USER_REGION_TYPE_COMMON)
 
 !$OMP PARALLEL
 
@@ -57,6 +62,8 @@ SUBROUTINE revert_kernel(x_min,x_max,y_min,y_max,density0,density1,energy0,energ
 !$OMP END DO
 
 !$OMP END PARALLEL
+
+  SCOREP_USER_REGION_END(revert)
 
 END SUBROUTINE revert_kernel
 

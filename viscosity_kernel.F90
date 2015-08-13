@@ -23,6 +23,8 @@
 
 MODULE viscosity_kernel_module
 
+#include "scorep/SCOREP_User.inc"
+
 CONTAINS
 
 SUBROUTINE viscosity_kernel(x_min,x_max,y_min,y_max,    &
@@ -46,6 +48,9 @@ SUBROUTINE viscosity_kernel(x_min,x_max,y_min,y_max,    &
   INTEGER       :: j,k
   REAL(KIND=8)  :: ugrad,vgrad,grad2,pgradx,pgrady,pgradx2,pgrady2,grad     &
                   ,ygrad,pgrad,xgrad,div,strain2,limiter,dirx,diry
+
+  SCOREP_USER_REGION_DEFINE(viscosity_region)
+  SCOREP_USER_REGION_BEGIN(viscosity_region, "viscosity", SCOREP_USER_REGION_TYPE_COMMON)
 
 !$OMP PARALLEL
 
@@ -93,6 +98,7 @@ SUBROUTINE viscosity_kernel(x_min,x_max,y_min,y_max,    &
 !$OMP END DO
 
 !$OMP END PARALLEL
+  SCOREP_USER_REGION_END(viscosity_region)
 
 END SUBROUTINE viscosity_kernel
 

@@ -24,6 +24,8 @@
 
 MODULE PdV_kernel_module
 
+#include "scorep/SCOREP_User.inc"
+
 CONTAINS
 
 SUBROUTINE PdV_kernel(predict,                                          &
@@ -62,6 +64,9 @@ SUBROUTINE PdV_kernel(predict,                                          &
 
   REAL(KIND=8)  :: recip_volume,energy_change,min_cell_volume
   REAL(KIND=8)  :: right_flux,left_flux,top_flux,bottom_flux,total_flux
+
+  SCOREP_USER_REGION_DEFINE(pdv)
+  SCOREP_USER_REGION_BEGIN(pdv, "pdv", SCOREP_USER_REGION_TYPE_COMMON)
 
 !$OMP PARALLEL
 
@@ -138,6 +143,8 @@ SUBROUTINE PdV_kernel(predict,                                          &
   ENDIF
 
 !$OMP END PARALLEL
+
+  SCOREP_USER_REGION_END(pdv)
 
 END SUBROUTINE PdV_kernel
 

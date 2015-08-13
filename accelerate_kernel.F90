@@ -22,6 +22,8 @@
 
 MODULE accelerate_kernel_module
 
+#include "scorep/SCOREP_User.inc"
+
 CONTAINS
 
 SUBROUTINE accelerate_kernel(x_min,x_max,y_min,y_max,dt,     &
@@ -53,6 +55,9 @@ SUBROUTINE accelerate_kernel(x_min,x_max,y_min,y_max,dt,     &
 
   INTEGER               :: j,k
   REAL(KIND=8)          :: nodal_mass
+
+  SCOREP_USER_REGION_DEFINE(accelerate)
+  SCOREP_USER_REGION_BEGIN(accelerate, "accelerate", SCOREP_USER_REGION_TYPE_COMMON)
 
 !$OMP PARALLEL
 
@@ -116,6 +121,8 @@ SUBROUTINE accelerate_kernel(x_min,x_max,y_min,y_max,dt,     &
 !$OMP END DO
 
 !$OMP END PARALLEL
+
+  SCOREP_USER_REGION_END(accelerate)
 
 END SUBROUTINE accelerate_kernel
 

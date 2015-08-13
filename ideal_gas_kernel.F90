@@ -22,6 +22,8 @@
 
 MODULE ideal_gas_kernel_module
 
+#include "scorep/SCOREP_User.inc"
+
 CONTAINS
 
 SUBROUTINE ideal_gas_kernel(x_min,x_max,y_min,y_max,                &
@@ -42,6 +44,9 @@ SUBROUTINE ideal_gas_kernel(x_min,x_max,y_min,y_max,                &
 
   REAL(KIND=8) :: sound_speed_squared,v,pressurebyenergy,pressurebyvolume
 
+  SCOREP_USER_REGION_DEFINE(ideal_gas)
+  SCOREP_USER_REGION_BEGIN(ideal_gas, "ideal gas", SCOREP_USER_REGION_TYPE_COMMON)
+
 !$OMP PARALLEL
 !$OMP DO PRIVATE(v,pressurebyenergy,pressurebyvolume,sound_speed_squared)
   DO k=y_min,y_max
@@ -56,6 +61,8 @@ SUBROUTINE ideal_gas_kernel(x_min,x_max,y_min,y_max,                &
   ENDDO
 !$OMP END DO
 !$OMP END PARALLEL
+
+  SCOREP_USER_REGION_END(ideal_gas)
 
 END SUBROUTINE ideal_gas_kernel
 
