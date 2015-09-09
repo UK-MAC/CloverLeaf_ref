@@ -48,9 +48,8 @@ SUBROUTINE PdV(predict)
   IF(profiler_on) kernel_time=timer()
   
   
-!$OMP PARALLEL
-
-!$OMP DO
+!$ACC KERNELS
+!$ACC LOOP INDEPENDENT
   DO tile=1,tiles_per_chunk
 
 
@@ -77,8 +76,7 @@ SUBROUTINE PdV(predict)
       
 
   ENDDO
-!$OMP END DO
-!$OMP END PARALLEL
+!$ACC END KERNELS
     
 
   CALL clover_check_error(error_condition)
@@ -90,13 +88,12 @@ SUBROUTINE PdV(predict)
 
   IF(predict)THEN
     IF(profiler_on) kernel_time=timer()
-!$OMP PARALLEL
-!$OMP DO
+!$ACC KERNELS
+!$ACC LOOP INDEPENDENT
     DO tile=1,tiles_per_chunk
       CALL ideal_gas(tile,.TRUE.)
     ENDDO
-!$OMP END DO
-!$OMP END PARALLEL
+!$ACC END KERNELS
 
     IF(profiler_on) profiler%ideal_gas=profiler%ideal_gas+(timer()-kernel_time)
     fields=0

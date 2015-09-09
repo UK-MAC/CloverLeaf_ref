@@ -41,9 +41,8 @@ SUBROUTINE update_tile_halo(fields,depth)
 
 ! Update Top Bottom - Real to Real
 
-!$OMP PARALLEL
-
-!$OMP DO PRIVATE(t_up, t_down)
+!$ACC KERNELS
+!$ACC LOOP INDEPENDENT PRIVATE(t_up, t_down)
 DO tile=1,tiles_per_chunk
   t_up   =chunk%tiles(tile)%tile_neighbours(TILE_TOP)
   t_down =chunk%tiles(tile)%tile_neighbours(TILE_BOTTOM)
@@ -142,11 +141,9 @@ DO tile=1,tiles_per_chunk
 
   
 END DO
-!$OMP END DO
-
 ! Update Left Right - Ghost, Real, Ghost - > Real
 
-!$OMP DO PRIVATE(t_left, t_right)
+!$ACC LOOP INDEPENDENT PRIVATE(t_left, t_right)
 DO tile=1,tiles_per_chunk
   t_left   =chunk%tiles(tile)%tile_neighbours(TILE_LEFT)
   t_right  =chunk%tiles(tile)%tile_neighbours(TILE_RIGHT)
@@ -246,9 +243,7 @@ DO tile=1,tiles_per_chunk
 
 END DO
 
-!$OMP END DO
-
-!$OMP END PARALLEL
+!$ACC END KERNELS
 
 
 

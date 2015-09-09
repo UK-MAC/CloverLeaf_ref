@@ -36,7 +36,6 @@ SUBROUTINE field_summary()
  REAL(KIND=8) :: t_vol,t_mass,t_ie,t_ke,t_press
   REAL(KIND=8) :: qa_diff
 
-!$ INTEGER :: OMP_GET_THREAD_NUM
 
   INTEGER      :: tile
 
@@ -49,27 +48,31 @@ SUBROUTINE field_summary()
   ENDIF
 
   IF(profiler_on) kernel_time=timer()
-!$OMP PARALLEL
-!$OMP DO
+!$ACC KERNELS
+!$ACC LOOP INDEPENDENT
   DO tile=1,tiles_per_chunk
     CALL ideal_gas(tile,.FALSE.)
   ENDDO
-!$OMP END DO
-!$OMP END PARALLEL
+!$ACC END KERNELS
 
   IF(profiler_on) profiler%ideal_gas=profiler%ideal_gas+(timer()-kernel_time)
 
   IF(profiler_on) kernel_time=timer()
 
-    t_vol=0.0
-    t_mass=0.0
-    t_ie=0.0
-    t_ke=0.0
-    t_press=0.0
+    vol=0.0
+    mass=0.0
+    ie=0.0
+    ke=0.0
+    press=0.0
 
-!$OMP PARALLEL PRIVATE(vol, mass, ie, ke, press) REDUCTION(+ : t_vol, t_mass, t_ie, t_ke, t_press)
-!$OMP DO
+!$ACC KERNELS
+!$ACC LOOP INDEPENDENT PRIVATE(t_vol,t_mass,t_ie,t_ke,t_press) REDUCTION(+ : vol)  REDUCTION(+ : mass)  REDUCTION(+ : ie)  REDUCTION(+ : ke)  REDUCTION(+ : press) 
     DO tile=1,tiles_per_chunk
+        t_vol=0.0
+        t_mass=0.0
+        t_ie=0.0
+        t_ke=0.0
+        t_press=0.0
         CALL field_summary_kernel(chunk%tiles(tile)%t_xmin,                   &
                                   chunk%tiles(tile)%t_xmax,                   &
                                   chunk%tiles(tile)%t_ymin,                   &
@@ -80,22 +83,18 @@ SUBROUTINE field_summary()
                                   chunk%tiles(tile)%field%pressure,                &
                                   chunk%tiles(tile)%field%xvel0,                   &
                                   chunk%tiles(tile)%field%yvel0,                   &
-                                  vol,mass,ie,ke,press                     )
-       t_vol=t_vol+vol
-       t_mass=t_mass+mass
-       t_ie=t_ie+ie
-       t_ke=t_ke+ke
-       t_press=t_press+press
+                                  t_vol,t_mass,t_ie,t_ke,t_press                     )
+       vol=vol+t_vol
+       mass=mass+t_mass
+       ie=ie+t_ie
+       ke=ke+t_ke
+       press=press+t_press
+
       
     ENDDO
-!$OMP END DO
-!$OMP END PARALLEL
+!$ACC END KERNELS
     
-   vol=t_vol
-   ie=t_ie
-   ke=t_ke
-   mass=t_mass
-   press=t_press
+
 
 
   ! For mpi I need a reduction here
@@ -107,16 +106,13 @@ SUBROUTINE field_summary()
   IF(profiler_on) profiler%summary=profiler%summary+(timer()-kernel_time)
 
   IF(parallel%boss) THEN
-!$  IF(OMP_GET_THREAD_NUM().EQ.0) THEN
       WRITE(g_out,'(a6,i7,7e16.4)')' step:',step,vol,mass,mass/vol,press/vol,ie,ke,ie+ke
       WRITE(g_out,*)
-!$  ENDIF
    ENDIF
 
   !Check if this is the final call and if it is a test problem, check the result.
   IF(complete) THEN
     IF(parallel%boss) THEN
-!$    IF(OMP_GET_THREAD_NUM().EQ.0) THEN
         IF(test_problem.GE.1) THEN
           IF(test_problem.EQ.1) qa_diff=ABS((100.0_8*(ke/1.82280367310258_8))-100.0_8)
           IF(test_problem.EQ.2) qa_diff=ABS((100.0_8*(ke/1.19316898756307_8))-100.0_8)
@@ -133,7 +129,6 @@ SUBROUTINE field_summary()
             WRITE(g_out,*)"This is test is considered NOT PASSED"
           ENDIF
         ENDIF
-!$    ENDIF
     ENDIF
   ENDIF
 

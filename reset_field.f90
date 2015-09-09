@@ -36,8 +36,8 @@ SUBROUTINE reset_field()
 
   IF(profiler_on) kernel_time=timer()
   
-!$OMP PARALLEL
-!$OMP DO
+!$ACC KERNELS
+!$ACC LOOP INDEPENDENT
   DO tile=1,tiles_per_chunk
 
 
@@ -55,8 +55,7 @@ SUBROUTINE reset_field()
                               chunk%tiles(tile)%field%yvel1      )
 
   ENDDO
-!$OMP END DO
-!$OMP END PARALLEL
+!$ACC END KERNELS
   IF(profiler_on) profiler%reset=profiler%reset+(timer()-kernel_time)
 
 END SUBROUTINE reset_field

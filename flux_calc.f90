@@ -35,8 +35,8 @@ SUBROUTINE flux_calc()
   REAL(KIND=8) :: kernel_time,timer
 
   IF(profiler_on) kernel_time=timer()
-!$OMP PARALLEL
-!$OMP DO
+!$ACC KERNELS
+!$ACC LOOP INDEPENDENT
   DO tile=1,tiles_per_chunk
 
         CALL flux_calc_kernel(chunk%tiles(tile)%t_xmin,         &
@@ -55,8 +55,7 @@ SUBROUTINE flux_calc()
 
 
   ENDDO
-!$OMP END DO
-!$OMP END PARALLEL
+!$ACC END KERNELS
 
   IF(profiler_on) profiler%flux=profiler%flux+(timer()-kernel_time)
 

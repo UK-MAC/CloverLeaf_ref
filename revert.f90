@@ -32,8 +32,8 @@ SUBROUTINE revert()
 
   INTEGER :: tile
 
-!$OMP PARALLEL
-!$OMP DO
+!$ACC KERNELS
+!$ACC LOOP INDEPENDENT
   DO tile=1,tiles_per_chunk
 
         CALL revert_kernel(chunk%tiles(tile)%t_xmin,   &
@@ -47,8 +47,7 @@ SUBROUTINE revert()
 
 
   ENDDO
-!$OMP END DO
-!$OMP END PARALLEL
+!$ACC END KERNELS
 
 
 END SUBROUTINE revert

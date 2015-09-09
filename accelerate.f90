@@ -38,8 +38,8 @@ SUBROUTINE accelerate()
   
     
 
-!$OMP PARALLEL
-!$OMP DO
+!$ACC KERNELS
+!$ACC LOOP INDEPENDENT
   DO tile=1,tiles_per_chunk
 
 
@@ -62,8 +62,8 @@ SUBROUTINE accelerate()
 
 
   ENDDO
-!$OMP END DO
-!$OMP END PARALLEL
+
+!$ACC END KERNELS
 
 
   IF(profiler_on) profiler%acceleration=profiler%acceleration+(timer()-kernel_time)

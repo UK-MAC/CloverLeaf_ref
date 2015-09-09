@@ -401,13 +401,15 @@ SUBROUTINE clover_exchange(fields,depth)
     IF(chunk%chunk_neighbours(chunk_left).NE.external_face) THEN
       ! do left exchanges
       ! Find left hand tiles
-!$OMP PARALLEL DO
+
+!$ACC KERNELS
+!$ACC LOOP INDEPENDENT
       DO tile=1,tiles_per_chunk
         IF(chunk%tiles(tile)%external_tile_mask(TILE_LEFT).EQ.1) THEN
           CALL clover_pack_left(tile, fields, depth, left_right_offset)
         ENDIF
       ENDDO
-!$OMP END PARALLEL DO
+!$ACC END KERNELS
 
       !send and recv messagse to the left
       CALL clover_send_recv_message_left(chunk%left_snd_buffer,                      &
@@ -420,14 +422,15 @@ SUBROUTINE clover_exchange(fields,depth)
 
     IF(chunk%chunk_neighbours(chunk_right).NE.external_face) THEN
       ! do right exchanges
-!$OMP PARALLEL DO
+
+!$ACC KERNELS
+!$ACC LOOP INDEPENDENT
       DO tile=1,tiles_per_chunk
         IF(chunk%tiles(tile)%external_tile_mask(TILE_RIGHT).EQ.1) THEN
           CALL clover_pack_right(tile, fields, depth, left_right_offset)
         ENDIF
       ENDDO
-!$OMP END PARALLEL DO
-
+!$ACC END KERNELS
       !send message to the right
       CALL clover_send_recv_message_right(chunk%right_snd_buffer,                     &
                                           chunk%right_rcv_buffer,                     &
@@ -442,7 +445,9 @@ SUBROUTINE clover_exchange(fields,depth)
 
     !unpack in left direction
     IF(chunk%chunk_neighbours(chunk_left).NE.external_face) THEN
-!$OMP PARALLEL DO
+
+!$ACC KERNELS
+!$ACC LOOP INDEPENDENT
       DO tile=1,tiles_per_chunk
         IF(chunk%tiles(tile)%external_tile_mask(TILE_LEFT).EQ.1) THEN
           CALL clover_unpack_left(fields, tile, depth,                      &
@@ -450,13 +455,15 @@ SUBROUTINE clover_exchange(fields,depth)
                               left_right_offset) 
         ENDIF
       ENDDO 
-!$OMP END PARALLEL DO                
+!$ACC END KERNELS
     ENDIF
 
 
     !unpack in right direction
     IF(chunk%chunk_neighbours(chunk_right).NE.external_face) THEN
-!$OMP PARALLEL DO
+
+!$ACC KERNELS
+!$ACC LOOP INDEPENDENT
       DO tile=1,tiles_per_chunk
         IF(chunk%tiles(tile)%external_tile_mask(TILE_RIGHT).EQ.1) THEN
           CALL clover_unpack_right(fields, tile, depth,                     &
@@ -464,7 +471,7 @@ SUBROUTINE clover_exchange(fields,depth)
                                left_right_offset)
         ENDIF
       ENDDO
-!$OMP END PARALLEL DO    
+!$ACC END KERNELS
     ENDIF
 
     message_count = 0
@@ -472,13 +479,15 @@ SUBROUTINE clover_exchange(fields,depth)
 
     IF(chunk%chunk_neighbours(chunk_bottom).NE.external_face) THEN
       ! do bottom exchanges
-!$OMP PARALLEL DO
+
+!$ACC KERNELS
+!$ACC LOOP INDEPENDENT
       DO tile=1,tiles_per_chunk
         IF(chunk%tiles(tile)%external_tile_mask(TILE_BOTTOM).EQ.1) THEN
           CALL clover_pack_bottom(tile, fields, depth, bottom_top_offset)
         ENDIF
       ENDDO
-!$OMP END PARALLEL DO  
+!$ACC END KERNELS
 
       !send message downwards
       CALL clover_send_recv_message_bottom(chunk%bottom_snd_buffer,                     &
@@ -491,13 +500,15 @@ SUBROUTINE clover_exchange(fields,depth)
 
     IF(chunk%chunk_neighbours(chunk_top).NE.external_face) THEN
       ! do top exchanges
-!$OMP PARALLEL DO
+
+!$ACC KERNELS
+!$ACC LOOP INDEPENDENT
       DO tile=1,tiles_per_chunk
         IF(chunk%tiles(tile)%external_tile_mask(TILE_TOP).EQ.1) THEN
           CALL clover_pack_top(tile, fields, depth, bottom_top_offset)
         ENDIF
       ENDDO
-!$OMP END PARALLEL DO  
+!$ACC END KERNELS
 
       !send message upwards
       CALL clover_send_recv_message_top(chunk%top_snd_buffer,                           &
@@ -513,7 +524,9 @@ SUBROUTINE clover_exchange(fields,depth)
 
     !unpack in top direction
     IF( chunk%chunk_neighbours(chunk_top).NE.external_face ) THEN
-!$OMP PARALLEL DO
+
+!$ACC KERNELS
+!$ACC LOOP INDEPENDENT
       DO tile=1,tiles_per_chunk
         IF(chunk%tiles(tile)%external_tile_mask(TILE_TOP).EQ.1) THEN
           CALL clover_unpack_top(fields, tile, depth,                       &
@@ -521,12 +534,14 @@ SUBROUTINE clover_exchange(fields,depth)
                              bottom_top_offset)
         ENDIF
       ENDDO
-!$OMP END PARALLEL DO  
+!$ACC END KERNELS
     ENDIF
 
     !unpack in bottom direction
     IF(chunk%chunk_neighbours(chunk_bottom).NE.external_face) THEN
-!$OMP PARALLEL DO
+
+!$ACC KERNELS
+!$ACC LOOP INDEPENDENT
       DO tile=1,tiles_per_chunk
         IF(chunk%tiles(tile)%external_tile_mask(TILE_BOTTOM).EQ.1) THEN
           CALL clover_unpack_bottom(fields, tile, depth,                   &
@@ -534,7 +549,7 @@ SUBROUTINE clover_exchange(fields,depth)
                                bottom_top_offset)
         ENDIF
       ENDDO
-!$OMP END PARALLEL DO  
+!$ACC END KERNELS
     ENDIF
 
 END SUBROUTINE clover_exchange

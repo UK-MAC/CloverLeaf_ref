@@ -51,19 +51,17 @@ SUBROUTINE timestep()
 
   INTEGER :: fields(NUM_FIELDS)
 
-!$ INTEGER :: OMP_GET_THREAD_NUM
 
   dt    = g_big
   small=0
 
   IF(profiler_on) kernel_time=timer()
-!$OMP PARALLEL
-!$OMP DO
+!$ACC KERNELS
+!$ACC LOOP INDEPENDENT
   DO tile = 1, tiles_per_chunk
     CALL ideal_gas(tile,.FALSE.)
   END DO
-!$OMP END DO
-!$OMP END PARALLEL
+!$ACC END KERNELS
 
   IF(profiler_on) profiler%ideal_gas=profiler%ideal_gas+(timer()-kernel_time)
 
@@ -88,24 +86,16 @@ SUBROUTINE timestep()
   IF(profiler_on) profiler%halo_exchange=profiler%halo_exchange+(timer()-kernel_time)
 
   IF(profiler_on) kernel_time=timer()
-  !$OMP PARALLEL PRIVATE(dtlp, dtl_control,xl_pos,yl_pos,jldt,kldt) 
-  !$OMP DO
+!$ACC KERNELS
+!$ACC LOOP INDEPENDENT PRIVATE(dtlp, dtl_control,xl_pos,yl_pos,jldt,kldt) REDUCTION(min : dt)
   DO tile = 1, tiles_per_chunk
     CALL calc_dt(tile,dtlp,dtl_control,xl_pos,yl_pos,jldt,kldt)
 
-  !$OMP CRITICAL  
     IF(dtlp.LE.dt) THEN
       dt=dtlp
-      dt_control=dtl_control
-      x_pos=xl_pos
-      y_pos=yl_pos
-      jdt=jldt
-      kdt=kldt
     ENDIF
-  !$OMP END CRITICAL
   END DO
-  !$OMP END DO
-  !$OMP END PARALLEL
+!$ACC END KERNELS
 
   dt = MIN(dt, (dtold * dtrise), dtmax)
 
@@ -115,12 +105,11 @@ SUBROUTINE timestep()
   IF(dt.LT.dtmin) small=1
 
   IF (parallel%boss) THEN
-!$  IF(OMP_GET_THREAD_NUM().EQ.0) THEN
       WRITE(g_out,"(' Step ', i7,' time ', f11.7,' control ',a11,' timestep  ',1pe9.2,i8,',',i8,' x ',1pe9.2,' y ',1pe9.2)") &
                       step,time,dt_control,dt,jdt,kdt,x_pos,y_pos
       WRITE(0,"(' Step ', i7,' time ', f11.7,' control ',a11,' timestep  ',1pe9.2,i8,',',i8,' x ',1pe9.2,' y ',1pe9.2)") &
                       step,time,dt_control,dt,jdt,kdt,x_pos,y_pos
-!$  ENDIF
+
   ENDIF
 
   IF(small.EQ.1) THEN

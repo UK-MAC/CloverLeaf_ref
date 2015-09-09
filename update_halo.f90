@@ -45,8 +45,8 @@ SUBROUTINE update_halo(fields,depth)
           (chunk%chunk_neighbours(CHUNK_TOP) .EQ. EXTERNAL_FACE) ) THEN
 
 
-!$OMP PARALLEL
-!$OMP DO
+!$ACC KERNELS
+!$ACC LOOP INDEPENDENT
         DO tile=1,tiles_per_chunk
 
               CALL update_halo_kernel(chunk%tiles(tile)%t_xmin,          &
@@ -75,8 +75,7 @@ SUBROUTINE update_halo(fields,depth)
 
 
         ENDDO
-!$OMP END DO
-!$OMP END PARALLEL
+!$ACC END KERNELS
     ENDIF
 
     

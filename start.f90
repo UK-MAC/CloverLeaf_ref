@@ -104,13 +104,12 @@ SUBROUTINE start
     enddo
 
 ! set up the tiles within each chunk
-!$OMP PARALLEL
-!$OMP DO
+!$ACC KERNELS
+!$ACC LOOP INDEPENDENT
     DO tile=1,tiles_per_chunk
         CALL build_field(tile)
     ENDDO
-!$OMP END DO
-!$OMP END PARALLEL
+!$ACC END KERNELS
 
 
 
@@ -122,14 +121,13 @@ SUBROUTINE start
      WRITE(g_out,*) 'Generating chunks'
   ENDIF
 
-!$OMP PARALLEL
-!$OMP DO
+!$ACC KERNELS
+!$ACC LOOP INDEPENDENT
   DO tile=1,tiles_per_chunk
       CALL initialise_chunk(tile)
       CALL generate_chunk(tile)
   ENDDO
-!$OMP END DO
-!$OMP END PARALLEL
+!$ACC END KERNELS
 
 
 
@@ -142,13 +140,12 @@ SUBROUTINE start
   profiler_off=profiler_on
   profiler_on=.FALSE.
 
-!$OMP PARALLEL
-!$OMP DO
+!$ACC KERNELS
+!$ACC LOOP INDEPENDENT
   DO tile = 1, tiles_per_chunk
     CALL ideal_gas(tile,.FALSE.)
   END DO
-!$OMP END DO
-!$OMP END PARALLEL
+!$ACC END KERNELS
 
   ! Prime all halo data for the first step
   fields=0

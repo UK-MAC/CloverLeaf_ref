@@ -61,13 +61,12 @@ SUBROUTINE visit
   ENDIF
 
   IF(profiler_on) kernel_time=timer()
-!$OMP PARALLEL
-!$OMP DO
+!$ACC KERNELS
+!$ACC LOOP INDEPENDENT
   DO tile=1,tiles_per_chunk
     CALL ideal_gas(tile,.FALSE.)
   ENDDO
-!$OMP END DO
-!$OMP END PARALLEL
+!$ACC END KERNELS
   IF(profiler_on) profiler%ideal_gas=profiler%ideal_gas+(timer()-kernel_time)
 
   fields=0
@@ -105,8 +104,6 @@ SUBROUTINE visit
 
   IF(profiler_on) kernel_time=timer()
 
-!$OMP PARALLEL
-!$OMP DO
   DO tile = 1, tiles_per_chunk
     IF(chunk%task.EQ.parallel%task) THEN
       nxc=chunk%tiles(tile)%t_xmax-chunk%tiles(tile)%t_xmin+1
@@ -181,8 +178,6 @@ SUBROUTINE visit
       CLOSE(u)
     ENDIF
   ENDDO
-!$OMP END DO
-!$OMP END PARALLEL
   IF(profiler_on) profiler%visit=profiler%visit+(timer()-kernel_time)
 
 END SUBROUTINE visit
