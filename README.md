@@ -1,6 +1,25 @@
 # CloverLeaf_ref
 
-This is the reference version of CloverLeaf. Expected performance is give below.
+This is the reference version of CloverLeaf version 1.3. 
+
+## Release Notes
+
+### Version 1.3
+
+CloverLeaf 1.3 contains a number of optimisations over previous releases.
+These include a number of loop fusion optimisations and the use of scalar variables over work arrays.
+Overall this improves cache efficiency.
+
+This version also contains some support for explicit tiling.
+This is activated through the two input deck parameters:
+
+* `tiles_per_chunk` To specify how many tiles per MPI ranks there are.
+* `tiles_per_problem` To specify how many global tiles there are, this is rounded down to be an even number per MPI rank.
+
+
+## Performance
+
+Expected performance is give below.
 
 If you do not see this performance, or you see variability, then is it recommended that you check MPI task placement and OpenMP thread affinities, because it is essential these are pinned and placed optimally to obtain best performance.
 

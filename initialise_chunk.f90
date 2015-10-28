@@ -19,59 +19,62 @@
 !>  @author Wayne Gaudin
 !>  @details Invokes the user specified chunk initialisation kernel.
 
-SUBROUTINE initialise_chunk(chunk)
+SUBROUTINE initialise_chunk(tile)
 
   USE clover_module
   USE initialise_chunk_kernel_module
 
   IMPLICIT NONE
 
-  INTEGER :: chunk
+  INTEGER :: tile
 
   REAL(KIND=8) :: xmin,ymin,dx,dy
 
   dx=(grid%xmax-grid%xmin)/float(grid%x_cells)
   dy=(grid%ymax-grid%ymin)/float(grid%y_cells)
 
-  xmin=grid%xmin+dx*float(chunks(chunk)%field%left-1)
+  xmin=grid%xmin+dx*float(chunk%tiles(tile)%t_left-1)
 
-  ymin=grid%ymin+dy*float(chunks(chunk)%field%bottom-1)
+  ymin=grid%ymin+dy*float(chunk%tiles(tile)%t_bottom-1)
 
+  
   IF(use_fortran_kernels) THEN
-    CALL initialise_chunk_kernel(chunks(chunk)%field%x_min,    &
-                                 chunks(chunk)%field%x_max,    &
-                                 chunks(chunk)%field%y_min,    &
-                                 chunks(chunk)%field%y_max,    &
-                                 xmin,ymin,dx,dy,              &
-                                 chunks(chunk)%field%vertexx,  &
-                                 chunks(chunk)%field%vertexdx, &
-                                 chunks(chunk)%field%vertexy,  &
-                                 chunks(chunk)%field%vertexdy, &
-                                 chunks(chunk)%field%cellx,    &
-                                 chunks(chunk)%field%celldx,   &
-                                 chunks(chunk)%field%celly,    &
-                                 chunks(chunk)%field%celldy,   &
-                                 chunks(chunk)%field%volume,   &
-                                 chunks(chunk)%field%xarea,    &
-                                 chunks(chunk)%field%yarea     )
-  ELSEIF(use_C_kernels)THEN
-    CALL initialise_chunk_kernel_c(chunks(chunk)%field%x_min,      &
-                                   chunks(chunk)%field%x_max,      &
-                                   chunks(chunk)%field%y_min,      &
-                                   chunks(chunk)%field%y_max,      &
-                                   xmin,ymin,dx,dy,                &
-                                   chunks(chunk)%field%vertexx,    &
-                                   chunks(chunk)%field%vertexdx,   &
-                                   chunks(chunk)%field%vertexy,    &
-                                   chunks(chunk)%field%vertexdy,   &
-                                   chunks(chunk)%field%cellx,      &
-                                   chunks(chunk)%field%celldx,     &
-                                   chunks(chunk)%field%celly,      &
-                                   chunks(chunk)%field%celldy,     &
-                                   chunks(chunk)%field%volume,     &
-                                   chunks(chunk)%field%xarea,      &
-                                   chunks(chunk)%field%yarea       )
-  ENDIF
 
+    CALL initialise_chunk_kernel(chunk%tiles(tile)%t_xmin,    &
+      chunk%tiles(tile)%t_xmax,    &
+      chunk%tiles(tile)%t_ymin,    &
+      chunk%tiles(tile)%t_ymax,    &
+      xmin,ymin,dx,dy,              &
+      chunk%tiles(tile)%field%vertexx,  &
+      chunk%tiles(tile)%field%vertexdx, &
+      chunk%tiles(tile)%field%vertexy,  &
+      chunk%tiles(tile)%field%vertexdy, &
+      chunk%tiles(tile)%field%cellx,    &
+      chunk%tiles(tile)%field%celldx,   &
+      chunk%tiles(tile)%field%celly,    &
+      chunk%tiles(tile)%field%celldy,   &
+      chunk%tiles(tile)%field%volume,   &
+      chunk%tiles(tile)%field%xarea,    &
+      chunk%tiles(tile)%field%yarea     )
+
+  ELSEIF(use_C_kernels) THEN
+    CALL initialise_chunk_kernel_c(chunk%tiles(tile)%t_xmin,    &
+      chunk%tiles(tile)%t_xmax,    &
+      chunk%tiles(tile)%t_ymin,    &
+      chunk%tiles(tile)%t_ymax,    &
+      xmin,ymin,dx,dy,              &
+      chunk%tiles(tile)%field%vertexx,  &
+      chunk%tiles(tile)%field%vertexdx, &
+      chunk%tiles(tile)%field%vertexy,  &
+      chunk%tiles(tile)%field%vertexdy, &
+      chunk%tiles(tile)%field%cellx,    &
+      chunk%tiles(tile)%field%celldx,   &
+      chunk%tiles(tile)%field%celly,    &
+      chunk%tiles(tile)%field%celldy,   &
+      chunk%tiles(tile)%field%volume,   &
+      chunk%tiles(tile)%field%xarea,    &
+      chunk%tiles(tile)%field%yarea     )
+
+  ENDIF
 
 END SUBROUTINE initialise_chunk

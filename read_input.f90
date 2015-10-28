@@ -53,6 +53,8 @@ SUBROUTINE read_input()
 
   visit_frequency=0
   summary_frequency=10
+  
+  tiles_per_chunk=1
 
   dtinit=0.1_8
   dtmax=1.0_8
@@ -79,7 +81,9 @@ SUBROUTINE read_input()
   profiler%reset=0.0
   profiler%revert=0.0
   profiler%flux=0.0
-  profiler%halo_exchange=0.0
+  profiler%tile_halo_exchange=0.0
+  profiler%self_halo_exchange=0.0
+  profiler%mpi_halo_exchange=0.0
 
   IF(parallel%boss)WRITE(g_out,*) 'Reading input file'
   IF(parallel%boss)WRITE(g_out,*)
@@ -122,121 +126,127 @@ SUBROUTINE read_input()
 
       IF(word.EQ.'')EXIT
       SELECT CASE(word)
-      CASE('initial_timestep')
-        dtinit=parse_getrval(parse_getword(.TRUE.))
-        IF(parallel%boss)WRITE(g_out,"(1x,a25,e12.4)")'initial_timestep ',dtinit
-      CASE('max_timestep')
-        dtmax=parse_getrval(parse_getword(.TRUE.))
-        IF(parallel%boss)WRITE(g_out,"(1x,a25,e12.4)")'max_timestep',dtinit
-      CASE('timestep_rise')
-        dtrise=parse_getrval(parse_getword(.TRUE.))
-        IF(parallel%boss)WRITE(g_out,"(1x,a25,e12.4)")'timestep_rise',dtrise
-      CASE('end_time')
-        end_time=parse_getrval(parse_getword(.TRUE.))
-        IF(parallel%boss)WRITE(g_out,"(1x,a25,e12.4)")'end_time',end_time
-      CASE('end_step')
-        end_step=parse_getival(parse_getword(.TRUE.))
-        IF(parallel%boss)WRITE(g_out,"(1x,a25,i12)")'end_step',end_step
-      CASE('xmin')
-        grid%xmin=parse_getrval(parse_getword(.TRUE.))
-        IF(parallel%boss)WRITE(g_out,"(1x,a25,e12.4)")'xmin',grid%xmin
-      CASE('xmax')
-        grid%xmax=parse_getrval(parse_getword(.TRUE.))
-        IF(parallel%boss)WRITE(g_out,"(1x,a25,e12.4)")'xmax',grid%xmax
-      CASE('ymin')
-        grid%ymin=parse_getrval(parse_getword(.TRUE.))
-        IF(parallel%boss)WRITE(g_out,"(1x,a25,e12.4)")'ymin',grid%ymin
-      CASE('ymax')
-        grid%ymax=parse_getrval(parse_getword(.TRUE.))
-        IF(parallel%boss)WRITE(g_out,"(1x,a25,e12.4)")'ymax',grid%ymax
-      CASE('x_cells')
-        grid%x_cells=parse_getival(parse_getword(.TRUE.))
-        IF(parallel%boss)WRITE(g_out,"(1x,a25,i12)")'x_cells',grid%x_cells
-      CASE('y_cells')
-        grid%y_cells=parse_getival(parse_getword(.TRUE.))
-        IF(parallel%boss)WRITE(g_out,"(1x,a25,i12)")'y_cells',grid%y_cells
-      CASE('visit_frequency')
-        visit_frequency=parse_getival(parse_getword(.TRUE.))
-        IF(parallel%boss)WRITE(g_out,"(1x,a25,i12)")'visit_frequency',visit_frequency
-      CASE('summary_frequency')
-        summary_frequency=parse_getival(parse_getword(.TRUE.))
-        IF(parallel%boss)WRITE(g_out,"(1x,a25,i12)")'summary_frequency',summary_frequency
-      CASE('use_fortran_kernels')
-        use_fortran_kernels=.TRUE.
-        use_C_kernels=.FALSE.
-        use_OA_kernels=.FALSE.
-      CASE('use_c_kernels')
-        use_fortran_kernels=.FALSE.
-        use_C_kernels=.TRUE.
-        use_OA_kernels=.FALSE.
-      CASE('use_oa_kernels')
-        use_fortran_kernels=.FALSE.
-        use_C_kernels=.FALSE.
-        use_OA_kernels=.TRUE.
-      CASE('profiler_on')
-        profiler_on=.TRUE.
-        IF(parallel%boss)WRITE(g_out,"(1x,a25)")'Profiler on'
-      CASE('test_problem')
-        test_problem=parse_getival(parse_getword(.TRUE.))
-        IF(parallel%boss)WRITE(g_out,"(1x,a25,i12)")'test_problem',test_problem
-      CASE('state')
+        CASE('initial_timestep')
+          dtinit=parse_getrval(parse_getword(.TRUE.))
+          IF(parallel%boss)WRITE(g_out,"(1x,a25,e12.4)")'initial_timestep ',dtinit
+        CASE('max_timestep')
+          dtmax=parse_getrval(parse_getword(.TRUE.))
+          IF(parallel%boss)WRITE(g_out,"(1x,a25,e12.4)")'max_timestep',dtinit
+        CASE('timestep_rise')
+          dtrise=parse_getrval(parse_getword(.TRUE.))
+          IF(parallel%boss)WRITE(g_out,"(1x,a25,e12.4)")'timestep_rise',dtrise
+        CASE('end_time')
+          end_time=parse_getrval(parse_getword(.TRUE.))
+          IF(parallel%boss)WRITE(g_out,"(1x,a25,e12.4)")'end_time',end_time
+        CASE('end_step')
+          end_step=parse_getival(parse_getword(.TRUE.))
+          IF(parallel%boss)WRITE(g_out,"(1x,a25,i12)")'end_step',end_step
+        CASE('xmin')
+          grid%xmin=parse_getrval(parse_getword(.TRUE.))
+          IF(parallel%boss)WRITE(g_out,"(1x,a25,e12.4)")'xmin',grid%xmin
+        CASE('xmax')
+          grid%xmax=parse_getrval(parse_getword(.TRUE.))
+          IF(parallel%boss)WRITE(g_out,"(1x,a25,e12.4)")'xmax',grid%xmax
+        CASE('ymin')
+          grid%ymin=parse_getrval(parse_getword(.TRUE.))
+          IF(parallel%boss)WRITE(g_out,"(1x,a25,e12.4)")'ymin',grid%ymin
+        CASE('ymax')
+          grid%ymax=parse_getrval(parse_getword(.TRUE.))
+          IF(parallel%boss)WRITE(g_out,"(1x,a25,e12.4)")'ymax',grid%ymax
+        CASE('x_cells')
+          grid%x_cells=parse_getival(parse_getword(.TRUE.))
+          IF(parallel%boss)WRITE(g_out,"(1x,a25,i12)")'x_cells',grid%x_cells
+        CASE('y_cells')
+          grid%y_cells=parse_getival(parse_getword(.TRUE.))
+          IF(parallel%boss)WRITE(g_out,"(1x,a25,i12)")'y_cells',grid%y_cells
+        CASE('visit_frequency')
+          visit_frequency=parse_getival(parse_getword(.TRUE.))
+          IF(parallel%boss)WRITE(g_out,"(1x,a25,i12)")'visit_frequency',visit_frequency
+        CASE('summary_frequency')
+          summary_frequency=parse_getival(parse_getword(.TRUE.))
+          IF(parallel%boss)WRITE(g_out,"(1x,a25,i12)")'summary_frequency',summary_frequency
+        CASE('tiles_per_chunk')
+          tiles_per_chunk=parse_getival(parse_getword(.TRUE.))
+          IF(parallel%boss)WRITE(g_out,"(1x,a25,i12)")'tiles_per_chunk',tiles_per_chunk
+        CASE('tiles_per_problem')
+          tiles_per_chunk=parse_getival(parse_getword(.TRUE.))/parallel%max_task
+          IF(parallel%boss)WRITE(g_out,"(1x,a25,i12)")'tiles_per_chunk',tiles_per_chunk
+        CASE('use_fortran_kernels')
+          use_fortran_kernels=.TRUE.
+          use_C_kernels=.FALSE.
+          use_OA_kernels=.FALSE.
+        CASE('use_c_kernels')
+          use_fortran_kernels=.FALSE.
+          use_C_kernels=.TRUE.
+          use_OA_kernels=.FALSE.
+        CASE('use_oa_kernels')
+          use_fortran_kernels=.FALSE.
+          use_C_kernels=.FALSE.
+          use_OA_kernels=.TRUE.
+        CASE('profiler_on')
+          profiler_on=.TRUE.
+          IF(parallel%boss)WRITE(g_out,"(1x,a25)")'Profiler on'
+        CASE('test_problem')
+          test_problem=parse_getival(parse_getword(.TRUE.))
+          IF(parallel%boss)WRITE(g_out,"(1x,a25,i12)")'test_problem',test_problem
+        CASE('state')
 
-        state=parse_getival(parse_getword(.TRUE.))
+          state=parse_getival(parse_getword(.TRUE.))
 
-        IF(parallel%boss)WRITE(g_out,*)'Reading specification for state ',state
-        IF (states(state)%defined) CALL report_error('read_input','State defined twice.')
-        IF(parallel%boss) WRITE(g_out,*)
+          IF(parallel%boss)WRITE(g_out,*)'Reading specification for state ',state
+          IF (states(state)%defined) CALL report_error('read_input','State defined twice.')
+          IF(parallel%boss) WRITE(g_out,*)
 
-        states(state)%defined=.TRUE.
-        DO
-          word=parse_getword(.FALSE.)
-          IF(word.EQ.'') EXIT
+          states(state)%defined=.TRUE.
+          DO
+            word=parse_getword(.FALSE.)
+            IF(word.EQ.'') EXIT
 
-          SELECT CASE(word)
-
-          CASE('xvel')
-            states(state)%xvel=parse_getrval(parse_getword(.TRUE.))
-            IF(parallel%boss)WRITE(g_out,"(1x,a25,e12.4)")'xvel ',states(state)%xvel
-          CASE('yvel')
-            states(state)%yvel=parse_getrval(parse_getword(.TRUE.))
-            IF(parallel%boss)WRITE(g_out,"(1x,a25,e12.4)")'yvel ',states(state)%yvel
-          CASE('xmin')
-            states(state)%xmin=parse_getrval(parse_getword(.TRUE.))
-            IF(parallel%boss)WRITE(g_out,"(1x,a25,e12.4)")'state xmin ',states(state)%xmin
-          CASE('ymin')
-            states(state)%ymin=parse_getrval(parse_getword(.TRUE.))
-            IF(parallel%boss)WRITE(g_out,"(1x,a25,e12.4)")'state ymin ',states(state)%ymin
-          CASE('xmax')
-            states(state)%xmax=parse_getrval(parse_getword(.TRUE.))
-            IF(parallel%boss)WRITE(g_out,"(1x,a25,e12.4)")'state xmax ',states(state)%xmax
-          CASE('ymax')
-            states(state)%ymax=parse_getrval(parse_getword(.TRUE.))
-            IF(parallel%boss)WRITE(g_out,"(1x,a25,e12.4)")'state ymax ',states(state)%ymax
-          CASE('radius')
-            states(state)%radius=parse_getrval(parse_getword(.TRUE.))
-            IF(parallel%boss)WRITE(g_out,"(1x,a25,e12.4)")'state radius ',states(state)%radius
-          CASE('density')
-            states(state)%density=parse_getrval(parse_getword(.TRUE.))
-            IF(parallel%boss)WRITE(g_out,"(1x,a25,e12.4)")'state density ',states(state)%density
-          CASE('energy')
-            states(state)%energy=parse_getrval(parse_getword(.TRUE.))
-            IF(parallel%boss)WRITE(g_out,"(1x,a25,e12.4)")'state energy ',states(state)%energy
-          CASE('geometry')
-            word=TRIM(parse_getword(.TRUE.))
             SELECT CASE(word)
-            CASE("rectangle")
-              states(state)%geometry=g_rect
-              IF(parallel%boss)WRITE(g_out,"(1x,a26)")'state geometry rectangular'
-            CASE("circle")
-              states(state)%geometry=g_circ
-              IF(parallel%boss)WRITE(g_out,"(1x,a25)")'state geometry circular'
-            CASE("point")
-              states(state)%geometry=g_point
-              IF(parallel%boss)WRITE(g_out,"(1x,a25)")'state geometry point'
+
+              CASE('xvel')
+                states(state)%xvel=parse_getrval(parse_getword(.TRUE.))
+                IF(parallel%boss)WRITE(g_out,"(1x,a25,e12.4)")'xvel ',states(state)%xvel
+              CASE('yvel')
+                states(state)%yvel=parse_getrval(parse_getword(.TRUE.))
+                IF(parallel%boss)WRITE(g_out,"(1x,a25,e12.4)")'yvel ',states(state)%yvel
+              CASE('xmin')
+                states(state)%xmin=parse_getrval(parse_getword(.TRUE.))
+                IF(parallel%boss)WRITE(g_out,"(1x,a25,e12.4)")'state xmin ',states(state)%xmin
+              CASE('ymin')
+                states(state)%ymin=parse_getrval(parse_getword(.TRUE.))
+                IF(parallel%boss)WRITE(g_out,"(1x,a25,e12.4)")'state ymin ',states(state)%ymin
+              CASE('xmax')
+                states(state)%xmax=parse_getrval(parse_getword(.TRUE.))
+                IF(parallel%boss)WRITE(g_out,"(1x,a25,e12.4)")'state xmax ',states(state)%xmax
+              CASE('ymax')
+                states(state)%ymax=parse_getrval(parse_getword(.TRUE.))
+                IF(parallel%boss)WRITE(g_out,"(1x,a25,e12.4)")'state ymax ',states(state)%ymax
+              CASE('radius')
+                states(state)%radius=parse_getrval(parse_getword(.TRUE.))
+                IF(parallel%boss)WRITE(g_out,"(1x,a25,e12.4)")'state radius ',states(state)%radius
+              CASE('density')
+                states(state)%density=parse_getrval(parse_getword(.TRUE.))
+                IF(parallel%boss)WRITE(g_out,"(1x,a25,e12.4)")'state density ',states(state)%density
+              CASE('energy')
+                states(state)%energy=parse_getrval(parse_getword(.TRUE.))
+                IF(parallel%boss)WRITE(g_out,"(1x,a25,e12.4)")'state energy ',states(state)%energy
+              CASE('geometry')
+                word=TRIM(parse_getword(.TRUE.))
+                SELECT CASE(word)
+                  CASE("rectangle")
+                    states(state)%geometry=g_rect
+                    IF(parallel%boss)WRITE(g_out,"(1x,a26)")'state geometry rectangular'
+                  CASE("circle")
+                    states(state)%geometry=g_circ
+                    IF(parallel%boss)WRITE(g_out,"(1x,a25)")'state geometry circular'
+                  CASE("point")
+                    states(state)%geometry=g_point
+                    IF(parallel%boss)WRITE(g_out,"(1x,a25)")'state geometry point'
+                END SELECT
             END SELECT
-          END SELECT
-        ENDDO
-        IF(parallel%boss) WRITE(g_out,*)
+          ENDDO
+          IF(parallel%boss) WRITE(g_out,*)
       END SELECT
     ENDDO
   ENDDO

@@ -24,63 +24,65 @@ MODULE ideal_gas_module
 
 CONTAINS
 
-SUBROUTINE ideal_gas(chunk,predict)
+  SUBROUTINE ideal_gas(tile,predict)
 
-  USE clover_module
-  USE ideal_gas_kernel_module
+    USE clover_module
+    USE ideal_gas_kernel_module
 
-  IMPLICIT NONE
+    IMPLICIT NONE
 
-  INTEGER :: chunk
+    INTEGER :: tile
 
-  LOGICAl :: predict
+    LOGICAl :: predict
 
-  IF(chunks(chunk)%task .EQ. parallel%task) THEN
 
-    IF(.NOT.predict) THEN
-      IF(use_fortran_kernels)THEN
-        CALL ideal_gas_kernel(chunks(chunk)%field%x_min,    &
-                            chunks(chunk)%field%x_max,      &
-                            chunks(chunk)%field%y_min,      &
-                            chunks(chunk)%field%y_max,      &
-                            chunks(chunk)%field%density0,   &
-                            chunks(chunk)%field%energy0,    &
-                            chunks(chunk)%field%pressure,   &
-                            chunks(chunk)%field%soundspeed  )
-      ELSEIF(use_C_kernels)THEN
-        CALL ideal_gas_kernel_c(chunks(chunk)%field%x_min,  &
-                            chunks(chunk)%field%x_max,      &
-                            chunks(chunk)%field%y_min,      &
-                            chunks(chunk)%field%y_max,      &
-                            chunks(chunk)%field%density0,   &
-                            chunks(chunk)%field%energy0,    &
-                            chunks(chunk)%field%pressure,   &
-                            chunks(chunk)%field%soundspeed  )
+    IF(use_fortran_kernels) THEN
+      IF(.NOT.predict) THEN
+        CALL ideal_gas_kernel(chunk%tiles(tile)%t_xmin,    &
+          chunk%tiles(tile)%t_xmax,      &
+          chunk%tiles(tile)%t_ymin,      &
+          chunk%tiles(tile)%t_ymax,      &
+          chunk%tiles(tile)%field%density0,   &
+          chunk%tiles(tile)%field%energy0,    &
+          chunk%tiles(tile)%field%pressure,   &
+          chunk%tiles(tile)%field%soundspeed  )
+
+      ELSE
+        CALL ideal_gas_kernel(chunk%tiles(tile)%t_xmin,    &
+          chunk%tiles(tile)%t_xmax,      &
+          chunk%tiles(tile)%t_ymin,      &
+          chunk%tiles(tile)%t_ymax,      &
+          chunk%tiles(tile)%field%density1,   &
+          chunk%tiles(tile)%field%energy1,    &
+          chunk%tiles(tile)%field%pressure,   &
+          chunk%tiles(tile)%field%soundspeed  )
+
       ENDIF
-    ELSE
-      IF(use_fortran_kernels)THEN
-        CALL ideal_gas_kernel(chunks(chunk)%field%x_min,    &
-                            chunks(chunk)%field%x_max,      &
-                            chunks(chunk)%field%y_min,      &
-                            chunks(chunk)%field%y_max,      &
-                            chunks(chunk)%field%density1,   &
-                            chunks(chunk)%field%energy1,    &
-                            chunks(chunk)%field%pressure,   &
-                            chunks(chunk)%field%soundspeed  )
-      ELSEIF(use_C_kernels)THEN
-        CALL ideal_gas_kernel_c(chunks(chunk)%field%x_min,  &
-                            chunks(chunk)%field%x_max,      &
-                            chunks(chunk)%field%y_min,      &
-                            chunks(chunk)%field%y_max,      &
-                            chunks(chunk)%field%density1,   &
-                            chunks(chunk)%field%energy1,    &
-                            chunks(chunk)%field%pressure,   &
-                            chunks(chunk)%field%soundspeed  )
+
+    ELSEIF(use_C_kernels) THEN
+      IF(.NOT.predict) THEN
+        CALL ideal_gas_kernel_c(chunk%tiles(tile)%t_xmin,    &
+          chunk%tiles(tile)%t_xmax,      &
+          chunk%tiles(tile)%t_ymin,      &
+          chunk%tiles(tile)%t_ymax,      &
+          chunk%tiles(tile)%field%density0,   &
+          chunk%tiles(tile)%field%energy0,    &
+          chunk%tiles(tile)%field%pressure,   &
+          chunk%tiles(tile)%field%soundspeed  )
+
+      ELSE
+        CALL ideal_gas_kernel_c(chunk%tiles(tile)%t_xmin,    &
+          chunk%tiles(tile)%t_xmax,      &
+          chunk%tiles(tile)%t_ymin,      &
+          chunk%tiles(tile)%t_ymax,      &
+          chunk%tiles(tile)%field%density1,   &
+          chunk%tiles(tile)%field%energy1,    &
+          chunk%tiles(tile)%field%pressure,   &
+          chunk%tiles(tile)%field%soundspeed  )
+
       ENDIF
     ENDIF
 
-  ENDIF
-
-END SUBROUTINE ideal_gas
+  END SUBROUTINE ideal_gas
 
 END MODULE ideal_gas_module

@@ -23,43 +23,47 @@ MODULE revert_module
 
 CONTAINS
 
-SUBROUTINE revert()
+  SUBROUTINE revert()
 
-  USE clover_module
-  USE revert_kernel_module
+    USE clover_module
+    USE revert_kernel_module
 
-  IMPLICIT NONE
+    IMPLICIT NONE
 
-  INTEGER :: c
+    INTEGER :: tile
 
-  DO c=1,chunks_per_task
+    IF(use_fortran_kernels) THEN
 
-    IF(chunks(c)%task.EQ.parallel%task) THEN
+      DO tile=1,tiles_per_chunk
 
-      IF(use_fortran_kernels)THEN
-        CALL revert_kernel(chunks(c)%field%x_min,   &
-                         chunks(c)%field%x_max,     &
-                         chunks(c)%field%y_min,     &
-                         chunks(c)%field%y_max,     &
-                         chunks(c)%field%density0,  &
-                         chunks(c)%field%density1,  &
-                         chunks(c)%field%energy0,   &
-                         chunks(c)%field%energy1    )
-      ELSEIF(use_C_kernels)THEN
-        CALL revert_kernel_c(chunks(c)%field%x_min, &
-                         chunks(c)%field%x_max,     &
-                         chunks(c)%field%y_min,     &
-                         chunks(c)%field%y_max,     &
-                         chunks(c)%field%density0,  &
-                         chunks(c)%field%density1,  &
-                         chunks(c)%field%energy0,   &
-                         chunks(c)%field%energy1    )
-      ENDIF
+        CALL revert_kernel(chunk%tiles(tile)%t_xmin,   &
+          chunk%tiles(tile)%t_xmax,     &
+          chunk%tiles(tile)%t_ymin,     &
+          chunk%tiles(tile)%t_ymax,     &
+          chunk%tiles(tile)%field%density0,  &
+          chunk%tiles(tile)%field%density1,  &
+          chunk%tiles(tile)%field%energy0,   &
+          chunk%tiles(tile)%field%energy1    )
 
+
+      ENDDO
+    ELSEIF(use_C_kernels) THEN
+      DO tile=1,tiles_per_chunk
+
+        CALL revert_kernel_c(chunk%tiles(tile)%t_xmin,   &
+          chunk%tiles(tile)%t_xmax,     &
+          chunk%tiles(tile)%t_ymin,     &
+          chunk%tiles(tile)%t_ymax,     &
+          chunk%tiles(tile)%field%density0,  &
+          chunk%tiles(tile)%field%density1,  &
+          chunk%tiles(tile)%field%energy0,   &
+          chunk%tiles(tile)%field%energy1    )
+
+
+      ENDDO
     ENDIF
 
-  ENDDO
 
-END SUBROUTINE revert
+  END SUBROUTINE revert
 
 END MODULE revert_module
