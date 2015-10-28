@@ -24,7 +24,6 @@
 
 MODULE update_halo_kernel_module
 
-  USE data_module
 
 CONTAINS
 
@@ -62,28 +61,32 @@ CONTAINS
     INTEGER :: fields(:),depth
 
 
-    ! These need to be kept consistent with the data module to avoid use statement
-    !INTEGER,      PARAMETER :: CHUNK_LEFT   =1    &
-    !                          ,CHUNK_RIGHT  =2    &
-    !                          ,CHUNK_BOTTOM =3    &
-    !                          ,CHUNK_TOP    =4    &
-    !                          ,EXTERNAL_FACE=-1
-
-    !INTEGER,      PARAMETER :: FIELD_DENSITY0   = 1         &
-    !                          ,FIELD_DENSITY1   = 2         &
-    !                          ,FIELD_ENERGY0    = 3         &
-    !                          ,FIELD_ENERGY1    = 4         &
-    !                          ,FIELD_PRESSURE   = 5         &
-    !                          ,FIELD_VISCOSITY  = 6         &
-    !                          ,FIELD_SOUNDSPEED = 7         &
-    !                          ,FIELD_XVEL0      = 8         &
-    !                          ,FIELD_XVEL1      = 9         &
-    !                          ,FIELD_YVEL0      =10         &
-    !                          ,FIELD_YVEL1      =11         &
-    !                          ,FIELD_VOL_FLUX_X =12         &
-    !                          ,FIELD_VOL_FLUX_Y =13         &
-    !                          ,FIELD_MASS_FLUX_X=14         &
-    !                          ,FIELD_MASS_FLUX_Y=15
+        ! These need to be kept consistent with the data module to avoid use statement
+    INTEGER,      PARAMETER :: CHUNK_LEFT   =1    &
+      ,CHUNK_RIGHT  =2    &
+      ,CHUNK_BOTTOM =3    &
+      ,CHUNK_TOP    =4    &
+      ,EXTERNAL_FACE=-1
+    INTEGER,      PARAMETER :: TILE_LEFT   =1    &
+      ,TILE_RIGHT  =2    &
+      ,TILE_BOTTOM =3    &
+      ,TILE_TOP    =4    &
+      ,EXTERNAL_TILE=-1
+    INTEGER,      PARAMETER :: FIELD_DENSITY0   = 1         &
+      ,FIELD_DENSITY1   = 2         &
+      ,FIELD_ENERGY0    = 3         &
+      ,FIELD_ENERGY1    = 4         &
+      ,FIELD_PRESSURE   = 5         &
+      ,FIELD_VISCOSITY  = 6         &
+      ,FIELD_SOUNDSPEED = 7         &
+      ,FIELD_XVEL0      = 8         &
+      ,FIELD_XVEL1      = 9         &
+      ,FIELD_YVEL0      =10         &
+      ,FIELD_YVEL1      =11         &
+      ,FIELD_VOL_FLUX_X =12         &
+      ,FIELD_VOL_FLUX_Y =13         &
+      ,FIELD_MASS_FLUX_X=14         &
+      ,FIELD_MASS_FLUX_Y=15
 
     INTEGER :: j,k
 
