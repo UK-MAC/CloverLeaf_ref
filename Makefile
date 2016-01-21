@@ -117,61 +117,77 @@ ifdef IEEE
 endif
 
 FLAGS=$(FLAGS_$(COMPILER)) $(OMP) $(I3E) $(OPTIONS)
-CFLAGS=$(CFLAGS_$(COMPILER)) $(OMP) $(I3E) $(C_OPTIONS) -c
+CFLAGS=$(CFLAGS_$(COMPILER)) $(OMP) $(I3E) $(C_OPTIONS)
 MPI_COMPILER=mpif90
 C_MPI_COMPILER=mpicc
 
 accelerate_driver:  accelerate_driver.f90 set_data.f90
-	$(C_MPI_COMPILER) $(CFLAGS) timer_c.c accelerate_kernel_c.c
+	$(C_MPI_COMPILER) -c $(CFLAGS) timer_c.c accelerate_kernel_c.c
 	$(MPI_COMPILER) -c $(FLAGS) set_data.f90 accelerate_kernel.f90 timer.f90 accelerate_driver.f90
 	$(MPI_COMPILER) $(FLAGS) timer_c.o accelerate_kernel_c.o set_data.o accelerate_kernel.o timer.o accelerate_driver.o -o accelerate_driver ; echo $(MESSAGE)
 
 PdV_driver:  PdV_driver.f90 set_data.f90
-	$(C_MPI_COMPILER) $(CFLAGS) timer_c.c PdV_kernel_c.c
+	$(C_MPI_COMPILER) -c $(CFLAGS) timer_c.c PdV_kernel_c.c
 	$(MPI_COMPILER) -c $(FLAGS) set_data.f90 PdV_kernel.f90 timer.f90 PdV_kernel_c.o timer_c.o PdV_driver.f90
 	$(MPI_COMPILER) $(FLAGS) timer_c.o PdV_kernel_c.o set_data.o PdV_kernel.o timer.o PdV_driver.o -o PdV_driver ; echo $(MESSAGE)
 
 mom_driver:  mom_driver.f90 set_data.f90
-	$(C_MPI_COMPILER) $(CFLAGS) timer_c.c advec_mom_kernel_c.c
+	$(C_MPI_COMPILER) -c $(CFLAGS) timer_c.c advec_mom_kernel_c.c
 	$(MPI_COMPILER) -c $(FLAGS) set_data.f90 advec_mom_kernel.f90 timer.f90 mom_driver.f90
 	$(MPI_COMPILER) $(FLAGS) timer_c.o advec_mom_kernel_c.o set_data.o advec_mom_kernel.o timer.o mom_driver.o -o mom_driver ; echo $(MESSAGE)
 
 reset_field_driver:  reset_field_driver.f90 set_data.f90
-	$(C_MPI_COMPILER) $(CFLAGS) timer_c.c reset_field_kernel_c.c
+	$(C_MPI_COMPILER) -c $(CFLAGS) timer_c.c reset_field_kernel_c.c
 	$(MPI_COMPILER) -c $(FLAGS) set_data.f90 reset_field_kernel.f90 timer.f90 reset_field_kernel_c.o timer_c.o reset_field_driver.f90
 	$(MPI_COMPILER) $(FLAGS) timer_c.o reset_field_kernel_c.o set_data.o reset_field_kernel.o timer.o reset_field_driver.o -o reset_field_driver ; echo $(MESSAGE)
 
 revert_driver:  revert_driver.f90 set_data.f90
-	$(C_MPI_COMPILER) $(CFLAGS) timer_c.c revert_kernel_c.c
+	$(C_MPI_COMPILER) -c $(CFLAGS) timer_c.c revert_kernel_c.c
 	$(MPI_COMPILER) -c $(FLAGS) set_data.f90 revert_kernel.f90 timer.f90 revert_kernel_c.o timer_c.o revert_driver.f90
 	$(MPI_COMPILER) $(FLAGS) timer_c.o revert_kernel_c.o set_data.o revert_kernel.o timer.o revert_driver.o -o revert_driver ; echo $(MESSAGE)
 
 viscosity_driver:  viscosity_driver.f90 set_data.f90
-	$(C_MPI_COMPILER) $(CFLAGS) timer_c.c viscosity_kernel_c.c
+	$(C_MPI_COMPILER) -c $(CFLAGS) timer_c.c viscosity_kernel_c.c
 	$(MPI_COMPILER) -c $(FLAGS) set_data.f90 viscosity_kernel.f90 timer.f90 viscosity_kernel_c.o timer_c.o viscosity_driver.f90
 	$(MPI_COMPILER) $(FLAGS) timer_c.o viscosity_kernel_c.o set_data.o viscosity_kernel.o timer.o viscosity_driver.o -o viscosity_driver ; echo $(MESSAGE)
 
 ideal_gas_driver:  ideal_gas_driver.f90 set_data.f90
-	$(C_MPI_COMPILER) $(CFLAGS) timer_c.c ideal_gas_kernel_c.c
+	$(C_MPI_COMPILER) -c $(CFLAGS) timer_c.c ideal_gas_kernel_c.c
 	$(MPI_COMPILER) -c $(FLAGS) set_data.f90 ideal_gas_kernel.f90 timer.f90 ideal_gas_kernel_c.o timer_c.o ideal_gas_driver.f90
 	$(MPI_COMPILER) $(FLAGS) timer_c.o ideal_gas_kernel_c.o set_data.o ideal_gas_kernel.o timer.o ideal_gas_driver.o -o ideal_gas_driver ; echo $(MESSAGE)
 
 update_halo_driver:  update_halo_driver.f90 set_data.f90
-	$(C_MPI_COMPILER) $(CFLAGS) timer_c.c update_halo_kernel_c.c
+	$(C_MPI_COMPILER)-c  $(CFLAGS) timer_c.c update_halo_kernel_c.c
 	$(MPI_COMPILER) -c $(FLAGS) set_data.f90 update_halo_kernel.f90 timer.f90 update_halo_driver.f90
 	$(MPI_COMPILER) $(FLAGS) timer_c.o update_halo_kernel_c.o set_data.o update_halo_kernel.o timer.o update_halo_driver.o -o update_halo_driver ; echo $(MESSAGE)
 
 calc_dt_driver:  calc_dt_driver.f90 set_data.f90
-	$(C_MPI_COMPILER) $(CFLAGS) timer_c.c calc_dt_kernel_c.c
+	$(C_MPI_COMPILER)-c  $(CFLAGS) timer_c.c calc_dt_kernel_c.c
 	$(MPI_COMPILER) -c $(FLAGS) set_data.f90 calc_dt_kernel.f90 timer.f90 calc_dt_driver.f90
 	$(MPI_COMPILER) $(FLAGS) timer_c.o calc_dt_kernel_c.o set_data.o calc_dt_kernel.o timer.o calc_dt_driver.o -o calc_dt_driver ; echo $(MESSAGE)
 
 cell_driver:  cell_driver.f90 set_data.f90
-	$(C_MPI_COMPILER) $(CFLAGS) timer_c.c advec_cell_kernel_c.c
+	$(C_MPI_COMPILER) -c $(CFLAGS) timer_c.c advec_cell_kernel_c.c
 	$(MPI_COMPILER) -c $(FLAGS) set_data.f90 advec_cell_kernel.f90 timer.f90 cell_driver.f90
 	$(MPI_COMPILER) $(FLAGS) timer_c.o advec_cell_kernel_c.o set_data.o advec_cell_kernel.o timer.o cell_driver.o -o cell_driver ; echo $(MESSAGE)
 
-all: accelerate_driver PdV_driver mom_driver reset_field_driver revert_driver viscosity_driver ideal_gas_driver calc_dt_driver cell_driver update_halo_driver
+	
+accelerate_driver_c:  timer_c.c data.c accelerate_kernel_c.c accelerate_driver_c.c
+	$(C_MPI_COMPILER) -c $(CFLAGS) timer_c.c data.c accelerate_kernel_c.c accelerate_driver_c.c
+	$(C_MPI_COMPILER) $(CLAGS) timer_c.o data.o accelerate_kernel_c.o accelerate_driver_c.o -o accelerate_driver_c ; echo $(MESSAGE)
+	
+	
+ideal_gas_driver_c:  timer_c.c data.c ideal_gas_kernel_c.c ideal_gas_driver_c.c
+	$(C_MPI_COMPILER) -c $(CFLAGS) timer_c.c data.c ideal_gas_kernel_c.c ideal_gas_driver_c.c
+	$(C_MPI_COMPILER) $(CFLAGS) timer_c.o data.o ideal_gas_kernel_c.o ideal_gas_driver_c.o -o ideal_gas_driver_c ; echo $(MESSAGE)
+
+	
+	
+	
+	
+	
+	
+all: accelerate_driver PdV_driver mom_driver reset_field_driver revert_driver viscosity_driver ideal_gas_driver calc_dt_driver cell_driver update_halo_driver ideal_gas_driver_c accelerate_driver_c
 
 clean:
-	rm -f *.o *.mod *genmod* *.lst *.cub *.ptx accelerate_driver PdV_driver mom_driver reset_field_driver revert_driver viscosity_driver ideal_gas_driver calc_dt_driver cell_driver update_halo_driver 
+	rm -f *.o *.mod *genmod* *.lst *.cub *.ptx accelerate_driver PdV_driver mom_driver reset_field_driver revert_driver viscosity_driver ideal_gas_driver calc_dt_driver cell_driver update_halo_driver  ideal_gas_driver_c accelerate_driver_c 
