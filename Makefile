@@ -174,7 +174,7 @@ cell_driver:  cell_driver.f90 set_data.f90
 	
 accelerate_driver_c:  timer_c.c data.c accelerate_kernel_c.c accelerate_driver_c.c
 	$(C_MPI_COMPILER) -c $(CFLAGS) timer_c.c data.c accelerate_kernel_c.c accelerate_driver_c.c
-	$(C_MPI_COMPILER) $(CLAGS) timer_c.o data.o accelerate_kernel_c.o accelerate_driver_c.o -o accelerate_driver_c ; echo $(MESSAGE)
+	$(C_MPI_COMPILER) $(CFLAGS) timer_c.o data.o accelerate_kernel_c.o accelerate_driver_c.o -o accelerate_driver_c ; echo $(MESSAGE)
 	
 	
 ideal_gas_driver_c:  timer_c.c data.c ideal_gas_kernel_c.c ideal_gas_driver_c.c

@@ -119,8 +119,7 @@ void allocate_data(struct data_obj data){
 
 	if(data.xarea != NULL){
 		*(data.xarea) = (double *) malloc(size_x_3d);
-#pragma omp parallel do private(k, j, index)
-		{
+#pragma omp parallel for private(k, j)
 		for(k=y_min; k<=y_max; k++){
 			for(j=x_min; j<=x_max; j++){
 				int index=FTNREF2D(j  ,k  ,x_max+5,x_min-2,y_min-2);
@@ -128,52 +127,44 @@ void allocate_data(struct data_obj data){
 			}
 		}
         }
-	}
 
 	if(data.yarea != NULL){
 		*(data.yarea) = (double *) malloc(size_y_3d);
-#pragma omp parallel do private(k, j, index)
-		{
+#pragma omp parallel for private(k, j)
 		for(k=y_min; k<=y_max; k++){
 			for(j=x_min; j<=x_max; j++){
 				int index=FTNREF2D(j  ,k  ,x_max+4,x_min-2,y_min-2);
 				(*(data.yarea))[index] = 0.0;
 			}
 		}
-        }
 	}
 
 
 	if(data.volume != NULL){
 		*(data.volume) = (double *) malloc(size_small_3d);
-#pragma omp parallel do private(k, j, index)
-		{
+#pragma omp parallel for private(k, j)
 		for(k=y_min; k<=y_max; k++){
 			for(j=x_min; j<=x_max; j++){
 				int index=FTNREF2D(j  ,k  ,x_max+4,x_min-2,y_min-2);
 				(*(data.volume))[index] = 0.0;
 			}
 		}
-        }
 	}
 
 
 	if(data.density0 != NULL){
 		*(data.density0) = (double *) malloc(size_small_3d);
-#pragma omp parallel do private(k, j, index)
-		{
+#pragma omp parallel for private(k, j)
 		for(k=y_min; k<=y_max; k++){
 			for(j=x_min; j<=x_max; j++){
 				int index=FTNREF2D(j  ,k  ,x_max+4,x_min-2,y_min-2);
 				(*(data.density0))[index] = 0.0;
 			}
 		}
-        }
 	}
 	if(data.density1 != NULL){
 		*(data.density1) = (double *) malloc(size_small_3d);
-#pragma omp parallel do private(k, j, index)
-		{
+#pragma omp parallel for private(k, j)
 		for(k=y_min; k<=y_max; k++){
 			for(j=x_min; j<=x_max; j++){
 				int index=FTNREF2D(j  ,k  ,x_max+4,x_min-2,y_min-2);
@@ -181,12 +172,10 @@ void allocate_data(struct data_obj data){
 			}
 		}
         }
-	}
 
 	if(data.energy0 != NULL){
 		*(data.energy0) = (double *) malloc(size_small_3d);
-#pragma omp parallel do private(k, j, index)
-		{
+#pragma omp parallel for private(k, j)
 		for(k=y_min; k<=y_max; k++){
 			for(j=x_min; j<=x_max; j++){
 				int index=FTNREF2D(j  ,k  ,x_max+4,x_min-2,y_min-2);
@@ -194,12 +183,10 @@ void allocate_data(struct data_obj data){
 			}
 		}
         }
-	}
 
 	if(data.energy1 != NULL){
 		*(data.energy1) = (double *) malloc(size_small_3d);
-#pragma omp parallel do private(k, j, index)
-		{
+#pragma omp parallel for private(k, j)
 		for(k=y_min; k<=y_max; k++){
 			for(j=x_min; j<=x_max; j++){
 				int index=FTNREF2D(j  ,k  ,x_max+4,x_min-2,y_min-2);
@@ -207,12 +194,10 @@ void allocate_data(struct data_obj data){
 			}
 		}
         }
-	}
 
 	if(data.pressure != NULL){
 		*(data.pressure) = (double *) malloc(size_small_3d);
-#pragma omp parallel do private(k, j, index)
-		{
+#pragma omp parallel for private(k, j)
 		for(k=y_min; k<=y_max; k++){
 			for(j=x_min; j<=x_max; j++){
 				int index=FTNREF2D(j  ,k  ,x_max+4,x_min-2,y_min-2);
@@ -220,104 +205,88 @@ void allocate_data(struct data_obj data){
 			}
 		}
         }
-	}
 
 	if(data.soundspeed != NULL){
 		*(data.soundspeed) = (double *) malloc(size_small_3d);
-#pragma omp parallel do private(k, j, index)
-		{
+#pragma omp parallel for private(k, j)
 		for(k=y_min; k<=y_max; k++){
 			for(j=x_min; j<=x_max; j++){
 				int index=FTNREF2D(j  ,k  ,x_max+4,x_min-2,y_min-2);
 				(*(data.soundspeed))[index] = 0.0;
 			}
 		}
-        }
 	}
 
 	if(data.viscosity != NULL){
 		*(data.viscosity) = (double *) malloc(size_small_3d);
-#pragma omp parallel do private(k, j, index)
-		{
+#pragma omp parallel for private(k, j)
 		for(k=y_min; k<=y_max; k++){
 			for(j=x_min; j<=x_max; j++){
 				int index=FTNREF2D(j  ,k  ,x_max+4,x_min-2,y_min-2);
 				(*(data.viscosity))[index] = 0.0;
 			}
 		}
-        }
 	}
 
 	if(data.xvel0 != NULL){
 		*(data.xvel0) = (double *) malloc(size_large_3d);
-#pragma omp parallel do private(k, j, index)
-		{
+#pragma omp parallel for private(k, j)
 		for(k=y_min; k<=y_max; k++){
 			for(j=x_min; j<=x_max; j++){
 				int index=FTNREF2D(j  ,k  ,x_max+5,x_min-2,y_min-2);
 				(*(data.xvel0))[index] = 0.0;
 			}
 		}
-        }
 	}
 
 	if(data.xvel1 != NULL){
 		*(data.xvel1) = (double *) malloc(size_large_3d);
-#pragma omp parallel do private(k, j, index)
-		{
+#pragma omp parallel for private(k, j)
 		for(k=y_min; k<=y_max; k++){
 			for(j=x_min; j<=x_max; j++){
 				int index=FTNREF2D(j  ,k  ,x_max+5,x_min-2,y_min-2);
 				(*(data.xvel1))[index] = 0.0;
 			}
 		}
-        }
 	}
 
 	if(data.yvel0 != NULL){
 		*(data.yvel0) = (double *) malloc(size_large_3d);
-#pragma omp parallel do private(k, j, index)
-		{
+#pragma omp parallel for private(k, j)
 		for(k=y_min; k<=y_max; k++){
 			for(j=x_min; j<=x_max; j++){
 				int index=FTNREF2D(j  ,k  ,x_max+5,x_min-2,y_min-2);
 				(*(data.yvel0))[index] = 0.0;
 			}
 		}
-        }
 	}
 
 	if(data.yvel1 != NULL){
 		*(data.yvel1) = (double *) malloc(size_large_3d);
-#pragma omp parallel do private(k, j, index)
-		{
+#pragma omp parallel for private(k, j)
 		for(k=y_min; k<=y_max; k++){
 			for(j=x_min; j<=x_max; j++){
 				int index=FTNREF2D(j  ,k  ,x_max+5,x_min-2,y_min-2);
 				(*(data.yvel1))[index] = 0.0;
 			}
 		}
-        }
 	}
 
 
 
 	if(data.work_array1 != NULL){
 		*(data.work_array1) = (double *) malloc(size_large_3d);
-#pragma omp parallel do private(k, j, index)
-		{
+#pragma omp parallel for private(k, j)
 		for(k=y_min; k<=y_max; k++){
 			for(j=x_min; j<=x_max; j++){
 				int index=FTNREF2D(j  ,k  ,x_max+5,x_min-2,y_min-2);
 				(*(data.work_array1))[index] = 0.0;
 			}
 		}
-        }
 	}
 	if(data.work_array2 != NULL){
 		*(data.work_array2) = (double *) malloc(size_large_3d);
-#pragma omp parallel do private(k, j, index)
-		{
+#pragma omp parallel for private(k, j)
 		for(k=y_min; k<=y_max; k++){
 			for(j=x_min; j<=x_max; j++){
 				int index=FTNREF2D(j  ,k  ,x_max+5,x_min-2,y_min-2);
@@ -325,117 +294,98 @@ void allocate_data(struct data_obj data){
 			}
 		}
         }
-	}
 	if(data.work_array3 != NULL){
 		*(data.work_array3) = (double *) malloc(size_large_3d);
-#pragma omp parallel do private(k, j, index)
-		{
+#pragma omp parallel for private(k, j)
 		for(k=y_min; k<=y_max; k++){
 			for(j=x_min; j<=x_max; j++){
 				int index=FTNREF2D(j  ,k  ,x_max+5,x_min-2,y_min-2);
 				(*(data.work_array3))[index] = 0.0;
 			}
 		}
-        }
 	}
 	if(data.work_array4 != NULL){
 		*(data.work_array4) = (double *) malloc(size_large_3d);
-#pragma omp parallel do private(k, j, index)
-		{
+#pragma omp parallel for private(k, j)
 		for(k=y_min; k<=y_max; k++){
 			for(j=x_min; j<=x_max; j++){
 				int index=FTNREF2D(j  ,k  ,x_max+5,x_min-2,y_min-2);
 				(*(data.work_array4))[index] = 0.0;
 			}
 		}
-        }
 	}
 	if(data.work_array5 != NULL){
 		*(data.work_array5) = (double *) malloc(size_large_3d);
-#pragma omp parallel do private(k, j, index)
-		{
+#pragma omp parallel for private(k, j)
 		for(k=y_min; k<=y_max; k++){
 			for(j=x_min; j<=x_max; j++){
 				int index=FTNREF2D(j  ,k  ,x_max+5,x_min-2,y_min-2);
 				(*(data.work_array5))[index] = 0.0;
 			}
 		}
-        }
 	}
 	if(data.work_array6 != NULL){
 		*(data.work_array6) = (double *) malloc(size_large_3d);
-#pragma omp parallel do private(k, j, index)
-		{
+#pragma omp parallel for private(k, j)
 		for(k=y_min; k<=y_max; k++){
 			for(j=x_min; j<=x_max; j++){
 				int index=FTNREF2D(j  ,k  ,x_max+5,x_min-2,y_min-2);
 				(*(data.work_array6))[index] = 0.0;
 			}
 		}
-        }
 	}
 	if(data.work_array7 != NULL){
 		*(data.work_array7) = (double *) malloc(size_large_3d);
-#pragma omp parallel do private(k, j, index)
-		{
+#pragma omp parallel for private(k, j)
 		for(k=y_min; k<=y_max; k++){
 			for(j=x_min; j<=x_max; j++){
 				int index=FTNREF2D(j  ,k  ,x_max+5,x_min-2,y_min-2);
 				(*(data.work_array7))[index] = 0.0;
 			}
 		}
-        }
 	}
 
 
 	if(data.vol_flux_x != NULL){
 		*(data.vol_flux_x) = (double *) malloc(size_x_3d);
-#pragma omp parallel do private(k, j, index)
-		{
+#pragma omp parallel for private(k, j)
 		for(k=y_min; k<=y_max; k++){
 			for(j=x_min; j<=x_max; j++){
 				int index=FTNREF2D(j  ,k  ,x_max+5,x_min-2,y_min-2);
 				(*(data.vol_flux_x))[index] = 0.0;
 			}
 		}
-        }
 	}
 	if(data.vol_flux_y != NULL){
 		*(data.vol_flux_y) = (double *) malloc(size_y_3d);
-#pragma omp parallel do private(k, j, index)
-		{
+#pragma omp parallel for private(k, j)
 		for(k=y_min; k<=y_max; k++){
 			for(j=x_min; j<=x_max; j++){
 				int index=FTNREF2D(j  ,k  ,x_max+4,x_min-2,y_min-2);
 				(*(data.vol_flux_y))[index] = 0.0;
 			}
 		}
-        }
 	}
 
 	if(data.mass_flux_x != NULL){
 		*(data.mass_flux_x) = (double *) malloc(size_x_3d);
-#pragma omp parallel do private(k, j, index)
-		{
+#pragma omp parallel for private(k, j)
 		for(k=y_min; k<=y_max; k++){
 			for(j=x_min; j<=x_max; j++){
 				int index=FTNREF2D(j  ,k  ,x_max+5,x_min-2,y_min-2);
 				(*(data.mass_flux_x))[index] = 0.0;
 			}
 		}
-        }
 	}
 	if(data.mass_flux_y != NULL){
 		*(data.mass_flux_y) = (double *) malloc(size_y_3d);
-#pragma omp parallel do private(k, j, index)
-		{
+#pragma omp parallel for private(k, j)
 		for(k=y_min; k<=y_max; k++){
 			for(j=x_min; j<=x_max; j++){
 				int index=FTNREF2D(j  ,k  ,x_max+4,x_min-2,y_min-2);
 				(*(data.mass_flux_y))[index] = 0.0;
 			}
 		}
-        }
 	}
 
 }
