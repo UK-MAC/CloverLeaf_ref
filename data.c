@@ -119,7 +119,105 @@ void allocate_data(struct data_obj data){
 
 	if(data.xarea != NULL){
 		*(data.xarea) = (double *) malloc(size_x_3d);
-#pragma omp parallel for private(k, j)
+        }
+
+	if(data.yarea != NULL){
+		*(data.yarea) = (double *) malloc(size_y_3d);
+	}
+
+
+	if(data.volume != NULL){
+		*(data.volume) = (double *) malloc(size_small_3d);
+	}
+
+
+	if(data.density0 != NULL){
+		*(data.density0) = (double *) malloc(size_small_3d);
+	}
+	if(data.density1 != NULL){
+		*(data.density1) = (double *) malloc(size_small_3d);
+        }
+
+	if(data.energy0 != NULL){
+		*(data.energy0) = (double *) malloc(size_small_3d);
+        }
+
+	if(data.energy1 != NULL){
+		*(data.energy1) = (double *) malloc(size_small_3d);
+        }
+
+	if(data.pressure != NULL){
+		*(data.pressure) = (double *) malloc(size_small_3d);
+        }
+
+	if(data.soundspeed != NULL){
+		*(data.soundspeed) = (double *) malloc(size_small_3d);
+	}
+
+	if(data.viscosity != NULL){
+		*(data.viscosity) = (double *) malloc(size_small_3d);
+	}
+
+	if(data.xvel0 != NULL){
+		*(data.xvel0) = (double *) malloc(size_large_3d);
+	}
+
+	if(data.xvel1 != NULL){
+		*(data.xvel1) = (double *) malloc(size_large_3d);
+	}
+
+	if(data.yvel0 != NULL){
+		*(data.yvel0) = (double *) malloc(size_large_3d);
+	}
+
+	if(data.yvel1 != NULL){
+		*(data.yvel1) = (double *) malloc(size_large_3d);
+	}
+
+
+
+	if(data.work_array1 != NULL){
+		*(data.work_array1) = (double *) malloc(size_large_3d);
+	}
+	if(data.work_array2 != NULL){
+		*(data.work_array2) = (double *) malloc(size_large_3d);
+        }
+	if(data.work_array3 != NULL){
+		*(data.work_array3) = (double *) malloc(size_large_3d);
+	}
+	if(data.work_array4 != NULL){
+		*(data.work_array4) = (double *) malloc(size_large_3d);
+	}
+	if(data.work_array5 != NULL){
+		*(data.work_array5) = (double *) malloc(size_large_3d);
+	}
+	if(data.work_array6 != NULL){
+		*(data.work_array6) = (double *) malloc(size_large_3d);
+	}
+	if(data.work_array7 != NULL){
+		*(data.work_array7) = (double *) malloc(size_large_3d);
+	}
+
+
+	if(data.vol_flux_x != NULL){
+		*(data.vol_flux_x) = (double *) malloc(size_x_3d);
+	}
+	if(data.vol_flux_y != NULL){
+		*(data.vol_flux_y) = (double *) malloc(size_y_3d);
+	}
+
+	if(data.mass_flux_x != NULL){
+		*(data.mass_flux_x) = (double *) malloc(size_x_3d);
+	}
+	if(data.mass_flux_y != NULL){
+		*(data.mass_flux_y) = (double *) malloc(size_y_3d);
+	}
+	
+#pragma omp parallel
+{
+
+	if(data.xarea != NULL){
+#pragma omp for private(k, j)
 		for(k=y_min; k<=y_max; k++){
 			for(j=x_min; j<=x_max; j++){
 				int index=FTNREF2D(j  ,k  ,x_max+5,x_min-2,y_min-2);
@@ -129,8 +227,7 @@ void allocate_data(struct data_obj data){
         }
 
 	if(data.yarea != NULL){
-		*(data.yarea) = (double *) malloc(size_y_3d);
-#pragma omp parallel for private(k, j)
+#pragma omp for private(k, j)
 		for(k=y_min; k<=y_max; k++){
 			for(j=x_min; j<=x_max; j++){
 				int index=FTNREF2D(j  ,k  ,x_max+4,x_min-2,y_min-2);
@@ -141,8 +238,7 @@ void allocate_data(struct data_obj data){
 
 
 	if(data.volume != NULL){
-		*(data.volume) = (double *) malloc(size_small_3d);
-#pragma omp parallel for private(k, j)
+#pragma omp for private(k, j)
 		for(k=y_min; k<=y_max; k++){
 			for(j=x_min; j<=x_max; j++){
 				int index=FTNREF2D(j  ,k  ,x_max+4,x_min-2,y_min-2);
@@ -153,8 +249,7 @@ void allocate_data(struct data_obj data){
 
 
 	if(data.density0 != NULL){
-		*(data.density0) = (double *) malloc(size_small_3d);
-#pragma omp parallel for private(k, j)
+#pragma omp for private(k, j)
 		for(k=y_min; k<=y_max; k++){
 			for(j=x_min; j<=x_max; j++){
 				int index=FTNREF2D(j  ,k  ,x_max+4,x_min-2,y_min-2);
@@ -163,8 +258,7 @@ void allocate_data(struct data_obj data){
 		}
 	}
 	if(data.density1 != NULL){
-		*(data.density1) = (double *) malloc(size_small_3d);
-#pragma omp parallel for private(k, j)
+#pragma omp for private(k, j)
 		for(k=y_min; k<=y_max; k++){
 			for(j=x_min; j<=x_max; j++){
 				int index=FTNREF2D(j  ,k  ,x_max+4,x_min-2,y_min-2);
@@ -174,8 +268,7 @@ void allocate_data(struct data_obj data){
         }
 
 	if(data.energy0 != NULL){
-		*(data.energy0) = (double *) malloc(size_small_3d);
-#pragma omp parallel for private(k, j)
+#pragma omp for private(k, j)
 		for(k=y_min; k<=y_max; k++){
 			for(j=x_min; j<=x_max; j++){
 				int index=FTNREF2D(j  ,k  ,x_max+4,x_min-2,y_min-2);
@@ -186,7 +279,7 @@ void allocate_data(struct data_obj data){
 
 	if(data.energy1 != NULL){
 		*(data.energy1) = (double *) malloc(size_small_3d);
-#pragma omp parallel for private(k, j)
+#pragma omp for private(k, j)
 		for(k=y_min; k<=y_max; k++){
 			for(j=x_min; j<=x_max; j++){
 				int index=FTNREF2D(j  ,k  ,x_max+4,x_min-2,y_min-2);
@@ -196,8 +289,7 @@ void allocate_data(struct data_obj data){
         }
 
 	if(data.pressure != NULL){
-		*(data.pressure) = (double *) malloc(size_small_3d);
-#pragma omp parallel for private(k, j)
+#pragma omp for private(k, j)
 		for(k=y_min; k<=y_max; k++){
 			for(j=x_min; j<=x_max; j++){
 				int index=FTNREF2D(j  ,k  ,x_max+4,x_min-2,y_min-2);
@@ -207,8 +299,7 @@ void allocate_data(struct data_obj data){
         }
 
 	if(data.soundspeed != NULL){
-		*(data.soundspeed) = (double *) malloc(size_small_3d);
-#pragma omp parallel for private(k, j)
+#pragma omp for private(k, j)
 		for(k=y_min; k<=y_max; k++){
 			for(j=x_min; j<=x_max; j++){
 				int index=FTNREF2D(j  ,k  ,x_max+4,x_min-2,y_min-2);
@@ -218,7 +309,6 @@ void allocate_data(struct data_obj data){
 	}
 
 	if(data.viscosity != NULL){
-		*(data.viscosity) = (double *) malloc(size_small_3d);
 #pragma omp parallel for private(k, j)
 		for(k=y_min; k<=y_max; k++){
 			for(j=x_min; j<=x_max; j++){
@@ -229,8 +319,7 @@ void allocate_data(struct data_obj data){
 	}
 
 	if(data.xvel0 != NULL){
-		*(data.xvel0) = (double *) malloc(size_large_3d);
-#pragma omp parallel for private(k, j)
+#pragma omp for private(k, j)
 		for(k=y_min; k<=y_max; k++){
 			for(j=x_min; j<=x_max; j++){
 				int index=FTNREF2D(j  ,k  ,x_max+5,x_min-2,y_min-2);
@@ -240,8 +329,7 @@ void allocate_data(struct data_obj data){
 	}
 
 	if(data.xvel1 != NULL){
-		*(data.xvel1) = (double *) malloc(size_large_3d);
-#pragma omp parallel for private(k, j)
+#pragma omp for private(k, j)
 		for(k=y_min; k<=y_max; k++){
 			for(j=x_min; j<=x_max; j++){
 				int index=FTNREF2D(j  ,k  ,x_max+5,x_min-2,y_min-2);
@@ -251,8 +339,7 @@ void allocate_data(struct data_obj data){
 	}
 
 	if(data.yvel0 != NULL){
-		*(data.yvel0) = (double *) malloc(size_large_3d);
-#pragma omp parallel for private(k, j)
+#pragma omp for private(k, j)
 		for(k=y_min; k<=y_max; k++){
 			for(j=x_min; j<=x_max; j++){
 				int index=FTNREF2D(j  ,k  ,x_max+5,x_min-2,y_min-2);
@@ -262,8 +349,7 @@ void allocate_data(struct data_obj data){
 	}
 
 	if(data.yvel1 != NULL){
-		*(data.yvel1) = (double *) malloc(size_large_3d);
-#pragma omp parallel for private(k, j)
+#pragma omp for private(k, j)
 		for(k=y_min; k<=y_max; k++){
 			for(j=x_min; j<=x_max; j++){
 				int index=FTNREF2D(j  ,k  ,x_max+5,x_min-2,y_min-2);
@@ -275,8 +361,7 @@ void allocate_data(struct data_obj data){
 
 
 	if(data.work_array1 != NULL){
-		*(data.work_array1) = (double *) malloc(size_large_3d);
-#pragma omp parallel for private(k, j)
+#pragma omp for private(k, j)
 		for(k=y_min; k<=y_max; k++){
 			for(j=x_min; j<=x_max; j++){
 				int index=FTNREF2D(j  ,k  ,x_max+5,x_min-2,y_min-2);
@@ -285,8 +370,7 @@ void allocate_data(struct data_obj data){
 		}
 	}
 	if(data.work_array2 != NULL){
-		*(data.work_array2) = (double *) malloc(size_large_3d);
-#pragma omp parallel for private(k, j)
+#pragma omp for private(k, j)
 		for(k=y_min; k<=y_max; k++){
 			for(j=x_min; j<=x_max; j++){
 				int index=FTNREF2D(j  ,k  ,x_max+5,x_min-2,y_min-2);
@@ -295,8 +379,7 @@ void allocate_data(struct data_obj data){
 		}
         }
 	if(data.work_array3 != NULL){
-		*(data.work_array3) = (double *) malloc(size_large_3d);
-#pragma omp parallel for private(k, j)
+#pragma omp for private(k, j)
 		for(k=y_min; k<=y_max; k++){
 			for(j=x_min; j<=x_max; j++){
 				int index=FTNREF2D(j  ,k  ,x_max+5,x_min-2,y_min-2);
@@ -305,8 +388,7 @@ void allocate_data(struct data_obj data){
 		}
 	}
 	if(data.work_array4 != NULL){
-		*(data.work_array4) = (double *) malloc(size_large_3d);
-#pragma omp parallel for private(k, j)
+#pragma omp for private(k, j)
 		for(k=y_min; k<=y_max; k++){
 			for(j=x_min; j<=x_max; j++){
 				int index=FTNREF2D(j  ,k  ,x_max+5,x_min-2,y_min-2);
@@ -315,8 +397,7 @@ void allocate_data(struct data_obj data){
 		}
 	}
 	if(data.work_array5 != NULL){
-		*(data.work_array5) = (double *) malloc(size_large_3d);
-#pragma omp parallel for private(k, j)
+#pragma omp for private(k, j)
 		for(k=y_min; k<=y_max; k++){
 			for(j=x_min; j<=x_max; j++){
 				int index=FTNREF2D(j  ,k  ,x_max+5,x_min-2,y_min-2);
@@ -325,8 +406,7 @@ void allocate_data(struct data_obj data){
 		}
 	}
 	if(data.work_array6 != NULL){
-		*(data.work_array6) = (double *) malloc(size_large_3d);
-#pragma omp parallel for private(k, j)
+#pragma omp for private(k, j)
 		for(k=y_min; k<=y_max; k++){
 			for(j=x_min; j<=x_max; j++){
 				int index=FTNREF2D(j  ,k  ,x_max+5,x_min-2,y_min-2);
@@ -335,8 +415,7 @@ void allocate_data(struct data_obj data){
 		}
 	}
 	if(data.work_array7 != NULL){
-		*(data.work_array7) = (double *) malloc(size_large_3d);
-#pragma omp parallel for private(k, j)
+#pragma omp for private(k, j)
 		for(k=y_min; k<=y_max; k++){
 			for(j=x_min; j<=x_max; j++){
 				int index=FTNREF2D(j  ,k  ,x_max+5,x_min-2,y_min-2);
@@ -347,8 +426,7 @@ void allocate_data(struct data_obj data){
 
 
 	if(data.vol_flux_x != NULL){
-		*(data.vol_flux_x) = (double *) malloc(size_x_3d);
-#pragma omp parallel for private(k, j)
+#pragma omp for private(k, j)
 		for(k=y_min; k<=y_max; k++){
 			for(j=x_min; j<=x_max; j++){
 				int index=FTNREF2D(j  ,k  ,x_max+5,x_min-2,y_min-2);
@@ -357,8 +435,7 @@ void allocate_data(struct data_obj data){
 		}
 	}
 	if(data.vol_flux_y != NULL){
-		*(data.vol_flux_y) = (double *) malloc(size_y_3d);
-#pragma omp parallel for private(k, j)
+#pragma omp for private(k, j)
 		for(k=y_min; k<=y_max; k++){
 			for(j=x_min; j<=x_max; j++){
 				int index=FTNREF2D(j  ,k  ,x_max+4,x_min-2,y_min-2);
@@ -368,8 +445,7 @@ void allocate_data(struct data_obj data){
 	}
 
 	if(data.mass_flux_x != NULL){
-		*(data.mass_flux_x) = (double *) malloc(size_x_3d);
-#pragma omp parallel for private(k, j)
+#pragma omp for private(k, j)
 		for(k=y_min; k<=y_max; k++){
 			for(j=x_min; j<=x_max; j++){
 				int index=FTNREF2D(j  ,k  ,x_max+5,x_min-2,y_min-2);
@@ -378,8 +454,7 @@ void allocate_data(struct data_obj data){
 		}
 	}
 	if(data.mass_flux_y != NULL){
-		*(data.mass_flux_y) = (double *) malloc(size_y_3d);
-#pragma omp parallel for private(k, j)
+#pragma omp for private(k, j)
 		for(k=y_min; k<=y_max; k++){
 			for(j=x_min; j<=x_max; j++){
 				int index=FTNREF2D(j  ,k  ,x_max+4,x_min-2,y_min-2);
@@ -387,6 +462,8 @@ void allocate_data(struct data_obj data){
 			}
 		}
 	}
+	
+}
 
 }
 
@@ -568,6 +645,10 @@ void set_data(struct data_obj data){
 	dx=(10.0)/(x_max-x_min+1);
 	dy=(10.0)/(y_max-y_min+1);
 
+        double dt=0.0;	
+#pragma omp parallel
+{	
+
 	if(data.vertexx != NULL){
 		for(j=x_min-2; j<=x_max+3; j++){
 			int index=FTNREF1D(j,x_min-2);
@@ -636,6 +717,7 @@ void set_data(struct data_obj data){
 
 	if(data.xarea != NULL){
 
+#pragma omp for private(k, j)
 		for(k=y_min-2; k<=y_max+2; k++){
 
 			for(j=x_min-2; j<=x_max+2; j++){
@@ -650,6 +732,7 @@ void set_data(struct data_obj data){
 
 	if(data.yarea != NULL){
 
+#pragma omp for private(k, j)
 		for(k=y_min-2; k<=y_max+2; k++){
 
 			for(j=x_min-2; j<=x_max+2; j++){
@@ -664,6 +747,7 @@ void set_data(struct data_obj data){
 
 	if(data.volume != NULL){
 
+#pragma omp for private(k, j)
 		for(k=y_min-2; k<=y_max+2; k++){
 
 			for(j=x_min-2; j<=x_max+2; j++){
@@ -679,6 +763,7 @@ void set_data(struct data_obj data){
 
 	if(data.density0 != NULL){
 
+#pragma omp for private(k, j)
 		for(k=y_min-2; k<=y_max+2; k++){
 
 			for(j=x_min-2; j<=x_max+2; j++){
@@ -698,6 +783,7 @@ void set_data(struct data_obj data){
 
 	if(data.density1 != NULL){
 
+#pragma omp for private(k, j)
 		for(k=y_min-2; k<=y_max+2; k++){
 
 			for(j=x_min-2; j<=x_max+2; j++){
@@ -717,6 +803,7 @@ void set_data(struct data_obj data){
 
 	if(data.energy0 != NULL){
 
+#pragma omp for private(k, j)
 		for(k=y_min-2; k<=y_max+2; k++){
 
 			for(j=x_min-2; j<=x_max+2; j++){
@@ -736,6 +823,7 @@ void set_data(struct data_obj data){
 
 	if(data.energy1 != NULL){
 
+#pragma omp for private(k, j)
 		for(k=y_min-2; k<=y_max+2; k++){
 
 			for(j=x_min-2; j<=x_max+2; j++){
@@ -756,6 +844,7 @@ void set_data(struct data_obj data){
 	if(data.pressure != NULL){
 		//*(data.pressure) = (double *) malloc(size_small_3d);
 
+#pragma omp for private(k, j)
 		for(k=y_min-2; k<=y_max+2; k++){
 
 			for(j=x_min-2; j<=x_max+2; j++){
@@ -776,6 +865,7 @@ void set_data(struct data_obj data){
         soundspeed(j,k)=SQRT(sound_speed_squared)
 		 */
 
+#pragma omp for private(k, j)
 		for(k=y_min-2; k<=y_max+2; k++){
 
 			for(j=x_min-2; j<=x_max+2; j++){
@@ -793,9 +883,9 @@ void set_data(struct data_obj data){
 
 	if(data.dt != NULL){
 
-	    double dt = 0.0;
 		(*(data.dt))=0.0;
 		double width = MIN(dx,dy);
+#pragma omp for private(k, j) reduction(max:dt) 
 		for(k=y_min; k<=y_max; k++){
 
 			for(j=x_min; j<=x_max; j++){
@@ -810,6 +900,7 @@ void set_data(struct data_obj data){
 	if(data.xvel0 != NULL){
 		//*(data.pressure) = (double *) malloc(size_small_3d);
 
+#pragma omp for private(k, j)
 		for(k=y_min-2; k<=y_max+3; k++){
 
 			for(j=x_min-2; j<=x_max+3; j++){
@@ -846,6 +937,7 @@ void set_data(struct data_obj data){
 	if(data.yvel0 != NULL){
 		//*(data.pressure) = (double *) malloc(size_small_3d);
 
+#pragma omp for private(k, j)
 		for(k=y_min-2; k<=y_max+3; k++){
 
 			for(j=x_min-2; j<=x_max+3; j++){
@@ -882,6 +974,7 @@ void set_data(struct data_obj data){
 	if(data.xvel1 != NULL){
 		//*(data.pressure) = (double *) malloc(size_small_3d);
 
+#pragma omp for private(k, j)
 		for(k=y_min-2; k<=y_max+3; k++){
 
 			for(j=x_min-2; j<=x_max+3; j++){
@@ -918,6 +1011,7 @@ void set_data(struct data_obj data){
 	if(data.yvel1 != NULL){
 		//*(data.pressure) = (double *) malloc(size_small_3d);
 
+#pragma omp for private(k, j)
 		for(k=y_min-2; k<=y_max+3; k++){
 
 					for(j=x_min-2; j<=x_max+3; j++){
@@ -954,6 +1048,7 @@ void set_data(struct data_obj data){
 	if(data.viscosity != NULL){
 
 
+#pragma omp for private(k, j)
 		for(k=y_min; k<=y_max; k++){
 
 			for(j=x_min; j<=x_max; j++){
@@ -1017,6 +1112,7 @@ void set_data(struct data_obj data){
 	if(data.work_array1 != NULL){
 		//*(data.pressure) = (double *) malloc(size_small_3d);
 
+#pragma omp for private(k, j)
 		for(k=y_min-2; k<=y_max+3; k++){
 
 			for(j=x_min-2; j<=x_max+3; j++){
@@ -1029,6 +1125,7 @@ void set_data(struct data_obj data){
 	if(data.work_array2 != NULL){
 		//*(data.pressure) = (double *) malloc(size_small_3d);
 
+#pragma omp for private(k, j)
 		for(k=y_min-2; k<=y_max+3; k++){
 
 			for(j=x_min-2; j<=x_max+3; j++){
@@ -1041,6 +1138,7 @@ void set_data(struct data_obj data){
 	if(data.work_array3 != NULL){
 		//*(data.pressure) = (double *) malloc(size_small_3d);
 
+#pragma omp for private(k, j)
 		for(k=y_min-2; k<=y_max+3; k++){
 
 			for(j=x_min-2; j<=x_max+3; j++){
@@ -1053,6 +1151,7 @@ void set_data(struct data_obj data){
 	if(data.work_array4 != NULL){
 		//*(data.pressure) = (double *) malloc(size_small_3d);
 
+#pragma omp for private(k, j)
 		for(k=y_min-2; k<=y_max+3; k++){
 
 			for(j=x_min-2; j<=x_max+3; j++){
@@ -1065,6 +1164,7 @@ void set_data(struct data_obj data){
 	if(data.work_array5 != NULL){
 		//*(data.pressure) = (double *) malloc(size_small_3d);
 
+#pragma omp for private(k, j)
 		for(k=y_min-2; k<=y_max+3; k++){
 
 			for(j=x_min-2; j<=x_max+3; j++){
@@ -1077,6 +1177,7 @@ void set_data(struct data_obj data){
 	if(data.work_array6 != NULL){
 		//*(data.pressure) = (double *) malloc(size_small_3d);
 
+#pragma omp for private(k, j)
 		for(k=y_min-2; k<=y_max+3; k++){
 
 			for(j=x_min-2; j<=x_max+3; j++){
@@ -1089,6 +1190,7 @@ void set_data(struct data_obj data){
 	if(data.work_array7 != NULL){
 		//*(data.pressure) = (double *) malloc(size_small_3d);
 
+#pragma omp for private(k, j)
 		for(k=y_min-2; k<=y_max+3; k++){
 
 			for(j=x_min-2; j<=x_max+3; j++){
@@ -1103,6 +1205,7 @@ void set_data(struct data_obj data){
 	if(data.vol_flux_x != NULL){
 		//*(data.pressure) = (double *) malloc(size_small_3d);
 
+#pragma omp for private(k, j)
 		for(k=y_min; k<=y_max; k++){
 
 			for(j=x_min; j<=x_max+1; j++){
@@ -1119,6 +1222,7 @@ void set_data(struct data_obj data){
 	if(data.vol_flux_y != NULL){
 		//*(data.pressure) = (double *) malloc(size_small_3d);
 
+#pragma omp for private(k, j)
 		for(k=y_min; k<=y_max+1; k++){
 
 			for(j=x_min; j<=x_max; j++){
@@ -1136,6 +1240,7 @@ void set_data(struct data_obj data){
 	if(data.vol_flux_x != NULL){
 		//*(data.pressure) = (double *) malloc(size_small_3d);
 
+#pragma omp for private(k, j)
 		for(k=y_min; k<=y_max; k++){
 
 			for(j=x_min; j<=x_max+1; j++){
@@ -1151,6 +1256,7 @@ void set_data(struct data_obj data){
 	if(data.vol_flux_y != NULL){
 		//*(data.pressure) = (double *) malloc(size_small_3d);
 
+#pragma omp for private(k, j)
 		for(k=y_min; k<=y_max+1; k++){
 
 			for(j=x_min; j<=x_max; j++){
@@ -1162,7 +1268,10 @@ void set_data(struct data_obj data){
 
 		}
 	}
+	
+}
 
 }
+
 
 
