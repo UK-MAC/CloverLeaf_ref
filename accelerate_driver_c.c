@@ -85,7 +85,7 @@ int main(int argc, char *argv[] ){
 	// Print
 
 
-	printf("Ideal Gas Kernel\n");
+	printf("Accelerate Kernel\n");
 	printf("Mesh size %d %d\n", x_size, y_size);
 	printf("Iterations %d\n", its);
 
