@@ -11,6 +11,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
+#include <string.h>
 
 int main(int argc, char *argv[] ){
 
@@ -130,7 +131,7 @@ int main(int argc, char *argv[] ){
 	set_data(Data);
 
 
-	printf("Allocated Data - End\n");
+	printf("Running Kernel\n");
 
 	// Run Kernel
 	timer_c_(&time_s);
@@ -161,8 +162,8 @@ int main(int argc, char *argv[] ){
 	// Print Result
 
 	printf("Accelerate time %f\n", time_e-time_s);
-	printf("Pre: XVel1: %f\n", sum_2darray(Data, Data.xvel1, 3, 3));
-	printf("Pre: YVel1: %f\n", sum_2darray(Data, Data.yvel1, 3, 3));
+	printf("XVel1: %f\n", sum_2darray(Data, Data.xvel1, 3, 3));
+	printf("YVel1: %f\n", sum_2darray(Data, Data.yvel1, 3, 3));
 
 
 	// Clean up data

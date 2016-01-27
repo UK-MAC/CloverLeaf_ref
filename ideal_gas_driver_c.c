@@ -10,6 +10,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
+#include <string.h>
 
 int main(int argc, char *argv[] ){
 
@@ -81,13 +82,13 @@ int main(int argc, char *argv[] ){
 
 	allocate_data(Data);
 	set_data(Data);
-	printf("Pre: Density: %f\n", sum_density0(Data));
-	printf("Pre: Energy: %f\n", sum_energy0(Data));
-	printf("Pre: Pressure: %f\n", sum_pressure(Data));
-	printf("Pre: Soundspeed: %f\n", sum_soundspeed(Data));
+	printf("Pre: Density: %f\n", sum_2darray(Data, Data.density0, 2, 2));
+	printf("Pre: Energy: %f\n", sum_2darray(Data, Data.energy0, 2, 2));
+	printf("Pre: Pressure: %f\n", sum_2darray(Data, Data.pressure, 2, 2));
+	printf("Pre: Soundspeed: %f\n", sum_2darray(Data, Data.soundspeed, 2, 2));
 
 
-	printf("Allocated Data - End\n");
+	printf("Running Kernel\n");
 
 	// Run Kernel
 	timer_c_(&time_s);
@@ -101,10 +102,10 @@ int main(int argc, char *argv[] ){
 	// Print Result
 
 	printf("Ideal gas time %f\n", time_e-time_s);
-	printf("Density: %f\n", sum_density0(Data));
-	printf("Energy: %f\n", sum_energy0(Data));
-	printf("Pressure: %f\n", sum_pressure(Data));
-	printf("Soundspeed: %f\n", sum_soundspeed(Data));
+	printf("Density: %f\n", sum_2darray(Data, Data.density0, 2, 2));
+	printf("Energy: %f\n", sum_2darray(Data, Data.energy0, 2, 2));
+	printf("Pressure: %f\n", sum_2darray(Data, Data.pressure, 2, 2));
+	printf("Soundspeed: %f\n", sum_2darray(Data, Data.soundspeed, 2, 2));
 
 
 	// Clean up data

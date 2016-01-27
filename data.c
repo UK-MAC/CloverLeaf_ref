@@ -467,131 +467,6 @@ void allocate_data(struct data_obj data){
 
 }
 
-double sum_density0(struct data_obj data){
-	double counter=0.0;
-    int j, k;
-
-    int x_min, x_max, y_min, y_max;
-	x_min=*(data.x_min);
-	x_max=*(data.x_max);
-	y_min=*(data.y_min);
-	y_max=*(data.y_max);
-
-	for(k=y_min-2; k<=y_max+2; k++){
-
-		for(j=x_min-2; j<=x_max+2; j++){
-			int index=FTNREF2D(j  ,k  ,x_max+4,x_min-2,y_min-2);
-			counter+=(*(data.density0))[index];
-		}
-	}
-
-	return counter;
-}
-
-double sum_energy0(struct data_obj data){
-	double counter=0.0;
-    int j,k;
-
-    int x_min, x_max, y_min, y_max;
-	x_min=*(data.x_min);
-	x_max=*(data.x_max);
-	y_min=*(data.y_min);
-	y_max=*(data.y_max);
-
-	for(k=y_min-2; k<=y_max+2; k++){
-
-		for(j=x_min-2; j<=x_max+2; j++){
-			int index=FTNREF2D(j  ,k  ,x_max+4,x_min-2,y_min-2);
-			counter+=(*(data.energy0))[index];
-		}
-	}
-
-	return counter;
-}
-
-double sum_pressure(struct data_obj data){
-	double counter=0.0;
-    int j,k;
-
-    int x_min, x_max, y_min, y_max;
-	x_min=*(data.x_min);
-	x_max=*(data.x_max);
-	y_min=*(data.y_min);
-	y_max=*(data.y_max);
-
-	for(k=y_min-2; k<=y_max+2; k++){
-
-		for(j=x_min-2; j<=x_max+2; j++){
-			int index=FTNREF2D(j  ,k  ,x_max+4,x_min-2,y_min-2);
-			counter+=(*(data.pressure))[index];
-		}
-	}
-
-	return counter;
-}
-
-double sum_soundspeed(struct data_obj data){
-	double counter=0.0;
-    int j,k;
-
-    int x_min, x_max, y_min, y_max;
-	x_min=*(data.x_min);
-	x_max=*(data.x_max);
-	y_min=*(data.y_min);
-	y_max=*(data.y_max);
-
-	for(k=y_min-2; k<=y_max+2; k++){
-
-		for(j=x_min-2; j<=x_max+2; j++){
-			int index=FTNREF2D(j  ,k  ,x_max+4,x_min-2,y_min-2);
-			counter+=(*(data.soundspeed))[index];
-		}
-	}
-
-	return counter;
-}
-
-double sum_xvel1(struct data_obj data){
-	double counter=0.0;
-    int j,k;
-
-    int x_min, x_max, y_min, y_max;
-	x_min=*(data.x_min);
-	x_max=*(data.x_max);
-	y_min=*(data.y_min);
-	y_max=*(data.y_max);
-
-	for(k=y_min-2; k<=y_max+3; k++){
-
-		for(j=x_min-2; j<=x_max+3; j++){
-			int index=FTNREF2D(j  ,k  ,x_max+5,x_min-2,y_min-2);
-			counter+=(*(data.xvel1))[index];
-		}
-	}
-
-	return counter;
-}
-
-double sum_yvel1(struct data_obj data){
-	double counter=0.0;
-    int j,k;
-
-    int x_min, x_max, y_min, y_max;
-	x_min=*(data.x_min);
-	x_max=*(data.x_max);
-	y_min=*(data.y_min);
-	y_max=*(data.y_max);
-
-	for(k=y_min-2; k<=y_max+3; k++){
-
-		for(j=x_min-2; j<=x_max+3; j++){
-			int index=FTNREF2D(j  ,k  ,x_max+5,x_min-2,y_min-2);
-			counter+=(*(data.yvel1))[index];
-		}
-	}
-
-	return counter;
-}
 
 
 double sum_2darray(struct data_obj data, double **arr, int x_bound, int y_bound){
@@ -646,8 +521,6 @@ void set_data(struct data_obj data){
 	dy=(10.0)/(y_max-y_min+1);
 
         double dt=0.0;	
-#pragma omp parallel
-{	
 
 	if(data.vertexx != NULL){
 		for(j=x_min-2; j<=x_max+3; j++){
@@ -713,6 +586,9 @@ void set_data(struct data_obj data){
 		}
 
 	}
+
+#pragma omp parallel
+{
 
 
 	if(data.xarea != NULL){
@@ -842,7 +718,6 @@ void set_data(struct data_obj data){
 	}
 
 	if(data.pressure != NULL){
-		//*(data.pressure) = (double *) malloc(size_small_3d);
 
 #pragma omp for private(k, j)
 		for(k=y_min-2; k<=y_max+2; k++){
@@ -856,14 +731,6 @@ void set_data(struct data_obj data){
 	}
 
 	if(data.soundspeed != NULL){
-		//*(data.soundspeed) = (double *) malloc(size_small_3d);
-		/*
-		 * v=1.0_8/density0(j,k)
-        pressurebyenergy=(1.4_8-1.0_8)*density0(j,k)
-        pressurebyvolume=-density0(j,k)*pressure(j,k)
-        sound_speed_squared=v*v*(pressure(j,k)*pressurebyenergy-pressurebyvolume)
-        soundspeed(j,k)=SQRT(sound_speed_squared)
-		 */
 
 #pragma omp for private(k, j)
 		for(k=y_min-2; k<=y_max+2; k++){
@@ -883,8 +750,6 @@ void set_data(struct data_obj data){
 
 	if(data.dt != NULL){
 
-		(*(data.dt))=0.0;
-		double width = MIN(dx,dy);
 #pragma omp for private(k, j) reduction(max:dt) 
 		for(k=y_min; k<=y_max; k++){
 
@@ -893,12 +758,16 @@ void set_data(struct data_obj data){
 				if((*(data.soundspeed))[index]>dt) dt = (*(data.soundspeed))[index];
 			}
 		}
+#pragma omp master
+		{
+		double width = MIN(dx,dy);
 		(*(data.dt))=width*0.7/dt;
+
+		}
 
 	}
 
 	if(data.xvel0 != NULL){
-		//*(data.pressure) = (double *) malloc(size_small_3d);
 
 #pragma omp for private(k, j)
 		for(k=y_min-2; k<=y_max+3; k++){
@@ -935,7 +804,6 @@ void set_data(struct data_obj data){
 	}
 
 	if(data.yvel0 != NULL){
-		//*(data.pressure) = (double *) malloc(size_small_3d);
 
 #pragma omp for private(k, j)
 		for(k=y_min-2; k<=y_max+3; k++){
@@ -972,7 +840,6 @@ void set_data(struct data_obj data){
 	}
 
 	if(data.xvel1 != NULL){
-		//*(data.pressure) = (double *) malloc(size_small_3d);
 
 #pragma omp for private(k, j)
 		for(k=y_min-2; k<=y_max+3; k++){
@@ -1009,7 +876,6 @@ void set_data(struct data_obj data){
 	}
 
 	if(data.yvel1 != NULL){
-		//*(data.pressure) = (double *) malloc(size_small_3d);
 
 #pragma omp for private(k, j)
 		for(k=y_min-2; k<=y_max+3; k++){
@@ -1110,7 +976,6 @@ void set_data(struct data_obj data){
 
 
 	if(data.work_array1 != NULL){
-		//*(data.pressure) = (double *) malloc(size_small_3d);
 
 #pragma omp for private(k, j)
 		for(k=y_min-2; k<=y_max+3; k++){
@@ -1123,7 +988,6 @@ void set_data(struct data_obj data){
 		}
 	}
 	if(data.work_array2 != NULL){
-		//*(data.pressure) = (double *) malloc(size_small_3d);
 
 #pragma omp for private(k, j)
 		for(k=y_min-2; k<=y_max+3; k++){
@@ -1136,7 +1000,6 @@ void set_data(struct data_obj data){
 		}
 	}
 	if(data.work_array3 != NULL){
-		//*(data.pressure) = (double *) malloc(size_small_3d);
 
 #pragma omp for private(k, j)
 		for(k=y_min-2; k<=y_max+3; k++){
@@ -1149,7 +1012,6 @@ void set_data(struct data_obj data){
 		}
 	}
 	if(data.work_array4 != NULL){
-		//*(data.pressure) = (double *) malloc(size_small_3d);
 
 #pragma omp for private(k, j)
 		for(k=y_min-2; k<=y_max+3; k++){
@@ -1162,7 +1024,6 @@ void set_data(struct data_obj data){
 		}
 	}
 	if(data.work_array5 != NULL){
-		//*(data.pressure) = (double *) malloc(size_small_3d);
 
 #pragma omp for private(k, j)
 		for(k=y_min-2; k<=y_max+3; k++){
@@ -1175,7 +1036,6 @@ void set_data(struct data_obj data){
 		}
 	}
 	if(data.work_array6 != NULL){
-		//*(data.pressure) = (double *) malloc(size_small_3d);
 
 #pragma omp for private(k, j)
 		for(k=y_min-2; k<=y_max+3; k++){
@@ -1188,7 +1048,6 @@ void set_data(struct data_obj data){
 		}
 	}
 	if(data.work_array7 != NULL){
-		//*(data.pressure) = (double *) malloc(size_small_3d);
 
 #pragma omp for private(k, j)
 		for(k=y_min-2; k<=y_max+3; k++){
@@ -1203,7 +1062,6 @@ void set_data(struct data_obj data){
 
 
 	if(data.vol_flux_x != NULL){
-		//*(data.pressure) = (double *) malloc(size_small_3d);
 
 #pragma omp for private(k, j)
 		for(k=y_min; k<=y_max; k++){
@@ -1220,7 +1078,6 @@ void set_data(struct data_obj data){
 
 
 	if(data.vol_flux_y != NULL){
-		//*(data.pressure) = (double *) malloc(size_small_3d);
 
 #pragma omp for private(k, j)
 		for(k=y_min; k<=y_max+1; k++){
@@ -1238,7 +1095,6 @@ void set_data(struct data_obj data){
 
 
 	if(data.vol_flux_x != NULL){
-		//*(data.pressure) = (double *) malloc(size_small_3d);
 
 #pragma omp for private(k, j)
 		for(k=y_min; k<=y_max; k++){
@@ -1254,7 +1110,6 @@ void set_data(struct data_obj data){
 	}
 
 	if(data.vol_flux_y != NULL){
-		//*(data.pressure) = (double *) malloc(size_small_3d);
 
 #pragma omp for private(k, j)
 		for(k=y_min; k<=y_max+1; k++){
