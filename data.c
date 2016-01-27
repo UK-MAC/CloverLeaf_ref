@@ -50,6 +50,9 @@ void init_data(struct data_obj *data){
 	(*data).vertexx = NULL;
 	(*data).vertexy = NULL;
 
+	(*data).reset_energy = NULL;
+	(*data).reset_density = NULL;
+
 
 }
 
@@ -213,6 +216,14 @@ void allocate_data(struct data_obj data){
 		*(data.mass_flux_y) = (double *) malloc(size_y_3d);
 	}
 	
+	if(data.reset_energy != NULL){
+		*(data.reset_energy) = (double *) malloc(size_small_3d);
+	}
+
+	if(data.reset_density != NULL){
+		*(data.reset_density) = (double *) malloc(size_small_3d);
+	}
+
 #pragma omp parallel
 {
 
@@ -1262,4 +1273,17 @@ void free_data(struct data_obj data){
 	if(data.mass_flux_y != NULL){
 		free(*(data.mass_flux_y));
 	}
+}
+
+
+void reset_store(struct data_obj data, double **source, double **destination){
+	int x_min=*(data.x_min);
+	int x_max=*(data.x_max);
+	int y_min=*(data.y_min);
+	int y_max=*(data.y_max);
+
+	int size_small_3d = sizeof(double)*(((x_max-x_min)+4+1)*((y_max-y_min)+4+1)); //(x_min-2:x_max+2,y_min-2:y_max+2)
+
+	memcpy(*(destination), *(source), size_small_3d );
+
 }

@@ -185,13 +185,18 @@ PdV_driver_c:  timer_c.c data.c PdV_kernel_c.c PdV_driver_c.c
 	$(C_MPI_COMPILER) -c $(CFLAGS) timer_c.c data.c PdV_kernel_c.c PdV_driver_c.c
 	$(C_MPI_COMPILER) $(CFLAGS) timer_c.o data.o PdV_kernel_c.o PdV_driver_c.o -o PdV_driver_c ; echo $(MESSAGE)
 
+
+cell_driver_c:  timer_c.c data.c advec_cell_kernel_c.c cell_driver_c.c
+	$(C_MPI_COMPILER) -c $(CFLAGS) timer_c.c data.c advec_cell_kernel_c.c cell_driver_c.c
+	$(C_MPI_COMPILER) $(CFLAGS) timer_c.o data.o advec_cell_kernel_c.o cell_driver_c.o -o cell_driver_c ; echo $(MESSAGE)
+
 	
 	
 	
 	
 	
 	
-all: accelerate_driver PdV_driver mom_driver reset_field_driver revert_driver viscosity_driver ideal_gas_driver calc_dt_driver cell_driver update_halo_driver ideal_gas_driver_c accelerate_driver_c PdV_driver_c
+all: accelerate_driver PdV_driver mom_driver reset_field_driver revert_driver viscosity_driver ideal_gas_driver calc_dt_driver cell_driver update_halo_driver ideal_gas_driver_c accelerate_driver_c PdV_driver_c cell_driver_c
 
 clean:
-	rm -f *.o *.mod *genmod* *.lst *.cub *.ptx accelerate_driver PdV_driver mom_driver reset_field_driver revert_driver viscosity_driver ideal_gas_driver calc_dt_driver cell_driver update_halo_driver  ideal_gas_driver_c accelerate_driver_c PdV_driver_c
+	rm -f *.o *.mod *genmod* *.lst *.cub *.ptx accelerate_driver PdV_driver mom_driver reset_field_driver revert_driver viscosity_driver ideal_gas_driver calc_dt_driver cell_driver update_halo_driver  ideal_gas_driver_c accelerate_driver_c PdV_driver_c cell_driver_c

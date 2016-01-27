@@ -11,6 +11,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <math.h>
+#include <string.h>
 #include "ftocmacros.h"
 
 struct data_obj{
@@ -73,6 +74,9 @@ struct data_obj{
 
 	double **vertexx;
 	double **vertexy;
+
+	double **reset_energy;
+	double **reset_density;
 
 
 };
