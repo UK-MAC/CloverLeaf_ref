@@ -95,7 +95,7 @@ int main(int argc, char *argv[] ){
 	// Print
 
 
-	printf("PdV Kernel\n");
+	printf("Advec Cell Kernel\n");
 	printf("Mesh size %d %d\n", x_size, y_size);
 	printf("Iterations %d\n", its);
 
