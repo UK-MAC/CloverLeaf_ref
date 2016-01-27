@@ -57,7 +57,7 @@ PROGRAM PdV_driver
   use_fortran_kernels=.TRUE.
   use_C_kernels=.FALSE.
   predict=.FALSE.
-  prdct=0
+  prdct=1
 
   numargs = iargc()
 
@@ -131,6 +131,7 @@ PROGRAM PdV_driver
   IF(use_C_kernels) THEN
     WRITE(*,*) "Running C kernel"
   ENDIF
+
 
   kernel_time=timer()
 

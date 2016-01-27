@@ -1,7 +1,7 @@
 /*
- * ideal_gas_driver_c.c
+ * PdV_driver_c.c
  *
- *  Created on: 18 Jan 2016
+ *  Created on: 27 Jan 2016
  *      Author: ofjp
  */
 
@@ -15,16 +15,31 @@
 int main(int argc, char *argv[] ){
 
 	int x_min, x_max, y_min, y_max;
+	double dt;
+	double *xarea;
+	double *yarea;
+	double *volume;
+	double *celldx;
+	double *celldy;
 	double *density0;
+	double *density1;
 	double *energy0;
+	double *energy1;
 	double *pressure;
 	double *soundspeed;
+	double *viscosity;
+	double *xvel0;
+	double *yvel0;
+	double *xvel1;
+	double *yvel1;
+	double *work_array1;
 
 	double time_s;
 	double time_e;
 
 	int iterations;
 	int i;
+	int predict = 1;
 
 	// Defaults
 
@@ -46,6 +61,10 @@ int main(int argc, char *argv[] ){
 		if(strcmp(argv[i],"-its") == 0){
 			its=atoi(argv[i+1]);
 		}
+
+		if(strcmp(argv[i],"-predict") == 0){
+			predict=atoi(argv[i+1]);;
+		}
 	}
 
 
@@ -59,9 +78,10 @@ int main(int argc, char *argv[] ){
 	// Print
 
 
-	printf("Ideal Gas Kernel\n");
+	printf("PdV Kernel\n");
 	printf("Mesh size %d %d\n", x_size, y_size);
 	printf("Iterations %d\n", its);
+	printf("Predict %d\n", predict);
 
 	// Init Data Object
 
@@ -73,19 +93,30 @@ int main(int argc, char *argv[] ){
 	Data.x_max = &x_max;
 	Data.y_min = &y_min;
 	Data.y_max = &y_max;
+	Data.dt = &dt;
 
 
+	Data.xarea = &xarea;
+	Data.yarea = &yarea;
+	Data.volume = &volume;
+	Data.celldx = &celldx;
+	Data.celldy = &celldy;
 	Data.density0 = &density0;
+	Data.density1 = &density1;
 	Data.energy0 = &energy0;
+	Data.energy1 = &energy1;
 	Data.pressure = &pressure;
 	Data.soundspeed = &soundspeed;
+	Data.viscosity = &viscosity;
+	Data.xvel0 = &xvel0;
+	Data.yvel0 = &yvel0;
+	Data.xvel1 = &xvel1;
+	Data.yvel1 = &yvel1;
+	Data.work_array1 = &work_array1;
+
 
 	allocate_data(Data);
 	set_data(Data);
-	printf("Pre: Density: %f\n", sum_2darray(Data, Data.density0, 2, 2));
-	printf("Pre: Energy: %f\n", sum_2darray(Data, Data.energy0, 2, 2));
-	printf("Pre: Pressure: %f\n", sum_2darray(Data, Data.pressure, 2, 2));
-	printf("Pre: Soundspeed: %f\n", sum_2darray(Data, Data.soundspeed, 2, 2));
 
 
 	printf("Running Kernel\n");
@@ -94,18 +125,33 @@ int main(int argc, char *argv[] ){
 	timer_c_(&time_s);
 	for(iterations=1;iterations<=its;iterations++){
 
-		ideal_gas_kernel_c_(Data.x_min,Data.x_max,Data.y_min, Data.y_max, *Data.density0, *Data.energy0, *Data.pressure, *Data.soundspeed );
-
+		pdv_kernel_c_(&predict, Data.x_min,
+				Data.x_max,
+				Data.y_min,
+				Data.y_max,
+				Data.dt,
+				*Data.xarea,
+				*Data.yarea,
+				*Data.volume,
+				*Data.density0,
+				*Data.density1,
+				*Data.energy0,
+				*Data.energy1,
+				*Data.pressure,
+				*Data.viscosity,
+				*Data.xvel0,
+				*Data.xvel1,
+				*Data.yvel0,
+				*Data.yvel1,
+				*Data.work_array1);
 	}
 	timer_c_(&time_e);
 
 	// Print Result
 
-	printf("Ideal gas time %f\n", time_e-time_s);
-	printf("Density: %f\n", sum_2darray(Data, Data.density0, 2, 2));
-	printf("Energy: %f\n", sum_2darray(Data, Data.energy0, 2, 2));
-	printf("Pressure: %f\n", sum_2darray(Data, Data.pressure, 2, 2));
-	printf("Soundspeed: %f\n", sum_2darray(Data, Data.soundspeed, 2, 2));
+	printf("PdV time %f\n", time_e-time_s);
+	printf("Density: %f\n", sum_2darray(Data, Data.density1, 2, 2));
+	printf("Energy: %f\n", sum_2darray(Data, Data.energy1, 2, 2));
 
 
 	// Clean up data

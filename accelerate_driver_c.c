@@ -52,6 +52,7 @@ int main(int argc, char *argv[] ){
 	int reset=0;
 
 
+
     // Read Data
 	for(i=1; i<argc; i++){
 		if(strcmp(argv[i],"-nx") == 0){
@@ -167,6 +168,7 @@ int main(int argc, char *argv[] ){
 
 
 	// Clean up data
+	free_data(Data);
 
 
 	return 0;

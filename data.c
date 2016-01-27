@@ -1130,3 +1130,136 @@ void set_data(struct data_obj data){
 
 
 
+
+void free_data(struct data_obj data){
+	if(data.vertexx != NULL){
+	    free(*(data.vertexx));
+	}
+	if(data.vertexy != NULL){
+		free(*(data.vertexy));
+	}
+
+
+	if(data.cellx != NULL){
+		free(*(data.cellx));
+	}
+
+	if(data.celly != NULL){
+		free(*(data.celly));
+	}
+
+	if(data.vertexdx != NULL){
+		free(*(data.vertexdx));
+	}
+
+	if(data.vertexdy != NULL){
+		free(*(data.vertexdy));
+	}
+
+
+	if(data.celldx != NULL){
+		free(*(data.celldx));
+	}
+
+	if(data.celldy != NULL){
+		free(*(data.celldy));
+	}
+
+
+	if(data.xarea != NULL){
+		free(*(data.xarea));
+    }
+
+	if(data.yarea != NULL){
+		free(*(data.yarea));
+	}
+
+
+	if(data.volume != NULL){
+		free(*(data.volume));
+	}
+
+
+	if(data.density0 != NULL){
+		free(*(data.density0));
+	}
+
+	if(data.density1 != NULL){
+		free(*(data.density1));
+    }
+
+	if(data.energy0 != NULL){
+		free(*(data.energy0));
+    }
+
+	if(data.energy1 != NULL){
+		free(*(data.energy1));
+    }
+
+	if(data.pressure != NULL){
+		free(*(data.pressure));
+    }
+
+	if(data.soundspeed != NULL){
+		free(*(data.soundspeed));
+	}
+
+	if(data.viscosity != NULL){
+		free(*(data.viscosity));
+	}
+
+	if(data.xvel0 != NULL){
+		free(*(data.xvel0));
+	}
+
+	if(data.xvel1 != NULL){
+		free(*(data.xvel1));
+	}
+
+	if(data.yvel0 != NULL){
+		free(*(data.yvel0));
+	}
+
+	if(data.yvel1 != NULL){
+		free(*(data.yvel1));
+	}
+
+
+
+	if(data.work_array1 != NULL){
+		free(*(data.work_array1));
+	}
+	if(data.work_array2 != NULL){
+		free(*(data.work_array2));
+        }
+	if(data.work_array3 != NULL){
+		free(*(data.work_array3));
+	}
+	if(data.work_array4 != NULL){
+		free(*(data.work_array4));
+	}
+	if(data.work_array5 != NULL){
+		free(*(data.work_array5));
+	}
+	if(data.work_array6 != NULL){
+		free(*(data.work_array6));
+	}
+	if(data.work_array7 != NULL){
+		free(*(data.work_array7));
+	}
+
+
+	if(data.vol_flux_x != NULL){
+		free(*(data.vol_flux_x));
+	}
+	if(data.vol_flux_y != NULL){
+		free(*(data.vol_flux_y));
+	}
+
+	if(data.mass_flux_x != NULL){
+		free(*(data.mass_flux_x));
+	}
+	if(data.mass_flux_y != NULL){
+		free(*(data.mass_flux_y));
+	}
+}
