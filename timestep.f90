@@ -57,9 +57,11 @@ CONTAINS
     small=0
 
     IF(profiler_on) kernel_time=timer()
+!$OMP PARALLEL DO
     DO tile = 1, tiles_per_chunk
       CALL ideal_gas(tile,.FALSE.)
     END DO
+!$OMP END PARALLEL DO
 
     IF(profiler_on) profiler%ideal_gas=profiler%ideal_gas+(timer()-kernel_time)
 
@@ -81,6 +83,8 @@ CONTAINS
 
     IF(profiler_on) kernel_time=timer()
 
+!$OMP PARALLEL DO REDUCTION(min:dt) PRIVATE(dtlp, dtl_control, xl_pos, yl_pos, jldt, kldt) &
+!$OMP LASTPRIVATE(dt_control, x_pos, y_pos, jdt, kdt)
     DO tile = 1, tiles_per_chunk
       CALL calc_dt(tile,dtlp,dtl_control,xl_pos,yl_pos,jldt,kldt)
 
@@ -93,6 +97,7 @@ CONTAINS
         kdt=kldt
       ENDIF
     END DO
+!$OMP END PARALLEL DO
 
     dt = MIN(dt, (dtold * dtrise), dtmax)
 

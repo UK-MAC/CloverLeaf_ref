@@ -38,6 +38,7 @@ CONTAINS
   
     
     IF(use_fortran_kernels) THEN
+!$OMP PARALLEL DO
       DO tile=1,tiles_per_chunk
 
 
@@ -59,7 +60,9 @@ CONTAINS
 
 
       ENDDO
+!$OMP END PARALLEL DO
     ELSEIF(use_C_kernels)THEN
+!$OMP PARALLEL DO
       DO tile=1,tiles_per_chunk
         CALL accelerate_kernel_c(chunk%tiles(tile)%t_xmin,                &
           chunk%tiles(tile)%t_xmax,                  &
@@ -77,6 +80,7 @@ CONTAINS
           chunk%tiles(tile)%field%xvel1,                  &
           chunk%tiles(tile)%field%yvel1                  )
       ENDDO
+!$OMP END PARALLEL DO
     ENDIF
 
     IF(profiler_on) profiler%acceleration=profiler%acceleration+(timer()-kernel_time)

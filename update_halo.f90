@@ -51,6 +51,7 @@ CONTAINS
 
 
       IF(use_fortran_kernels) THEN
+!$OMP PARALLEL DO
         DO tile=1,tiles_per_chunk
 
           CALL update_halo_kernel(chunk%tiles(tile)%t_xmin,          &
@@ -79,8 +80,10 @@ CONTAINS
 
 
         ENDDO
+!$OMP END PARALLEL DO
 
       ELSEIF(use_C_kernels) THEN
+!$OMP PARALLEL DO
         DO tile=1,tiles_per_chunk
 
           CALL update_halo_kernel_c(chunk%tiles(tile)%t_xmin,          &
@@ -109,6 +112,7 @@ CONTAINS
 
 
         ENDDO
+!$OMP END PARALLEL DO
       ENDIF
     ENDIF
 

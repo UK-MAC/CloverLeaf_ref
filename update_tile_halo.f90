@@ -40,8 +40,9 @@ CONTAINS
 
 
     ! Update Top Bottom - Real to Real
+!$OMP PARALLEL
 
-
+!$OMP DO PRIVATE(t_up, t_down)
     DO tile=1,tiles_per_chunk
       t_up   =chunk%tiles(tile)%tile_neighbours(TILE_TOP)
       t_down =chunk%tiles(tile)%tile_neighbours(TILE_BOTTOM)
@@ -140,9 +141,11 @@ CONTAINS
 
   
     END DO
+!$OMP END DO
 
     ! Update Left Right - Ghost, Real, Ghost - > Real
 
+!$OMP DO PRIVATE(t_left, t_right)
     DO tile=1,tiles_per_chunk
       t_left   =chunk%tiles(tile)%tile_neighbours(TILE_LEFT)
       t_right  =chunk%tiles(tile)%tile_neighbours(TILE_RIGHT)
@@ -241,6 +244,9 @@ CONTAINS
 
 
     END DO
+!$OMP END DO
+
+!$OMP END PARALLEL
 
 
 

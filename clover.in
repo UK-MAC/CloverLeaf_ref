@@ -16,5 +16,6 @@
  max_timestep=0.04
  end_step=87
  test_problem 2
-
+ profiler_on
+ tiles_per_chunk 16
 *endclover

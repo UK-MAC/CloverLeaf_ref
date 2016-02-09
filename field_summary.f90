@@ -66,6 +66,7 @@ SUBROUTINE field_summary()
 
 
   IF(use_fortran_kernels) THEN
+!$OMP PARALLEL DO REDUCTION(+:t_vol, t_mass, t_ie, t_ke, t_press) PRIVATE(vol,mass,ie,ke,press)
     DO tile=1,tiles_per_chunk
       CALL field_summary_kernel(chunk%tiles(tile)%t_xmin,                   &
         chunk%tiles(tile)%t_xmax,                   &
@@ -85,8 +86,10 @@ SUBROUTINE field_summary()
       t_press=t_press+press
 
     ENDDO
+!$OMP END PARALLEL DO
 
   ELSEIF(use_C_kernels) THEN
+!$OMP PARALLEL DO REDUCTION(+:t_vol, t_mass, t_ie, t_ke, t_press) PRIVATE(vol,mass,ie,ke,press)
     DO tile=1,tiles_per_chunk
       CALL field_summary_kernel_c(chunk%tiles(tile)%t_xmin,                   &
         chunk%tiles(tile)%t_xmax,                   &
@@ -106,6 +109,7 @@ SUBROUTINE field_summary()
       t_press=t_press+press
       
     ENDDO
+!$OMP END PARALLEL DO
 
   ENDIF
     

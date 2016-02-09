@@ -54,9 +54,11 @@ CONTAINS
     CALL update_halo(fields,2)
 
     IF(profiler_on) kernel_time=timer()
+!$OMP PARALLEL DO
     DO tile=1,tiles_per_chunk
       CALL advec_cell_driver(tile,sweep_number,direction)
     ENDDO
+!$OMP END PARALLEL DO
 
     IF(profiler_on) profiler%cell_advection=profiler%cell_advection+(timer()-kernel_time)
 
@@ -72,10 +74,12 @@ CONTAINS
     IF(profiler_on) kernel_time=timer()
   
 
+!$OMP PARALLEL DO
     DO tile=1,tiles_per_chunk
       CALL advec_mom_driver(tile,xvel,direction,sweep_number)
       CALL advec_mom_driver(tile,yvel,direction,sweep_number)
     ENDDO
+!$OMP END PARALLEL DO
 
     IF(profiler_on) profiler%mom_advection=profiler%mom_advection+(timer()-kernel_time)
 
@@ -85,9 +89,11 @@ CONTAINS
 
     IF(profiler_on) kernel_time=timer()
 
+!$OMP PARALLEL DO
     DO tile=1,tiles_per_chunk
       CALL advec_cell_driver(tile,sweep_number,direction)
     ENDDO
+!$OMP END PARALLEL DO
 
     IF(profiler_on) profiler%cell_advection=profiler%cell_advection+(timer()-kernel_time)
 
@@ -102,10 +108,12 @@ CONTAINS
 
     IF(profiler_on) kernel_time=timer()
 
+!$OMP PARALLEL DO
     DO tile=1,tiles_per_chunk
       CALL advec_mom_driver(tile,xvel,direction,sweep_number)
       CALL advec_mom_driver(tile,yvel,direction,sweep_number)
     ENDDO
+!$OMP END PARALLEL DO
 
     IF(profiler_on) profiler%mom_advection=profiler%mom_advection+(timer()-kernel_time)
 

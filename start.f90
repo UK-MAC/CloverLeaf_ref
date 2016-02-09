@@ -100,11 +100,12 @@ SUBROUTINE start
     WRITE(g_out,*) 'Generating chunks'
   ENDIF
 
-
+!$OMP PARALLEL DO
   DO tile=1,tiles_per_chunk
     CALL initialise_chunk(tile)
     CALL generate_chunk(tile)
   ENDDO
+!$OMP END PARALLEL DO
 
   advect_x=.TRUE.
 
@@ -116,9 +117,11 @@ SUBROUTINE start
   profiler_on=.FALSE.
 
 
+!$OMP PARALLEL DO
   DO tile = 1, tiles_per_chunk
     CALL ideal_gas(tile,.FALSE.)
   END DO
+!$OMP END PARALLEL DO
 
   ! Prime all halo data for the first step
   fields=0

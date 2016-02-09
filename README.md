@@ -1,6 +1,6 @@
-# CloverLeaf_ref
+# CloverLeaf_Nested Parallelism
 
-This is the reference version of CloverLeaf version 1.3. 
+This is the nested parallelism version of CloverLeaf version 1.3. 
 
 ## Release Notes
 
@@ -15,6 +15,29 @@ This is activated through the two input deck parameters:
 
 * `tiles_per_chunk` To specify how many tiles per MPI ranks there are.
 * `tiles_per_problem` To specify how many global tiles there are, this is rounded down to be an even number per MPI rank.
+
+
+### Nested Parallelism
+
+Now with the inclusion of 'tiles' we can have an additional level of parallelism.
+Firstly we have parallelism at the tile decomposition level, and again at the loop level.
+
+Running this version without nested parallelism will default to the top level of parallelism, the tiles.
+This means there must be at least as many tiles as there are OpenMP threads.
+This can be enabled through the 'tiles_per_chunk' input parameter.
+
+#### Running Nested - Intel
+
+We advise the following set up to make use of nested parallelism
+
+```
+    KMP_HOT_TEAMS_MODE=1 \
+    KMP_HOT_TEAMS_MAX_LEVEL=2 \
+    OMP_NESTED=1 \
+    OMP_NUM_THREADS=4,2 \
+    mpirun -np 2 ./clover_leaf
+```
+Giving a total thread count of 16 (2 MPI each with 4 OMP each with 2 OMP).
 
 
 ## Performance

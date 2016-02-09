@@ -55,6 +55,7 @@ CONTAINS
   
     IF(use_fortran_kernels) THEN
 
+!$OMP PARALLEL DO
       DO tile=1,tiles_per_chunk
 
 
@@ -81,8 +82,10 @@ CONTAINS
 
 
       ENDDO
+!$OMP END PARALLEL DO
   
     ELSEIF(use_C_kernels) THEN
+!$OMP PARALLEL DO
       DO tile=1,tiles_per_chunk
 
 
@@ -109,6 +112,7 @@ CONTAINS
       
 
       ENDDO
+!$OMP END PARALLEL DO
     ENDIF
     
 
