@@ -1,6 +1,13 @@
-1.1
+## CloverLeaf 2D: Change Log
+
+### v1.1
 
 - Parallel meta data
 - Message aggregation
 - Optimised first touch
 - Optimised kernels
+
+### v1.4
+- Reduce synchronisation in Update-Halo Fortran kernel (proposed by Intel), 5th May 2016
+
+
