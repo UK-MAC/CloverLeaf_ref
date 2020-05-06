@@ -1,0 +1,3 @@
+/home/wei/solver/CloverLeaf_ref/build/CMakeFiles/rebuild_cache.dir
+/home/wei/solver/CloverLeaf_ref/build/CMakeFiles/clover_leaf.dir
+/home/wei/solver/CloverLeaf_ref/build/CMakeFiles/edit_cache.dir
