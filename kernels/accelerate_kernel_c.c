@@ -55,7 +55,7 @@ void accelerate_kernel_c_(int *xmin,int *xmax,int *ymin,int *ymax,
 
 #pragma omp for private(nodal_mass,j, stepby_mass_s)
   for (k=y_min;k<=y_max+1;k++) {
-#pragma ivdep
+#pragma omp simd
     for (j=x_min;j<=x_max+1;j++) {
       nodal_mass=(density0[FTNREF2D(j-1,k-1,x_max+4,x_min-2,y_min-2)]*volume[FTNREF2D(j-1,k-1,x_max+4,x_min-2,y_min-2)]
                  +density0[FTNREF2D(j  ,k-1,x_max+4,x_min-2,y_min-2)]*volume[FTNREF2D(j  ,k-1,x_max+4,x_min-2,y_min-2)]

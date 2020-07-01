@@ -72,7 +72,7 @@ void advec_cell_kernel_c_(int *xmin,int *xmax,int *ymin,int *ymax,
     if(sweep_number==1){
 #pragma omp for private(j)
       for (k=y_min-2;k<=y_max+2;k++) {
-#pragma ivdep
+#pragma omp simd
         for (j=x_min-2;j<=x_max+2;j++) {
 
           pre_vol[FTNREF2D(j  ,k  ,x_max+5,x_min-2,y_min-2)]=volume[FTNREF2D(j  ,k  ,x_max+4,x_min-2,y_min-2)]
@@ -90,7 +90,7 @@ void advec_cell_kernel_c_(int *xmin,int *xmax,int *ymin,int *ymax,
     else {
 #pragma omp for private(j)
       for (k=y_min-2;k<=y_max+2;k++) {
-#pragma ivdep
+#pragma omp simd
         for (j=x_min-2;j<=x_max+2;j++) {
           pre_vol[FTNREF2D(j  ,k  ,x_max+5,x_min-2,y_min-2)]=volume[FTNREF2D(j  ,k  ,x_max+4,x_min-2,y_min-2)]
                                                             +vol_flux_x[FTNREF2D(j+1,k  ,x_max+5,x_min-2,y_min-2)]
@@ -155,7 +155,7 @@ void advec_cell_kernel_c_(int *xmin,int *xmax,int *ymin,int *ymax,
     
 #pragma omp for private(j)
     for (k=y_min;k<=y_max;k++) {
-#pragma ivdep
+#pragma omp simd
      for (j=x_min;j<=x_max;j++) {
         pre_mass[FTNREF2D(j  ,k  ,x_max+5,x_min-2,y_min-2)]=density1[FTNREF2D(j  ,k  ,x_max+4,x_min-2,y_min-2)]
                                                            *pre_vol[FTNREF2D(j  ,k  ,x_max+5,x_min-2,y_min-2)];
@@ -183,7 +183,7 @@ void advec_cell_kernel_c_(int *xmin,int *xmax,int *ymin,int *ymax,
       
 #pragma omp for private(j)
       for (k=y_min-2;k<=y_max+2;k++) {
-#pragma ivdep
+#pragma omp simd
         for (j=x_min-2;j<=x_max+2;j++) {
 
           pre_vol[FTNREF2D(j  ,k  ,x_max+5,x_min-2,y_min-2)]=volume[FTNREF2D(j  ,k  ,x_max+4,x_min-2,y_min-2)]
@@ -202,7 +202,7 @@ void advec_cell_kernel_c_(int *xmin,int *xmax,int *ymin,int *ymax,
 
 #pragma omp for private(j)
       for (k=y_min-2;k<=y_max+2;k++) {
-#pragma ivdep
+#pragma omp simd
         for (j=x_min-2;j<=x_max+2;j++) {
           pre_vol[FTNREF2D(j  ,k  ,x_max+5,x_min-2,y_min-2)]=volume[FTNREF2D(j  ,k  ,x_max+4,x_min-2,y_min-2)]
                                                         +vol_flux_y[FTNREF2D(j  ,k+1,x_max+4,x_min-2,y_min-2)]
@@ -269,7 +269,7 @@ void advec_cell_kernel_c_(int *xmin,int *xmax,int *ymin,int *ymax,
     
 #pragma omp for private(j)
     for (k=y_min;k<=y_max;k++) {
-#pragma ivdep
+#pragma omp simd
       for (j=x_min;j<=x_max;j++) {
         pre_mass[FTNREF2D(j  ,k  ,x_max+5,x_min-2,y_min-2)]=density1[FTNREF2D(j  ,k  ,x_max+4,x_min-2,y_min-2)]
                                                           *pre_vol[FTNREF2D(j  ,k  ,x_max+5,x_min-2,y_min-2)];

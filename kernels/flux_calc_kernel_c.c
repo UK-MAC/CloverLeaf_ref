@@ -50,7 +50,7 @@ void flux_calc_kernel_c_(int *xmin,int *xmax,int *ymin,int *ymax,
 
 #pragma omp for private(j)
   for (k=y_min;k<=y_max;k++) {
-#pragma ivdep
+#pragma omp simd
     for (j=x_min;j<=x_max+1;j++) {
       vol_flux_x[FTNREF2D(j  ,k  ,x_max+5,x_min-2,y_min-2)]=0.25*dt*xarea[FTNREF2D(j  ,k  ,x_max+5,x_min-2,y_min-2)]
                             *(xvel0[FTNREF2D(j  ,k  ,x_max+5,x_min-2,y_min-2)]
@@ -62,7 +62,7 @@ void flux_calc_kernel_c_(int *xmin,int *xmax,int *ymin,int *ymax,
 
 #pragma omp for private(j)
   for (k=y_min;k<=y_max+1;k++) {
-#pragma ivdep
+#pragma omp simd
     for (j=x_min;j<=x_max;j++) {
       vol_flux_y[FTNREF2D(j  ,k  ,x_max+4,x_min-2,y_min-2)]=0.25*dt*yarea[FTNREF2D(j  ,k  ,x_max+4,x_min-2,y_min-2)]
                             *(yvel0[FTNREF2D(j  ,k  ,x_max+5,x_min-2,y_min-2)]
