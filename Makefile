@@ -69,6 +69,7 @@ OMP_CRAY      =
 OMP_PGI       = -mp=nonuma
 OMP_PATHSCALE = -mp
 OMP_XL        = -qsmp=omp -qthreaded
+OMP_ARM       = -fopenmp
 OMP=$(OMP_$(COMPILER))
 
 FLAGS_INTEL     = -O3 -no-prec-div
@@ -78,6 +79,8 @@ FLAGS_CRAY      = -em -ra -h acc_model=fast_addr:no_deep_copy:auto_async_all
 FLAGS_PGI       = -fastsse -Mipa=fast -Mlist
 FLAGS_PATHSCALE = -O3
 FLAGS_XL        = -O5 -qipa=partition=large -g -qfullpath -Q -qsigtrap -qextname=flush:ideal_gas_kernel_c:viscosity_kernel_c:pdv_kernel_c:revert_kernel_c:accelerate_kernel_c:flux_calc_kernel_c:advec_cell_kernel_c:advec_mom_kernel_c:reset_field_kernel_c:timer_c:unpack_top_bottom_buffers_c:pack_top_bottom_buffers_c:unpack_left_right_buffers_c:pack_left_right_buffers_c:field_summary_kernel_c:update_halo_kernel_c:generate_chunk_kernel_c:initialise_chunk_kernel_c:calc_dt_kernel_c:clover_unpack_message_bottom_c:clover_pack_message_bottom_c:clover_unpack_message_top_c:clover_pack_message_top_c:clover_unpack_message_right_c:clover_pack_message_right_c:clover_unpack_message_left_c:clover_pack_message_left_c -qlistopt -qattr=full -qlist -qreport -qxref=full -qsource -qsuppress=1506-224:1500-036FLAGS_          = -O3
+FLAGS_ARM      = -O3 -ffp-contract=fast -march=armv8.1-a -mcpu=native
+
 CFLAGS_INTEL     = -O3 -no-prec-div -restrict -fno-alias
 CFLAGS_SUN       = -fast -xipo=2
 CFLAGS_GNU       = -O3 -march=native -funroll-loops
@@ -85,6 +88,7 @@ CFLAGS_CRAY      = -em -h list=a
 CFLAGS_PGI       = -fastsse -Mipa=fast -Mlist
 CFLAGS_PATHSCALE = -O3
 CFLAGS_XL       = -O5 -qipa=partition=large -g -qfullpath -Q -qlistopt -qattr=full -qlist -qreport -qxref=full -qsource -qsuppress=1506-224:1500-036 -qsrcmsg
+CFLAGS_ARM       = -O3 -march=armv8.1-a -mcpu=native
 CFLAGS_          = -O3
 
 ifdef DEBUG
@@ -95,7 +99,9 @@ ifdef DEBUG
   FLAGS_PGI       = -O0 -g -C -Mchkstk -Ktrap=fp -Mchkfpstk -Mchkptr
   FLAGS_PATHSCALE = -O0 -g
   FLAGS_XL       = -O0 -g -qfullpath -qcheck -qflttrap=ov:zero:invalid:en -qsource -qinitauto=FF -qmaxmem=-1 -qinit=f90ptr -qsigtrap -qextname=flush:ideal_gas_kernel_c:viscosity_kernel_c:pdv_kernel_c:revert_kernel_c:accelerate_kernel_c:flux_calc_kernel_c:advec_cell_kernel_c:advec_mom_kernel_c:reset_field_kernel_c:timer_c:unpack_top_bottom_buffers_c:pack_top_bottom_buffers_c:unpack_left_right_buffers_c:pack_left_right_buffers_c:field_summary_kernel_c:update_halo_kernel_c:generate_chunk_kernel_c:initialise_chunk_kernel_c:calc_dt_kernel_c
+  FLAGS_ARM       = -O0 -g
   FLAGS_          = -O0 -g
+
   CFLAGS_INTEL    = -O0 -g -debug all -traceback
   CFLAGS_SUN      = -g -O0 -xopenmp=noopt -stackvar -u -fpover=yes -C -ftrap=common
   CFLAGS_GNU       = -O0 -g -O -Wall -Wextra -fbounds-check
@@ -103,6 +109,8 @@ ifdef DEBUG
   CFLAGS_PGI      = -O0 -g -C -Mchkstk -Ktrap=fp -Mchkfpstk
   CFLAGS_PATHSCALE= -O0 -g
   CFLAGS_XL      = -O0 -g -qfullpath -qcheck -qflttrap=ov:zero:invalid:en -qsource -qinitauto=FF -qmaxmem=-1 -qsrcmsg
+  CFLAGS_ARM       = -O0 -g
+
 endif
 
 ifdef IEEE
@@ -125,46 +133,46 @@ clover_leaf: c_lover *.f90 Makefile
 	$(MPI_COMPILER) $(FLAGS)	\
 	data.f90			\
 	definitions.f90			\
-	pack_kernel.f90			\
+	kernels/pack_kernel.f90		\
 	clover.f90			\
 	report.f90			\
 	timer.f90			\
 	parse.f90			\
 	read_input.f90			\
-	initialise_chunk_kernel.f90	\
+	kernels/initialise_chunk_kernel.f90 \
 	initialise_chunk.f90		\
 	build_field.f90			\
-	update_tile_halo_kernel.f90	\
+	kernels/update_tile_halo_kernel.f90 \
 	update_tile_halo.f90		\
-	update_halo_kernel.f90		\
+	kernels/update_halo_kernel.f90	\
 	update_halo.f90			\
-	ideal_gas_kernel.f90		\
+	kernels/ideal_gas_kernel.f90	\
 	ideal_gas.f90			\
 	start.f90			\
-	generate_chunk_kernel.f90	\
+	kernels/generate_chunk_kernel.f90 \
 	generate_chunk.f90		\
 	initialise.f90			\
-	field_summary_kernel.f90	\
+	kernels/field_summary_kernel.f90 \
 	field_summary.f90		\
-	viscosity_kernel.f90		\
+	kernels/viscosity_kernel.f90	\
 	viscosity.f90			\
-	calc_dt_kernel.f90		\
+	kernels/calc_dt_kernel.f90	\
 	calc_dt.f90			\
 	timestep.f90			\
-	accelerate_kernel.f90		\
+	kernels/accelerate_kernel.f90	\
 	accelerate.f90			\
-	revert_kernel.f90		\
+	kernels/revert_kernel.f90	\
 	revert.f90			\
-	PdV_kernel.f90			\
+	kernels/PdV_kernel.f90		\
 	PdV.f90				\
-	flux_calc_kernel.f90		\
+	kernels/flux_calc_kernel.f90	\
 	flux_calc.f90			\
-	advec_cell_kernel.f90		\
+	kernels/advec_cell_kernel.f90	\
 	advec_cell_driver.f90		\
-	advec_mom_kernel.f90		\
+	kernels/advec_mom_kernel.f90	\
 	advec_mom_driver.f90		\
 	advection.f90			\
-	reset_field_kernel.f90		\
+	kernels/reset_field_kernel.f90	\
 	reset_field.f90			\
 	hydro.f90			\
 	visit.f90			\
@@ -189,21 +197,21 @@ clover_leaf: c_lover *.f90 Makefile
 
 c_lover: *.c Makefile
 	$(C_MPI_COMPILER) $(CFLAGS)     \
-	accelerate_kernel_c.c           \
-	PdV_kernel_c.c                  \
-	flux_calc_kernel_c.c            \
-	revert_kernel_c.c               \
-	reset_field_kernel_c.c          \
-	ideal_gas_kernel_c.c            \
-	viscosity_kernel_c.c            \
-	advec_mom_kernel_c.c            \
-	advec_cell_kernel_c.c           \
-	calc_dt_kernel_c.c		\
-	field_summary_kernel_c.c	\
-	update_halo_kernel_c.c		\
-	pack_kernel_c.c			\
-	generate_chunk_kernel_c.c	\
-	initialise_chunk_kernel_c.c	\
+	kernels/accelerate_kernel_c.c           \
+	kernels/PdV_kernel_c.c                  \
+	kernels/flux_calc_kernel_c.c            \
+	kernels/revert_kernel_c.c               \
+	kernels/reset_field_kernel_c.c          \
+	kernels/ideal_gas_kernel_c.c            \
+	kernels/viscosity_kernel_c.c            \
+	kernels/advec_mom_kernel_c.c            \
+	kernels/advec_cell_kernel_c.c           \
+	kernels/calc_dt_kernel_c.c		\
+	kernels/field_summary_kernel_c.c	\
+	kernels/update_halo_kernel_c.c		\
+	kernels/pack_kernel_c.c			\
+	kernels/generate_chunk_kernel_c.c	\
+	kernels/initialise_chunk_kernel_c.c	\
 	timer_c.c
 
 
