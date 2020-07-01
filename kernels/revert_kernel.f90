@@ -42,6 +42,7 @@ CONTAINS
 
     !$OMP DO
     DO k=y_min,y_max
+    !$OMP SIMD
       DO j=x_min,x_max
         density1(j,k)=density0(j,k)
         energy1(j,k)=energy0(j,k)

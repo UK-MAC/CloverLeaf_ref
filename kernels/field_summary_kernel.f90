@@ -54,6 +54,7 @@ CONTAINS
     !$OMP PARALLEL
     !$OMP DO PRIVATE(vsqrd,cell_vol,cell_mass) REDUCTION(+ : vol,mass,press,ie,ke)
     DO k=y_min,y_max
+    !$OMP SIMD
       DO j=x_min,x_max
         vsqrd=0.0
         DO kv=k,k+1

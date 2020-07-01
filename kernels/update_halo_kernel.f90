@@ -100,6 +100,7 @@ CONTAINS
       IF( (chunk_neighbours(CHUNK_BOTTOM).EQ.EXTERNAL_FACE) .AND. (tile_neighbours(TILE_BOTTOM).EQ.EXTERNAL_TILE) ) THEN
         !$OMP DO
         DO j=x_min-depth,x_max+depth
+        !$OMP SIMD
           DO k=1,depth
             density0(j,1-k)=density0(j,0+k)
           ENDDO
@@ -109,6 +110,7 @@ CONTAINS
       IF( (chunk_neighbours(CHUNK_TOP).EQ.EXTERNAL_FACE) .AND. (tile_neighbours(TILE_TOP).EQ.EXTERNAL_TILE) ) THEN
         !$OMP DO
         DO j=x_min-depth,x_max+depth
+        !$OMP SIMD
           DO k=1,depth
             density0(j,y_max+k)=density0(j,y_max+1-k)
           ENDDO
@@ -118,6 +120,7 @@ CONTAINS
       IF( (chunk_neighbours(CHUNK_LEFT).EQ.EXTERNAL_FACE) .AND. (tile_neighbours(TILE_LEFT).EQ.EXTERNAL_TILE) ) THEN
         !$OMP DO
         DO k=y_min-depth,y_max+depth
+        !$OMP SIMD
           DO j=1,depth
             density0(1-j,k)=density0(0+j,k)
           ENDDO
@@ -127,6 +130,7 @@ CONTAINS
       IF( (chunk_neighbours(CHUNK_RIGHT).EQ.EXTERNAL_FACE) .AND. (tile_neighbours(TILE_RIGHT).EQ.EXTERNAL_TILE) ) THEN
         !$OMP DO
         DO k=y_min-depth,y_max+depth
+        !$OMP SIMD
           DO j=1,depth
             density0(x_max+j,k)=density0(x_max+1-j,k)
           ENDDO
@@ -139,6 +143,7 @@ CONTAINS
       IF( (chunk_neighbours(CHUNK_BOTTOM).EQ.EXTERNAL_FACE) .AND. (tile_neighbours(TILE_BOTTOM).EQ.EXTERNAL_TILE) ) THEN
         !$OMP DO
         DO j=x_min-depth,x_max+depth
+        !$OMP SIMD
           DO k=1,depth
             density1(j,1-k)=density1(j,0+k)
           ENDDO
@@ -148,6 +153,7 @@ CONTAINS
       IF( (chunk_neighbours(CHUNK_TOP).EQ.EXTERNAL_FACE) .AND. (tile_neighbours(TILE_TOP).EQ.EXTERNAL_TILE) ) THEN
         !$OMP DO
         DO j=x_min-depth,x_max+depth
+        !$OMP SIMD
           DO k=1,depth
             density1(j,y_max+k)=density1(j,y_max+1-k)
           ENDDO
@@ -157,6 +163,7 @@ CONTAINS
       IF( (chunk_neighbours(CHUNK_LEFT).EQ.EXTERNAL_FACE) .AND. (tile_neighbours(TILE_LEFT).EQ.EXTERNAL_TILE) ) THEN
         !$OMP DO
         DO k=y_min-depth,y_max+depth
+        !$OMP SIMD
           DO j=1,depth
             density1(1-j,k)=density1(0+j,k)
           ENDDO
@@ -166,6 +173,7 @@ CONTAINS
       IF( (chunk_neighbours(CHUNK_RIGHT).EQ.EXTERNAL_FACE) .AND. (tile_neighbours(TILE_RIGHT).EQ.EXTERNAL_TILE) ) THEN
         !$OMP DO
         DO k=y_min-depth,y_max+depth
+        !$OMP SIMD
           DO j=1,depth
             density1(x_max+j,k)=density1(x_max+1-j,k)
           ENDDO
@@ -178,6 +186,7 @@ CONTAINS
       IF( (chunk_neighbours(CHUNK_BOTTOM).EQ.EXTERNAL_FACE) .AND. (tile_neighbours(TILE_BOTTOM).EQ.EXTERNAL_TILE) ) THEN
         !$OMP DO
         DO j=x_min-depth,x_max+depth
+        !$OMP SIMD
           DO k=1,depth
             energy0(j,1-k)=energy0(j,0+k)
           ENDDO
@@ -187,6 +196,7 @@ CONTAINS
       IF( (chunk_neighbours(CHUNK_TOP).EQ.EXTERNAL_FACE) .AND. (tile_neighbours(TILE_TOP).EQ.EXTERNAL_TILE) ) THEN
         !$OMP DO
         DO j=x_min-depth,x_max+depth
+        !$OMP SIMD
           DO k=1,depth
             energy0(j,y_max+k)=energy0(j,y_max+1-k)
           ENDDO
@@ -196,6 +206,7 @@ CONTAINS
       IF( (chunk_neighbours(CHUNK_LEFT).EQ.EXTERNAL_FACE) .AND. (tile_neighbours(TILE_LEFT).EQ.EXTERNAL_TILE) ) THEN
         !$OMP DO
         DO k=y_min-depth,y_max+depth
+        !$OMP SIMD
           DO j=1,depth
             energy0(1-j,k)=energy0(0+j,k)
           ENDDO
@@ -205,6 +216,7 @@ CONTAINS
       IF( (chunk_neighbours(CHUNK_RIGHT).EQ.EXTERNAL_FACE) .AND. (tile_neighbours(TILE_RIGHT).EQ.EXTERNAL_TILE) ) THEN
         !$OMP DO
         DO k=y_min-depth,y_max+depth
+        !$OMP SIMD
           DO j=1,depth
             energy0(x_max+j,k)=energy0(x_max+1-j,k)
           ENDDO
@@ -217,6 +229,7 @@ CONTAINS
       IF( (chunk_neighbours(CHUNK_BOTTOM).EQ.EXTERNAL_FACE) .AND. (tile_neighbours(TILE_BOTTOM).EQ.EXTERNAL_TILE) ) THEN
         !$OMP DO
         DO j=x_min-depth,x_max+depth
+        !$OMP SIMD
           DO k=1,depth
             energy1(j,1-k)=energy1(j,0+k)
           ENDDO
@@ -226,6 +239,7 @@ CONTAINS
       IF( (chunk_neighbours(CHUNK_TOP).EQ.EXTERNAL_FACE) .AND. (tile_neighbours(TILE_TOP).EQ.EXTERNAL_TILE) ) THEN
         !$OMP DO
         DO j=x_min-depth,x_max+depth
+        !$OMP SIMD
           DO k=1,depth
             energy1(j,y_max+k)=energy1(j,y_max+1-k)
           ENDDO
@@ -235,6 +249,7 @@ CONTAINS
       IF( (chunk_neighbours(CHUNK_LEFT).EQ.EXTERNAL_FACE) .AND. (tile_neighbours(TILE_LEFT).EQ.EXTERNAL_TILE) ) THEN
         !$OMP DO
         DO k=y_min-depth,y_max+depth
+        !$OMP SIMD
           DO j=1,depth
             energy1(1-j,k)=energy1(0+j,k)
           ENDDO
@@ -244,6 +259,7 @@ CONTAINS
       IF( (chunk_neighbours(CHUNK_RIGHT).EQ.EXTERNAL_FACE) .AND. (tile_neighbours(TILE_RIGHT).EQ.EXTERNAL_TILE) ) THEN
         !$OMP DO
         DO k=y_min-depth,y_max+depth
+        !$OMP SIMD
           DO j=1,depth
             energy1(x_max+j,k)=energy1(x_max+1-j,k)
           ENDDO
@@ -256,6 +272,7 @@ CONTAINS
       IF( (chunk_neighbours(CHUNK_BOTTOM).EQ.EXTERNAL_FACE) .AND. (tile_neighbours(TILE_BOTTOM).EQ.EXTERNAL_TILE) ) THEN
         !$OMP DO
         DO j=x_min-depth,x_max+depth
+        !$OMP SIMD
           DO k=1,depth
             pressure(j,1-k)=pressure(j,0+k)
           ENDDO
@@ -265,6 +282,7 @@ CONTAINS
       IF( (chunk_neighbours(CHUNK_TOP).EQ.EXTERNAL_FACE) .AND. (tile_neighbours(TILE_TOP).EQ.EXTERNAL_TILE) ) THEN
         !$OMP DO
         DO j=x_min-depth,x_max+depth
+        !$OMP SIMD
           DO k=1,depth
             pressure(j,y_max+k)=pressure(j,y_max+1-k)
           ENDDO
@@ -274,6 +292,7 @@ CONTAINS
       IF( (chunk_neighbours(CHUNK_LEFT).EQ.EXTERNAL_FACE) .AND. (tile_neighbours(TILE_LEFT).EQ.EXTERNAL_TILE) ) THEN
         !$OMP DO
         DO k=y_min-depth,y_max+depth
+        !$OMP SIMD
           DO j=1,depth
             pressure(1-j,k)=pressure(0+j,k)
           ENDDO
@@ -283,6 +302,7 @@ CONTAINS
       IF( (chunk_neighbours(CHUNK_RIGHT).EQ.EXTERNAL_FACE) .AND. (tile_neighbours(TILE_RIGHT).EQ.EXTERNAL_TILE) ) THEN
         !$OMP DO
         DO k=y_min-depth,y_max+depth
+        !$OMP SIMD
           DO j=1,depth
             pressure(x_max+j,k)=pressure(x_max+1-j,k)
           ENDDO
@@ -295,6 +315,7 @@ CONTAINS
       IF( (chunk_neighbours(CHUNK_BOTTOM).EQ.EXTERNAL_FACE) .AND. (tile_neighbours(TILE_BOTTOM).EQ.EXTERNAL_TILE) ) THEN
         !$OMP DO
         DO j=x_min-depth,x_max+depth
+        !$OMP SIMD
           DO k=1,depth
             viscosity(j,1-k)=viscosity(j,0+k)
           ENDDO
@@ -304,6 +325,7 @@ CONTAINS
       IF( (chunk_neighbours(CHUNK_TOP).EQ.EXTERNAL_FACE) .AND. (tile_neighbours(TILE_TOP).EQ.EXTERNAL_TILE) ) THEN
         !$OMP DO
         DO j=x_min-depth,x_max+depth
+        !$OMP SIMD
           DO k=1,depth
             viscosity(j,y_max+k)=viscosity(j,y_max+1-k)
           ENDDO
@@ -313,6 +335,7 @@ CONTAINS
       IF( (chunk_neighbours(CHUNK_LEFT).EQ.EXTERNAL_FACE) .AND. (tile_neighbours(TILE_LEFT).EQ.EXTERNAL_TILE) ) THEN
         !$OMP DO
         DO k=y_min-depth,y_max+depth
+        !$OMP SIMD
           DO j=1,depth
             viscosity(1-j,k)=viscosity(0+j,k)
           ENDDO
@@ -322,6 +345,7 @@ CONTAINS
       IF( (chunk_neighbours(CHUNK_RIGHT).EQ.EXTERNAL_FACE) .AND. (tile_neighbours(TILE_RIGHT).EQ.EXTERNAL_TILE) ) THEN
         !$OMP DO
         DO k=y_min-depth,y_max+depth
+        !$OMP SIMD
           DO j=1,depth
             viscosity(x_max+j,k)=viscosity(x_max+1-j,k)
           ENDDO
@@ -334,6 +358,7 @@ CONTAINS
       IF( (chunk_neighbours(CHUNK_BOTTOM).EQ.EXTERNAL_FACE) .AND. (tile_neighbours(TILE_BOTTOM).EQ.EXTERNAL_TILE) ) THEN
         !$OMP DO
         DO j=x_min-depth,x_max+depth
+        !$OMP SIMD
           DO k=1,depth
             soundspeed(j,1-k)=soundspeed(j,0+k)
           ENDDO
@@ -343,6 +368,7 @@ CONTAINS
       IF( (chunk_neighbours(CHUNK_TOP).EQ.EXTERNAL_FACE) .AND. (tile_neighbours(TILE_TOP).EQ.EXTERNAL_TILE) ) THEN
         !$OMP DO
         DO j=x_min-depth,x_max+depth
+        !$OMP SIMD
           DO k=1,depth
             soundspeed(j,y_max+k)=soundspeed(j,y_max+1-k)
           ENDDO
@@ -352,6 +378,7 @@ CONTAINS
       IF( (chunk_neighbours(CHUNK_LEFT).EQ.EXTERNAL_FACE) .AND. (tile_neighbours(TILE_LEFT).EQ.EXTERNAL_TILE) ) THEN
         !$OMP DO
         DO k=y_min-depth,y_max+depth
+        !$OMP SIMD
           DO j=1,depth
             soundspeed(1-j,k)=soundspeed(0+j,k)
           ENDDO
@@ -361,6 +388,7 @@ CONTAINS
       IF( (chunk_neighbours(CHUNK_RIGHT).EQ.EXTERNAL_FACE) .AND. (tile_neighbours(TILE_RIGHT).EQ.EXTERNAL_TILE) ) THEN
         !$OMP DO
         DO k=y_min-depth,y_max+depth
+        !$OMP SIMD
           DO j=1,depth
             soundspeed(x_max+j,k)=soundspeed(x_max+1-j,k)
           ENDDO
@@ -377,6 +405,7 @@ CONTAINS
       IF( (chunk_neighbours(CHUNK_BOTTOM).EQ.EXTERNAL_FACE) .AND. (tile_neighbours(TILE_BOTTOM).EQ.EXTERNAL_TILE) ) THEN
         !$OMP DO
         DO j=x_min-depth,x_max+1+depth
+        !$OMP SIMD
           DO k=1,depth
             xvel0(j,1-k)=xvel0(j,1+k)
           ENDDO
@@ -386,6 +415,7 @@ CONTAINS
       IF( (chunk_neighbours(CHUNK_TOP).EQ.EXTERNAL_FACE) .AND. (tile_neighbours(TILE_TOP).EQ.EXTERNAL_TILE) ) THEN
         !$OMP DO
         DO j=x_min-depth,x_max+1+depth
+        !$OMP SIMD
           DO k=1,depth
             xvel0(j,y_max+1+k)=xvel0(j,y_max+1-k)
           ENDDO
@@ -395,6 +425,7 @@ CONTAINS
       IF( (chunk_neighbours(CHUNK_LEFT).EQ.EXTERNAL_FACE) .AND. (tile_neighbours(TILE_LEFT).EQ.EXTERNAL_TILE) ) THEN
         !$OMP DO
         DO k=y_min-depth,y_max+1+depth
+        !$OMP SIMD
           DO j=1,depth
             xvel0(1-j,k)=-xvel0(1+j,k)
           ENDDO
@@ -404,6 +435,7 @@ CONTAINS
       IF( (chunk_neighbours(CHUNK_RIGHT).EQ.EXTERNAL_FACE) .AND. (tile_neighbours(TILE_RIGHT).EQ.EXTERNAL_TILE) ) THEN
         !$OMP DO
         DO k=y_min-depth,y_max+1+depth
+        !$OMP SIMD
           DO j=1,depth
             xvel0(x_max+1+j,k)=-xvel0(x_max+1-j,k)
           ENDDO
@@ -416,6 +448,7 @@ CONTAINS
       IF( (chunk_neighbours(CHUNK_BOTTOM).EQ.EXTERNAL_FACE) .AND. (tile_neighbours(TILE_BOTTOM).EQ.EXTERNAL_TILE) ) THEN
         !$OMP DO
         DO j=x_min-depth,x_max+1+depth
+        !$OMP SIMD
           DO k=1,depth
             xvel1(j,1-k)=xvel1(j,1+k)
           ENDDO
@@ -425,6 +458,7 @@ CONTAINS
       IF( (chunk_neighbours(CHUNK_TOP).EQ.EXTERNAL_FACE) .AND. (tile_neighbours(TILE_TOP).EQ.EXTERNAL_TILE) ) THEN
         !$OMP DO
         DO j=x_min-depth,x_max+1+depth
+        !$OMP SIMD
           DO k=1,depth
             xvel1(j,y_max+1+k)=xvel1(j,y_max+1-k)
           ENDDO
@@ -434,6 +468,7 @@ CONTAINS
       IF( (chunk_neighbours(CHUNK_LEFT).EQ.EXTERNAL_FACE) .AND. (tile_neighbours(TILE_LEFT).EQ.EXTERNAL_TILE) ) THEN
         !$OMP DO
         DO k=y_min-depth,y_max+1+depth
+        !$OMP SIMD
           DO j=1,depth
             xvel1(1-j,k)=-xvel1(1+j,k)
           ENDDO
@@ -443,6 +478,7 @@ CONTAINS
       IF( (chunk_neighbours(CHUNK_RIGHT).EQ.EXTERNAL_FACE) .AND. (tile_neighbours(TILE_RIGHT).EQ.EXTERNAL_TILE) ) THEN
         !$OMP DO
         DO k=y_min-depth,y_max+1+depth
+        !$OMP SIMD
           DO j=1,depth
             xvel1(x_max+1+j,k)=-xvel1(x_max+1-j,k)
           ENDDO
@@ -455,6 +491,7 @@ CONTAINS
       IF( (chunk_neighbours(CHUNK_BOTTOM).EQ.EXTERNAL_FACE) .AND. (tile_neighbours(TILE_BOTTOM).EQ.EXTERNAL_TILE) ) THEN
         !$OMP DO
         DO j=x_min-depth,x_max+1+depth
+        !$OMP SIMD
           DO k=1,depth
             yvel0(j,1-k)=-yvel0(j,1+k)
           ENDDO
@@ -464,6 +501,7 @@ CONTAINS
       IF( (chunk_neighbours(CHUNK_TOP).EQ.EXTERNAL_FACE) .AND. (tile_neighbours(TILE_TOP).EQ.EXTERNAL_TILE) ) THEN
         !$OMP DO
         DO j=x_min-depth,x_max+1+depth
+        !$OMP SIMD
           DO k=1,depth
             yvel0(j,y_max+1+k)=-yvel0(j,y_max+1-k)
           ENDDO
@@ -473,6 +511,7 @@ CONTAINS
       IF( (chunk_neighbours(CHUNK_LEFT).EQ.EXTERNAL_FACE) .AND. (tile_neighbours(TILE_LEFT).EQ.EXTERNAL_TILE) ) THEN
         !$OMP DO
         DO k=y_min-depth,y_max+1+depth
+        !$OMP SIMD
           DO j=1,depth
             yvel0(1-j,k)=yvel0(1+j,k)
           ENDDO
@@ -482,6 +521,7 @@ CONTAINS
       IF( (chunk_neighbours(CHUNK_RIGHT).EQ.EXTERNAL_FACE) .AND. (tile_neighbours(TILE_RIGHT).EQ.EXTERNAL_TILE) ) THEN
         !$OMP DO
         DO k=y_min-depth,y_max+1+depth
+        !$OMP SIMD
           DO j=1,depth
             yvel0(x_max+1+j,k)=yvel0(x_max+1-j,k)
           ENDDO
@@ -494,6 +534,7 @@ CONTAINS
       IF( (chunk_neighbours(CHUNK_BOTTOM).EQ.EXTERNAL_FACE) .AND. (tile_neighbours(TILE_BOTTOM).EQ.EXTERNAL_TILE) ) THEN
         !$OMP DO
         DO j=x_min-depth,x_max+1+depth
+        !$OMP SIMD
           DO k=1,depth
             yvel1(j,1-k)=-yvel1(j,1+k)
           ENDDO
@@ -503,6 +544,7 @@ CONTAINS
       IF( (chunk_neighbours(CHUNK_TOP).EQ.EXTERNAL_FACE) .AND. (tile_neighbours(TILE_TOP).EQ.EXTERNAL_TILE) ) THEN
         !$OMP DO
         DO j=x_min-depth,x_max+1+depth
+        !$OMP SIMD
           DO k=1,depth
             yvel1(j,y_max+1+k)=-yvel1(j,y_max+1-k)
           ENDDO
@@ -512,6 +554,7 @@ CONTAINS
       IF( (chunk_neighbours(CHUNK_LEFT).EQ.EXTERNAL_FACE) .AND. (tile_neighbours(TILE_LEFT).EQ.EXTERNAL_TILE) ) THEN
         !$OMP DO
         DO k=y_min-depth,y_max+1+depth
+        !$OMP SIMD
           DO j=1,depth
             yvel1(1-j,k)=yvel1(1+j,k)
           ENDDO
@@ -521,6 +564,7 @@ CONTAINS
       IF( (chunk_neighbours(CHUNK_RIGHT).EQ.EXTERNAL_FACE) .AND. (tile_neighbours(TILE_RIGHT).EQ.EXTERNAL_TILE) ) THEN
         !$OMP DO
         DO k=y_min-depth,y_max+1+depth
+        !$OMP SIMD
           DO j=1,depth
             yvel1(x_max+1+j,k)=yvel1(x_max+1-j,k)
           ENDDO
@@ -537,6 +581,7 @@ CONTAINS
       IF( (chunk_neighbours(CHUNK_BOTTOM).EQ.EXTERNAL_FACE) .AND. (tile_neighbours(TILE_BOTTOM).EQ.EXTERNAL_TILE) ) THEN
         !$OMP DO
         DO j=x_min-depth,x_max+1+depth
+        !$OMP SIMD
           DO k=1,depth
             vol_flux_x(j,1-k)=vol_flux_x(j,1+k)
           ENDDO
@@ -546,6 +591,7 @@ CONTAINS
       IF( (chunk_neighbours(CHUNK_TOP).EQ.EXTERNAL_FACE) .AND. (tile_neighbours(TILE_TOP).EQ.EXTERNAL_TILE) ) THEN
         !$OMP DO
         DO j=x_min-depth,x_max+1+depth
+        !$OMP SIMD
           DO k=1,depth
             vol_flux_x(j,y_max+k)=vol_flux_x(j,y_max-k)
           ENDDO
@@ -555,6 +601,7 @@ CONTAINS
       IF( (chunk_neighbours(CHUNK_LEFT).EQ.EXTERNAL_FACE) .AND. (tile_neighbours(TILE_LEFT).EQ.EXTERNAL_TILE) ) THEN
         !$OMP DO
         DO k=y_min-depth,y_max+depth
+        !$OMP SIMD
           DO j=1,depth
             vol_flux_x(1-j,k)=-vol_flux_x(1+j,k)
           ENDDO
@@ -564,6 +611,7 @@ CONTAINS
       IF( (chunk_neighbours(CHUNK_RIGHT).EQ.EXTERNAL_FACE) .AND. (tile_neighbours(TILE_RIGHT).EQ.EXTERNAL_TILE) ) THEN
         !$OMP DO
         DO k=y_min-depth,y_max+depth
+        !$OMP SIMD
           DO j=1,depth
             vol_flux_x(x_max+j+1,k)=-vol_flux_x(x_max+1-j,k)
           ENDDO
@@ -576,6 +624,7 @@ CONTAINS
       IF( (chunk_neighbours(CHUNK_BOTTOM).EQ.EXTERNAL_FACE) .AND. (tile_neighbours(TILE_BOTTOM).EQ.EXTERNAL_TILE) ) THEN
         !$OMP DO
         DO j=x_min-depth,x_max+1+depth
+        !$OMP SIMD
           DO k=1,depth
             mass_flux_x(j,1-k)=mass_flux_x(j,1+k)
           ENDDO
@@ -585,6 +634,7 @@ CONTAINS
       IF( (chunk_neighbours(CHUNK_TOP).EQ.EXTERNAL_FACE) .AND. (tile_neighbours(TILE_TOP).EQ.EXTERNAL_TILE) ) THEN
         !$OMP DO
         DO j=x_min-depth,x_max+1+depth
+        !$OMP SIMD
           DO k=1,depth
             mass_flux_x(j,y_max+k)=mass_flux_x(j,y_max-k)
           ENDDO
@@ -594,6 +644,7 @@ CONTAINS
       IF( (chunk_neighbours(CHUNK_LEFT).EQ.EXTERNAL_FACE) .AND. (tile_neighbours(TILE_LEFT).EQ.EXTERNAL_TILE) ) THEN
         !$OMP DO
         DO k=y_min-depth,y_max+depth
+        !$OMP SIMD
           DO j=1,depth
             mass_flux_x(1-j,k)=-mass_flux_x(1+j,k)
           ENDDO
@@ -603,6 +654,7 @@ CONTAINS
       IF( (chunk_neighbours(CHUNK_RIGHT).EQ.EXTERNAL_FACE) .AND. (tile_neighbours(TILE_RIGHT).EQ.EXTERNAL_TILE) ) THEN
         !$OMP DO
         DO k=y_min-depth,y_max+depth
+        !$OMP SIMD
           DO j=1,depth
             mass_flux_x(x_max+j+1,k)=-mass_flux_x(x_max+1-j,k)
           ENDDO
@@ -615,6 +667,7 @@ CONTAINS
       IF( (chunk_neighbours(CHUNK_BOTTOM).EQ.EXTERNAL_FACE) .AND. (tile_neighbours(TILE_BOTTOM).EQ.EXTERNAL_TILE) ) THEN
         !$OMP DO
         DO j=x_min-depth,x_max+depth
+        !$OMP SIMD
           DO k=1,depth
             vol_flux_y(j,1-k)=-vol_flux_y(j,1+k)
           ENDDO
@@ -624,6 +677,7 @@ CONTAINS
       IF( (chunk_neighbours(CHUNK_TOP).EQ.EXTERNAL_FACE) .AND. (tile_neighbours(TILE_TOP).EQ.EXTERNAL_TILE) ) THEN
         !$OMP DO
         DO j=x_min-depth,x_max+depth
+        !$OMP SIMD
           DO k=1,depth
             vol_flux_y(j,y_max+k+1)=-vol_flux_y(j,y_max+1-k)
           ENDDO
@@ -633,6 +687,7 @@ CONTAINS
       IF( (chunk_neighbours(CHUNK_LEFT).EQ.EXTERNAL_FACE) .AND. (tile_neighbours(TILE_LEFT).EQ.EXTERNAL_TILE) ) THEN
         !$OMP DO
         DO k=y_min-depth,y_max+1+depth
+        !$OMP SIMD
           DO j=1,depth
             vol_flux_y(1-j,k)=vol_flux_y(1+j,k)
           ENDDO
@@ -642,6 +697,7 @@ CONTAINS
       IF( (chunk_neighbours(CHUNK_RIGHT).EQ.EXTERNAL_FACE) .AND. (tile_neighbours(TILE_RIGHT).EQ.EXTERNAL_TILE) ) THEN
         !$OMP DO
         DO k=y_min-depth,y_max+1+depth
+        !$OMP SIMD
           DO j=1,depth
             vol_flux_y(x_max+j,k)=vol_flux_y(x_max-j,k)
           ENDDO
@@ -654,6 +710,7 @@ CONTAINS
       IF( (chunk_neighbours(CHUNK_BOTTOM).EQ.EXTERNAL_FACE) .AND. (tile_neighbours(TILE_BOTTOM).EQ.EXTERNAL_TILE) ) THEN
         !$OMP DO
         DO j=x_min-depth,x_max+depth
+        !$OMP SIMD
           DO k=1,depth
             mass_flux_y(j,1-k)=-mass_flux_y(j,1+k)
           ENDDO
@@ -663,6 +720,7 @@ CONTAINS
       IF( (chunk_neighbours(CHUNK_TOP).EQ.EXTERNAL_FACE) .AND. (tile_neighbours(TILE_TOP).EQ.EXTERNAL_TILE) ) THEN
         !$OMP DO
         DO j=x_min-depth,x_max+depth
+        !$OMP SIMD
           DO k=1,depth
             mass_flux_y(j,y_max+k+1)=-mass_flux_y(j,y_max+1-k)
           ENDDO
@@ -672,6 +730,7 @@ CONTAINS
       IF( (chunk_neighbours(CHUNK_LEFT).EQ.EXTERNAL_FACE) .AND. (tile_neighbours(TILE_LEFT).EQ.EXTERNAL_TILE) ) THEN
         !$OMP DO
         DO k=y_min-depth,y_max+1+depth
+        !$OMP SIMD
           DO j=1,depth
             mass_flux_y(1-j,k)=mass_flux_y(1+j,k)
           ENDDO
@@ -681,6 +740,7 @@ CONTAINS
       IF( (chunk_neighbours(CHUNK_RIGHT).EQ.EXTERNAL_FACE) .AND. (tile_neighbours(TILE_RIGHT).EQ.EXTERNAL_TILE) ) THEN
         !$OMP DO
         DO k=y_min-depth,y_max+1+depth
+        !$OMP SIMD
           DO j=1,depth
             mass_flux_y(x_max+j,k)=mass_flux_y(x_max-j,k)
           ENDDO

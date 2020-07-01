@@ -85,6 +85,7 @@ CONTAINS
     !$OMP PARALLEL SHARED(x_cent,y_cent)
     !$OMP DO
     DO k=y_min-2,y_max+2
+    !$OMP SIMD
       DO j=x_min-2,x_max+2
         energy0(j,k)=state_energy(1)
       ENDDO
@@ -92,6 +93,7 @@ CONTAINS
     !$OMP END DO
     !$OMP DO
     DO k=y_min-2,y_max+2
+    !$OMP SIMD
       DO j=x_min-2,x_max+2
         density0(j,k)=state_density(1)
       ENDDO
@@ -99,6 +101,7 @@ CONTAINS
     !$OMP END DO
     !$OMP DO
     DO k=y_min-2,y_max+2
+    !$OMP SIMD
       DO j=x_min-2,x_max+2
         xvel0(j,k)=state_xvel(1)
       ENDDO
@@ -106,6 +109,7 @@ CONTAINS
     !$OMP END DO
     !$OMP DO
     DO k=y_min-2,y_max+2
+    !$OMP SIMD
       DO j=x_min-2,x_max+2
         yvel0(j,k)=state_yvel(1)
       ENDDO
@@ -120,6 +124,7 @@ CONTAINS
 
       !$OMP DO PRIVATE(radius,jt,kt)
       DO k=y_min-2,y_max+2
+      !$OMP SIMD
         DO j=x_min-2,x_max+2
           IF(state_geometry(state).EQ.g_rect ) THEN
             IF(vertexx(j+1).GE.state_xmin(state).AND.vertexx(j).LT.state_xmax(state)) THEN

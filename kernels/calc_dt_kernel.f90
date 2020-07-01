@@ -90,6 +90,7 @@ CONTAINS
 
     !$OMP DO PRIVATE(dsx,dsy,cc,dv1,dv2,div,dtct,dtut,dtvt,dtdivt) REDUCTION(MIN : dt_min_val)
     DO k=y_min,y_max
+    !$OMP SIMD
       DO j=x_min,x_max
 
         dsx=celldx(j)

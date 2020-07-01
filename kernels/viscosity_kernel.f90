@@ -51,6 +51,7 @@ CONTAINS
 
     !$OMP DO PRIVATE(ugrad,vgrad,div,strain2,pgradx,pgrady,pgradx2,pgrady2,limiter,pgrad,xgrad,ygrad,grad,grad2,dirx,diry)
     DO k=y_min,y_max
+    !$OMP SIMD
       DO j=x_min,x_max
         ugrad=(xvel0(j+1,k  )+xvel0(j+1,k+1))-(xvel0(j  ,k  )+xvel0(j  ,k+1))
 
