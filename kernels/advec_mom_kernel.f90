@@ -81,6 +81,7 @@ CONTAINS
     IF(mom_sweep.EQ.1)THEN ! x 1
       !$OMP DO
       DO k=y_min-2,y_max+2
+      !$OMP SIMD
         DO j=x_min-2,x_max+2
           post_vol(j,k)= volume(j,k)+vol_flux_y(j  ,k+1)-vol_flux_y(j,k)
           pre_vol(j,k)=post_vol(j,k)+vol_flux_x(j+1,k  )-vol_flux_x(j,k)
@@ -90,6 +91,7 @@ CONTAINS
     ELSEIF(mom_sweep.EQ.2)THEN ! y 1
       !$OMP DO
       DO k=y_min-2,y_max+2
+      !$OMP SIMD
         DO j=x_min-2,x_max+2
           post_vol(j,k)= volume(j,k)+vol_flux_x(j+1,k  )-vol_flux_x(j,k)
           pre_vol(j,k)=post_vol(j,k)+vol_flux_y(j  ,k+1)-vol_flux_y(j,k)
@@ -99,6 +101,7 @@ CONTAINS
     ELSEIF(mom_sweep.EQ.3)THEN ! x 2
       !$OMP DO
       DO k=y_min-2,y_max+2
+      !$OMP SIMD
         DO j=x_min-2,x_max+2
           post_vol(j,k)=volume(j,k)
           pre_vol(j,k)=post_vol(j,k)+vol_flux_y(j  ,k+1)-vol_flux_y(j,k)
@@ -108,6 +111,7 @@ CONTAINS
     ELSEIF(mom_sweep.EQ.4)THEN ! y 2
       !$OMP DO
       DO k=y_min-2,y_max+2
+      !$OMP SIMD
         DO j=x_min-2,x_max+2
           post_vol(j,k)=volume(j,k)
           pre_vol(j,k)=post_vol(j,k)+vol_flux_x(j+1,k  )-vol_flux_x(j,k)
@@ -120,6 +124,7 @@ CONTAINS
       IF(which_vel.EQ.1)THEN
         !$OMP DO
         DO k=y_min,y_max+1
+        !$OMP SIMD
           DO j=x_min-2,x_max+2
             ! Find staggered mesh mass fluxes, nodal masses and volumes.
             node_flux(j,k)=0.25_8*(mass_flux_x(j,k-1  )+mass_flux_x(j  ,k)  &
@@ -129,6 +134,7 @@ CONTAINS
         !$OMP END DO
         !$OMP DO
         DO k=y_min,y_max+1
+        !$OMP SIMD
           DO j=x_min-1,x_max+2
             ! Staggered cell mass post advection
             node_mass_post(j,k)=0.25_8*(density1(j  ,k-1)*post_vol(j  ,k-1)                   &
@@ -173,6 +179,7 @@ CONTAINS
       !$OMP END DO
       !$OMP DO
       DO k=y_min,y_max+1
+      !$OMP SIMD
         DO j=x_min,x_max+1
           vel1 (j,k)=(vel1 (j,k)*node_mass_pre(j,k)+mom_flux(j-1,k)-mom_flux(j,k))/node_mass_post(j,k)
         ENDDO
@@ -182,6 +189,7 @@ CONTAINS
       IF(which_vel.EQ.1)THEN
         !$OMP DO
         DO k=y_min-2,y_max+2
+        !$OMP SIMD
           DO j=x_min,x_max+1
             ! Find staggered mesh mass fluxes and nodal masses and volumes.
             node_flux(j,k)=0.25_8*(mass_flux_y(j-1,k  )+mass_flux_y(j  ,k  ) &
@@ -191,6 +199,7 @@ CONTAINS
         !$OMP END DO
         !$OMP DO
         DO k=y_min-1,y_max+2
+        !$OMP SIMD
           DO j=x_min,x_max+1
             node_mass_post(j,k)=0.25_8*(density1(j  ,k-1)*post_vol(j  ,k-1)                     &
               +density1(j  ,k  )*post_vol(j  ,k  )                     &
@@ -234,6 +243,7 @@ CONTAINS
       !$OMP END DO
       !$OMP DO
       DO k=y_min,y_max+1
+      !$OMP SIMD
         DO j=x_min,x_max+1
           vel1 (j,k)=(vel1(j,k)*node_mass_pre(j,k)+mom_flux(j,k-1)-mom_flux(j,k))/node_mass_post(j,k)
         ENDDO

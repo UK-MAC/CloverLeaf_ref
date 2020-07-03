@@ -85,6 +85,7 @@ CONTAINS
       IF(sweep_number.EQ.1)THEN
         !$OMP DO
         DO k=y_min-2,y_max+2
+        !$OMP SIMD
           DO j=x_min-2,x_max+2
             pre_vol(j,k)=volume(j,k)+(vol_flux_x(j+1,k  )-vol_flux_x(j,k)+vol_flux_y(j  ,k+1)-vol_flux_y(j,k))
             post_vol(j,k)=pre_vol(j,k)-(vol_flux_x(j+1,k  )-vol_flux_x(j,k))
@@ -94,6 +95,7 @@ CONTAINS
       ELSE
         !$OMP DO
         DO k=y_min-2,y_max+2
+        !$OMP SIMD
           DO j=x_min-2,x_max+2
             pre_vol(j,k)=volume(j,k)+vol_flux_x(j+1,k)-vol_flux_x(j,k)
             post_vol(j,k)=volume(j,k)
@@ -158,6 +160,7 @@ CONTAINS
 
       !$OMP DO PRIVATE(pre_mass_s,post_mass_s,post_ener_s,advec_vol_s)
       DO k=y_min,y_max
+      !$OMP SIMD
         DO j=x_min,x_max
           pre_mass_s=density1(j,k)*pre_vol(j,k)
           post_mass_s=pre_mass_s+mass_flux_x(j,k)-mass_flux_x(j+1,k)
@@ -174,6 +177,7 @@ CONTAINS
       IF(sweep_number.EQ.1)THEN
         !$OMP DO
         DO k=y_min-2,y_max+2
+        !$OMP SIMD
           DO j=x_min-2,x_max+2
             pre_vol(j,k)=volume(j,k)+(vol_flux_y(j  ,k+1)-vol_flux_y(j,k)+vol_flux_x(j+1,k  )-vol_flux_x(j,k))
             post_vol(j,k)=pre_vol(j,k)-(vol_flux_y(j  ,k+1)-vol_flux_y(j,k))
@@ -183,6 +187,7 @@ CONTAINS
       ELSE
         !$OMP DO
         DO k=y_min-2,y_max+2
+        !$OMP SIMD
           DO j=x_min-2,x_max+2
             pre_vol(j,k)=volume(j,k)+vol_flux_y(j  ,k+1)-vol_flux_y(j,k)
             post_vol(j,k)=volume(j,k)
@@ -246,6 +251,7 @@ CONTAINS
 
       !$OMP DO PRIVATE(pre_mass_s,post_mass_s,post_ener_s,advec_vol_s)
       DO k=y_min,y_max
+      !$OMP SIMD
         DO j=x_min,x_max
           pre_mass_s=density1(j,k)*pre_vol(j,k)
           post_mass_s=pre_mass_s+mass_flux_y(j,k)-mass_flux_y(j,k+1)

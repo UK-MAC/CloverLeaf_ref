@@ -47,7 +47,7 @@ void revert_kernel_c_(int *xmin,int *xmax,int *ymin,int *ymax,
  {
 #pragma omp for private(j)
   for (k=y_min;k<=y_max;k++) {
-#pragma ivdep
+#pragma omp simd
     for (j=x_min;j<=x_max;j++) {
       density1[FTNREF2D(j  ,k  ,x_max+4,x_min-2,y_min-2)]=density0[FTNREF2D(j  ,k  ,x_max+4,x_min-2,y_min-2)];
     }
@@ -55,7 +55,7 @@ void revert_kernel_c_(int *xmin,int *xmax,int *ymin,int *ymax,
   
 #pragma omp for private(j)
   for (k=y_min;k<=y_max;k++) {
-#pragma ivdep
+#pragma omp simd
     for (j=x_min;j<=x_max;j++) {
       energy1[FTNREF2D(j  ,k  ,x_max+4,x_min-2,y_min-2)]=energy0[FTNREF2D(j  ,k  ,x_max+4,x_min-2,y_min-2)];
     }

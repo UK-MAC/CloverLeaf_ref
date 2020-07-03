@@ -45,6 +45,7 @@ CONTAINS
     !$OMP PARALLEL
     !$OMP DO PRIVATE(v,pressurebyenergy,pressurebyvolume,sound_speed_squared)
     DO k=y_min,y_max
+    !$OMP SIMD
       DO j=x_min,x_max
         v=1.0_8/density(j,k)
         pressure(j,k)=(1.4_8-1.0_8)*density(j,k)*energy(j,k)

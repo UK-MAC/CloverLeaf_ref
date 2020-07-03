@@ -64,7 +64,7 @@ void pdv_kernel_c_(int *prdct,
     
 #pragma omp for private(right_flux,left_flux,top_flux,bottom_flux,total_flux,min_cell_volume,energy_change,recip_volume,j)
     for (k=y_min;k<=y_max;k++) {
-#pragma ivdep
+#pragma omp simd
       for (j=x_min;j<=x_max;j++) {
         left_flux=  (xarea[FTNREF2D(j  ,k  ,x_max+5,x_min-2,y_min-2)])
                                    *(xvel0[FTNREF2D(j  ,k  ,x_max+5,x_min-2,y_min-2)]
@@ -117,7 +117,7 @@ void pdv_kernel_c_(int *prdct,
   else{
 #pragma omp for private(right_flux,left_flux,top_flux,bottom_flux,total_flux,min_cell_volume,energy_change,recip_volume,j)
     for (k=y_min;k<=y_max;k++) {
-#pragma ivdep
+#pragma omp simd
       for (j=x_min;j<=x_max;j++) {
         left_flux=  (xarea[FTNREF2D(j  ,k  ,x_max+5,x_min-2,y_min-2)])
                                    *(xvel0[FTNREF2D(j  ,k  ,x_max+5,x_min-2,y_min-2)]

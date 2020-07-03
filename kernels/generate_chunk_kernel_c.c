@@ -74,7 +74,7 @@ void generate_chunk_kernel_c_(int *xmin,int *xmax,int *ymin,int *ymax,
   /* State 1 is always the background state */
 #pragma omp for private(j,k)
   for (k=y_min-2;k<=y_max+2;k++) {
-#pragma ivdep
+#pragma omp simd
     for (j=x_min-2;j<=x_max+2;j++) {
       energy0[FTNREF2D(j  ,k  ,x_max+4,x_min-2,y_min-2)]=state_energy[FTNREF1D(1,1)];
     }
@@ -82,7 +82,7 @@ void generate_chunk_kernel_c_(int *xmin,int *xmax,int *ymin,int *ymax,
 
 #pragma omp for private(j,k)
   for (k=y_min-2;k<=y_max+2;k++) {
-#pragma ivdep
+#pragma omp simd
     for (j=x_min-2;j<=x_max+2;j++) {
       density0[FTNREF2D(j  ,k  ,x_max+4,x_min-2,y_min-2)]=state_density[FTNREF1D(1,1)];
    }
@@ -90,7 +90,7 @@ void generate_chunk_kernel_c_(int *xmin,int *xmax,int *ymin,int *ymax,
 
 #pragma omp for private(j,k)
   for (k=y_min-2;k<=y_max+2;k++) {
-#pragma ivdep
+#pragma omp simd
     for (j=x_min-2;j<=x_max+2;j++) {
       xvel0[FTNREF2D(j  ,k  ,x_max+5,x_min-2,y_min-2)]=state_xvel[FTNREF1D(1,1)];
    }
@@ -98,7 +98,7 @@ void generate_chunk_kernel_c_(int *xmin,int *xmax,int *ymin,int *ymax,
 
 #pragma omp for private(j,k)
   for (k=y_min-2;k<=y_max+2;k++) {
-#pragma ivdep
+#pragma omp simd
     for (j=x_min-2;j<=x_max+2;j++) {
       yvel0[FTNREF2D(j  ,k  ,x_max+5,x_min-2,y_min-2)]=state_yvel[FTNREF1D(1,1)];
    }
@@ -112,7 +112,7 @@ void generate_chunk_kernel_c_(int *xmin,int *xmax,int *ymin,int *ymax,
 
 #pragma omp for private(radius,j,k)
     for (k=y_min-2;k<=y_max+2;k++) {
-#pragma ivdep
+#pragma omp simd
       for (j=x_min-2;j<=x_max+2;j++) {
         if(state_geometry[FTNREF1D(state,1)]==g_rect ) {
           if(vertexx[FTNREF1D(j+1,x_min-2)]>=state_xmin[FTNREF1D(state,1)] && vertexx[FTNREF1D(j,x_min-2)]<state_xmax[FTNREF1D(state,1)]) {

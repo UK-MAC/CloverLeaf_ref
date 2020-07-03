@@ -60,6 +60,7 @@ CONTAINS
 
     !$OMP PARALLEL DO PRIVATE(index)
     DO k=y_min-depth,y_max+y_inc+depth
+    !$OMP SIMD
       DO j=1,depth
         index= buffer_offset + j+(k+depth-1)*depth
         left_snd_buffer(index)=field(x_min+x_inc-1+j,k)
@@ -106,6 +107,7 @@ CONTAINS
 
     !$OMP PARALLEL DO PRIVATE(index)
     DO k=y_min-depth,y_max+y_inc+depth
+    !$OMP SIMD
       DO j=1,depth
         index= buffer_offset + j+(k+depth-1)*depth
         field(x_min-j,k)=left_rcv_buffer(index)
@@ -152,6 +154,7 @@ CONTAINS
 
     !$OMP PARALLEL DO PRIVATE(index)
     DO k=y_min-depth,y_max+y_inc+depth
+    !$OMP SIMD
       DO j=1,depth
         index= buffer_offset + j+(k+depth-1)*depth
         right_snd_buffer(index)=field(x_max+1-j,k)
@@ -198,6 +201,7 @@ CONTAINS
 
     !$OMP PARALLEL DO PRIVATE(index)
     DO k=y_min-depth,y_max+y_inc+depth
+    !$OMP SIMD
       DO j=1,depth
         index= buffer_offset + j+(k+depth-1)*depth
         field(x_max+x_inc+j,k)=right_rcv_buffer(index)

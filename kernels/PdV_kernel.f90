@@ -71,6 +71,7 @@ CONTAINS
       !$OMP DO PRIVATE(right_flux,left_flux,top_flux,bottom_flux,total_flux,min_cell_volume, &
       !$OMP            energy_change,recip_volume,volume_change_s)
       DO k=y_min,y_max
+      !$OMP SIMD
         DO j=x_min,x_max
 
           left_flux=  (xarea(j  ,k  )*(xvel0(j  ,k  )+xvel0(j  ,k+1)                     &
@@ -106,6 +107,7 @@ CONTAINS
       !$OMP DO PRIVATE(right_flux,left_flux,top_flux,bottom_flux,total_flux,min_cell_volume, &
       !$OMP            energy_change,recip_volume,volume_change_s)
       DO k=y_min,y_max
+      !$OMP SIMD
         DO j=x_min,x_max
 
           left_flux=  (xarea(j  ,k  )*(xvel0(j  ,k  )+xvel0(j  ,k+1)                     &

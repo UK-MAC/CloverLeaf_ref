@@ -58,6 +58,7 @@ CONTAINS
 
     !$OMP DO PRIVATE(j,k,stepbymass_s)
     DO k=y_min,y_max+1
+    !$OMP SIMD
       DO j=x_min,x_max+1
         stepbymass_s=halfdt/((density0(j-1,k-1)*volume(j-1,k-1)  &
           +density0(j  ,k-1)*volume(j  ,k-1)  &

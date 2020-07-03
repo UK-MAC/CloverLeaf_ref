@@ -69,7 +69,7 @@ void clover_pack_message_left_c_(int *xmin,int *xmax,int *ymin,int *ymax, double
 
 #pragma omp parallel for private(j,k,index)
   for (k=y_min-depth;k<=y_max+y_inc+depth;k++) {
-#pragma ivdep
+#pragma omp simd
     for (j=1;j<=depth;j++) {
       index=buffer_offset + j+(k+depth-1)*depth;
       left_snd_buffer[FTNREF1D(index,1)]=field[FTNREF2D(x_min+x_inc-1+j,k,x_max+4+x_inc,x_min-2,y_min-2)];
@@ -121,7 +121,7 @@ void clover_unpack_message_left_c_(int *xmin,int *xmax,int *ymin,int *ymax, doub
 
 #pragma omp parallel for private(j,k,index)
   for (k=y_min-depth;k<=y_max+y_inc+depth;k++) {
-#pragma ivdep
+#pragma omp simd
     for (j=1;j<=depth;j++) {
       index=buffer_offset + j+(k+depth-1)*depth;
       field[FTNREF2D(x_min-j,k,x_max+4+x_inc,x_min-2,y_min-2)]=left_rcv_buffer[FTNREF1D(index,1)];
@@ -173,7 +173,7 @@ void clover_pack_message_right_c_(int *xmin,int *xmax,int *ymin,int *ymax, doubl
 
 #pragma omp parallel for private(j,k,index)
   for (k=y_min-depth;k<=y_max+y_inc+depth;k++) {
-#pragma ivdep
+#pragma omp simd
     for (j=1;j<=depth;j++) {
       index=buffer_offset + j+(k+depth-1)*depth;
       right_snd_buffer[FTNREF1D(index,1)]=field[FTNREF2D(x_max+1-j,k,x_max+4+x_inc,x_min-2,y_min-2)];
@@ -225,7 +225,7 @@ void clover_unpack_message_right_c_(int *xmin,int *xmax,int *ymin,int *ymax, dou
 
 #pragma omp parallel for private(j,k,index)
   for (k=y_min-depth;k<=y_max+y_inc+depth;k++) {
-#pragma ivdep
+#pragma omp simd
     for (j=1;j<=depth;j++) {
       index=buffer_offset + j+(k+depth-1)*depth;
       field[FTNREF2D(x_max+x_inc+j,k,x_max+4+x_inc,x_min-2,y_min-2)]=right_rcv_buffer[FTNREF1D(index,1)];

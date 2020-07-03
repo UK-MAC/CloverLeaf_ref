@@ -47,6 +47,7 @@ CONTAINS
     !$OMP PARALLEL
     !$OMP DO
     DO k=y_min,y_max
+    !$OMP SIMD
       DO j=x_min,x_max
         density0(j,k)=density1(j,k)
         energy0(j,k)=energy1(j,k)
@@ -56,6 +57,7 @@ CONTAINS
 
     !$OMP DO
     DO k=y_min,y_max+1
+    !$OMP SIMD
       DO j=x_min,x_max+1
         xvel0(j,k)=xvel1(j,k)
         yvel0(j,k)=yvel1(j,k)
