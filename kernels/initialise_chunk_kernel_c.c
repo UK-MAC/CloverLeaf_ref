@@ -54,57 +54,57 @@ void initialise_chunk_kernel_c_(int *xmin,int *xmax,int *ymin,int *ymax,
 
   int j,k;
 
-#pragma omp parallel
+#pragma omp parallel private(j,k)
  {
-#pragma omp for simd private(j)
+#pragma omp for simd
   for (j=x_min-2;j<=x_max+3;j++) {
     vertexx[FTNREF1D(j,x_min-2)]=min_x+d_x*(double)(j-x_min);
   }
 
-#pragma omp for simd private(j)
+#pragma omp for simd
   for (j=x_min-2;j<=x_max+3;j++) {
     vertexdx[FTNREF1D(j,x_min-2)]=d_x;
   }
 
-#pragma omp for simd private(j,k)
+#pragma omp for simd
   for (k=y_min-2;k<=y_max+3;k++) {
     vertexy[FTNREF1D(k,y_min-2)]=min_y+d_y*(double)(k-y_min);
   }
 
-#pragma omp for simd private(j)
+#pragma omp for simd
   for (k=y_min-2;k<=y_max+3;k++) {
     vertexdy[FTNREF1D(k,y_min-2)]=d_y;
   }
 
-#pragma omp for simd private(j)
+#pragma omp for simd
   for (j=x_min-2;j<=x_max+2;j++) {
     cellx[FTNREF1D(j,x_min-2)]=0.5*(vertexx[FTNREF1D(j,x_min-2)]+vertexx[FTNREF1D(j+1,x_min-2)]);
   }
 
-#pragma omp for simd private(j)
+#pragma omp for simd
   for (j=x_min-2;j<=x_max+2;j++) {
     celldx[FTNREF1D(j,x_min-2)]=d_x;
   }
 
-#pragma omp for simd private(j)
+#pragma omp for simd
   for (k=y_min-2;k<=y_max+2;k++) {
     celly[FTNREF1D(k,y_min-2)]=0.5*(vertexy[FTNREF1D(k,y_min-2)]+vertexy[FTNREF1D(k+1,x_min-2)]);
   }
 
-#pragma omp for simd private(j)
+#pragma omp for simd
   for (k=y_min-2;k<=y_max+2;k++) {
      celldy[FTNREF1D(k,y_min-2)]=d_y;
   }
 
-#pragma omp for private(j,k)
+#pragma omp for
   for (k=y_min-2;k<=y_max+2;k++) {
-#pragma omps imd
+#pragma omps simd
     for (j=x_min-2;j<=x_max+2;j++) {
         volume[FTNREF2D(j,k,x_max+4,x_min-2,y_min-2)]=d_x*d_y;
     }
   }
 
-#pragma omp for private(j,k)
+#pragma omp for 
   for (k=y_min-2;k<=y_max+2;k++) {
 #pragma omp simd
     for (j=x_min-2;j<=x_max+2;j++) {
@@ -112,7 +112,7 @@ void initialise_chunk_kernel_c_(int *xmin,int *xmax,int *ymin,int *ymax,
     }
   }
 
-#pragma omp for private(j,k)
+#pragma omp for 
   for (k=y_min-2;k<=y_max+2;k++) {
 #pragma omp simd
     for (j=x_min-2;j<=x_max+2;j++) {
