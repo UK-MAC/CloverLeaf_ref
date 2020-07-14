@@ -112,6 +112,7 @@ void generate_chunk_kernel_c_(int *xmin,int *xmax,int *ymin,int *ymax,
 
 #pragma omp for private(radius,j,k)
     for (k=y_min-2;k<=y_max+2;k++) {
+#pragma ivdep	    
       for (j=x_min-2;j<=x_max+2;j++) {
         if(state_geometry[FTNREF1D(state,1)]==g_rect ) {
           if(vertexx[FTNREF1D(j+1,x_min-2)]>=state_xmin[FTNREF1D(state,1)] && vertexx[FTNREF1D(j,x_min-2)]<state_xmax[FTNREF1D(state,1)]) {

@@ -93,6 +93,7 @@ void calc_dt_kernel_c_(int *xmin,int *xmax,int *ymin,int *ymax,
 
 #pragma omp for private(dsx,dsy,cc,dv1,dv2,div,dtct,dtut,dtvt,dtdivt,j,k)
   for (k=y_min;k<=y_max;k++) {
+#pragma ivdep	  
     for (j=x_min;j<=x_max;j++) {
 
        dsx=celldx[FTNREF1D(j,x_min-2)];
@@ -136,6 +137,7 @@ void calc_dt_kernel_c_(int *xmin,int *xmax,int *ymin,int *ymax,
 
 #pragma omp for private(j) reduction(min:dt_min_val)
   for (k=y_min;k<=y_max;k++) {
+#pragma ivdep
     for (j=x_min;j<=x_max;j++) {
       if(dt_min[FTNREF2D(j,k,x_max+5,x_min-2,y_min-2)] < dt_min_val) dt_min_val=dt_min[FTNREF2D(j,k,x_max+5,x_min-2,y_min-2)];
     }
