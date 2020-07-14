@@ -42,11 +42,10 @@ void ideal_gas_kernel_c_(int *xmin,int *xmax,int *ymin,int *ymax,
 
   double sound_speed_squared,v,pressurebyenergy,pressurebyvolume;
   
-#pragma omp parallel private(j)
- {
-#pragma omp for private(v,pressurebyenergy,pressurebyvolume,sound_speed_squared)
-  for (k=y_min;k<=y_max;k++) {
-#pragma omp simd
+#pragma omp parallel
+  {  
+#pragma omp for private(j,v,pressurebyenergy,pressurebyvolume,sound_speed_squared) 
+   for (k=y_min;k<=y_max;k++) {
     for (j=x_min;j<=x_max;j++) {								 
       v=1.0/density[FTNREF2D(j  ,k  ,x_max+4,x_min-2,y_min-2)];
       pressure[FTNREF2D(j  ,k  ,x_max+4,x_min-2,y_min-2)]=(1.4-1.0)*density[FTNREF2D(j  ,k  ,x_max+4,x_min-2,y_min-2)]
