@@ -255,7 +255,7 @@ void update_halo_kernel_c_(int *xmin,int *xmax,int *ymin,int *ymax,
     if(chunk_neighbours[FTNREF1D(CHUNK_BOTTOM,1)]==EXTERNAL_FACE && tile_neighbours[FTNREF1D(TILE_BOTTOM,1)]==EXTERNAL_TILE) {
 #pragma omp for private(j,k)
       for (j=x_min-depth;j<=x_max+depth;j++) {
-#pragma omps simd
+#pragma omp simd
         for (k=1;k<=depth;k++) {
           pressure[FTNREF2D(j  ,1-k,x_max+4,x_min-2,y_min-2)]=pressure[FTNREF2D(j  ,0+k,x_max+4,x_min-2,y_min-2)];
 	}

@@ -98,7 +98,7 @@ void initialise_chunk_kernel_c_(int *xmin,int *xmax,int *ymin,int *ymax,
 
 #pragma omp for
   for (k=y_min-2;k<=y_max+2;k++) {
-#pragma omps simd
+#pragma omp simd
     for (j=x_min-2;j<=x_max+2;j++) {
         volume[FTNREF2D(j,k,x_max+4,x_min-2,y_min-2)]=d_x*d_y;
     }
