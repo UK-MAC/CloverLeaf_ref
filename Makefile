@@ -30,6 +30,7 @@
 #  compilers.
 # To select a OpenMP compiler option, do this in the shell before typing make:-
 #
+#  export COMPILER=AOCC        # to select the AOCC flags
 #  export COMPILER=INTEL       # to select the Intel flags
 #  export COMPILER=SUN         # to select the Sun flags
 #  export COMPILER=GNU         # to select the Gnu flags
@@ -40,6 +41,7 @@
 
 # or this works as well:-
 #
+# make COMPILER=AOCC
 # make COMPILER=INTEL
 # make COMPILER=SUN
 # make COMPILER=GNU
@@ -62,6 +64,7 @@ ifndef COMPILER
   MESSAGE=select a compiler to compile in OpenMP, e.g. make COMPILER=INTEL
 endif
 
+OMP_AOCC      = -fopenmp
 OMP_INTEL     = -openmp
 OMP_SUN       = -xopenmp=parallel -vpara
 OMP_GNU       = -fopenmp
@@ -72,6 +75,7 @@ OMP_XL        = -qsmp=omp -qthreaded
 OMP_ARM       = -fopenmp
 OMP=$(OMP_$(COMPILER))
 
+FLAGS_AOCC      = -O3 -funroll-loops
 FLAGS_INTEL     = -O3 -no-prec-div
 FLAGS_SUN       = -fast -xipo=2 -Xlistv4
 FLAGS_GNU       = -O3 -march=native -funroll-loops
@@ -81,6 +85,7 @@ FLAGS_PATHSCALE = -O3
 FLAGS_XL        = -O5 -qipa=partition=large -g -qfullpath -Q -qsigtrap -qextname=flush:ideal_gas_kernel_c:viscosity_kernel_c:pdv_kernel_c:revert_kernel_c:accelerate_kernel_c:flux_calc_kernel_c:advec_cell_kernel_c:advec_mom_kernel_c:reset_field_kernel_c:timer_c:unpack_top_bottom_buffers_c:pack_top_bottom_buffers_c:unpack_left_right_buffers_c:pack_left_right_buffers_c:field_summary_kernel_c:update_halo_kernel_c:generate_chunk_kernel_c:initialise_chunk_kernel_c:calc_dt_kernel_c:clover_unpack_message_bottom_c:clover_pack_message_bottom_c:clover_unpack_message_top_c:clover_pack_message_top_c:clover_unpack_message_right_c:clover_pack_message_right_c:clover_unpack_message_left_c:clover_pack_message_left_c -qlistopt -qattr=full -qlist -qreport -qxref=full -qsource -qsuppress=1506-224:1500-036FLAGS_          = -O3
 FLAGS_ARM      = -O3 -ffp-contract=fast -march=armv8.1-a -mcpu=native
 
+CFLAGS_AOCC      = -O3 -funroll-loops
 CFLAGS_INTEL     = -O3 -no-prec-div -restrict -fno-alias
 CFLAGS_SUN       = -fast -xipo=2
 CFLAGS_GNU       = -O3 -march=native -funroll-loops
@@ -92,6 +97,7 @@ CFLAGS_ARM       = -O3 -march=armv8.1-a -mcpu=native
 CFLAGS_          = -O3
 
 ifdef DEBUG
+  FLAGS_AOCC      = -O0 -g -O -Wall -Wextra -fsanitize=address
   FLAGS_INTEL     = -O0 -g -debug all -check all -traceback -check noarg_temp_created
   FLAGS_SUN       = -g -xopenmp=noopt -stackvar -u -fpover=yes -C -ftrap=common
   FLAGS_GNU       = -O0 -g -O -Wall -Wextra -fbounds-check
@@ -102,6 +108,7 @@ ifdef DEBUG
   FLAGS_ARM       = -O0 -g
   FLAGS_          = -O0 -g
 
+  CFLAGS_AOCC     = -O0 -g -Wall -Wextra -fsanitize=address
   CFLAGS_INTEL    = -O0 -g -debug all -traceback
   CFLAGS_SUN      = -g -O0 -xopenmp=noopt -stackvar -u -fpover=yes -C -ftrap=common
   CFLAGS_GNU       = -O0 -g -O -Wall -Wextra -fbounds-check
@@ -114,6 +121,7 @@ ifdef DEBUG
 endif
 
 ifdef IEEE
+  I3E_AOCC      = -ffast-math
   I3E_INTEL     = -fp-model strict -fp-model source -prec-div -prec-sqrt
   I3E_SUN       = -fsimple=0 -fns=no
   I3E_GNU       = -ffloat-store
