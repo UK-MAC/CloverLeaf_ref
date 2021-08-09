@@ -29,6 +29,7 @@ CONTAINS
     USE advec_cell_driver_module
     USE advec_mom_driver_module
     USE update_halo_module
+    USE caliscope_module
 
     IMPLICIT NONE
 
@@ -39,6 +40,8 @@ CONTAINS
     INTEGER :: fields(NUM_FIELDS)
 
     REAL(KIND=8) :: kernel_time,timer
+
+    TYPE(SCOPE_TYPE) :: caliprof
 
     sweep_number=1
     IF(advect_x)      direction=g_xdir
@@ -51,6 +54,8 @@ CONTAINS
     fields(FIELD_DENSITY1)=1
     fields(FIELD_VOL_FLUX_X)=1
     fields(FIELD_VOL_FLUX_Y)=1
+
+    CALL caliprof%create("advection")
     CALL update_halo(fields,2)
 
     IF(profiler_on) kernel_time=timer()

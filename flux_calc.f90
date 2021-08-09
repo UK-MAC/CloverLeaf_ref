@@ -27,6 +27,7 @@ CONTAINS
 
     USE clover_module
     USE flux_calc_kernel_module
+    USE caliscope_module
 
     IMPLICIT NONE
 
@@ -34,8 +35,11 @@ CONTAINS
 
     REAL(KIND=8) :: kernel_time,timer
 
-    IF(profiler_on) kernel_time=timer()
+    TYPE(SCOPE_TYPE) :: caliprof
 
+    CALL caliprof%create("flux_calc")
+
+    IF(profiler_on) kernel_time=timer()
 
     IF(use_fortran_kernels) THEN
       DO tile=1,tiles_per_chunk

@@ -28,6 +28,7 @@ SUBROUTINE visit
   USE update_halo_module
   USE viscosity_module
   USE ideal_gas_module
+  USE caliscope_module
 
   IMPLICIT NONE
 
@@ -45,6 +46,9 @@ SUBROUTINE visit
 
   REAL(KIND=8) :: kernel_time,timer
 
+  TYPE(SCOPE_TYPE) :: caliprof
+
+  CALL caliprof%create("visit")
   name = 'clover'
   IF ( parallel%boss ) THEN
 

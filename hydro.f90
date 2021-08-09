@@ -30,6 +30,7 @@ SUBROUTINE hydro
     USE flux_calc_module
     USE advection_module
     USE reset_field_module
+    USE caliscope_module
 
     IMPLICIT NONE
 
@@ -41,6 +42,9 @@ SUBROUTINE hydro
     REAL(KIND=8)    :: first_step,second_step
     REAL(KIND=8)    :: kernel_total,totals(parallel%max_task)
 
+    TYPE(SCOPE_TYPE) :: caliprof
+
+    CALL caliprof%create("hydro")
     timerstart = timer()
 
     DO

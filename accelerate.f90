@@ -27,6 +27,7 @@ CONTAINS
 
     USE clover_module
     USE accelerate_kernel_module
+    USE caliscope_module
 
     IMPLICIT NONE
 
@@ -34,12 +35,14 @@ CONTAINS
 
     REAL(KIND=8) :: kernel_time,timer
 
+    TYPE(SCOPE_TYPE) :: caliprof
+
+    CALL caliprof%create("accelerate")
+
     IF(profiler_on) kernel_time=timer()
   
-    
     IF(use_fortran_kernels) THEN
       DO tile=1,tiles_per_chunk
-
 
         CALL accelerate_kernel(chunk%tiles(tile)%t_xmin,                &
           chunk%tiles(tile)%t_xmax,                  &

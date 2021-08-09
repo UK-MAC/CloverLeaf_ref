@@ -31,6 +31,7 @@ CONTAINS
     USE revert_module
     USE update_halo_module
     USE ideal_gas_module
+    USE caliscope_module
 
     IMPLICIT NONE
 
@@ -43,7 +44,11 @@ CONTAINS
 
     REAL(KIND=8) :: kernel_time,timer
 
+    TYPE(SCOPE_TYPE) :: caliprof
+
     error_condition=0 ! Not used yet due to issue with OpenA reduction
+
+    CALL caliprof%create("PdV")
 
     IF(profiler_on) kernel_time=timer()
 

@@ -27,6 +27,7 @@ CONTAINS
 
     USE clover_module
     USE reset_field_kernel_module
+    USE caliscope_module
 
     IMPLICIT NONE
 
@@ -34,6 +35,9 @@ CONTAINS
 
     REAL(KIND=8) :: kernel_time,timer
 
+    TYPE(SCOPE_TYPE) :: caliprof
+
+    CALL caliprof%create("reset_field")
     IF(profiler_on) kernel_time=timer()
 
     IF(use_fortran_kernels) THEN

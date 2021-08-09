@@ -26,6 +26,7 @@ SUBROUTINE read_input()
   USE clover_module
   USE parse_module
   USE report_module
+  USE caliscope_module
 
   IMPLICIT NONE
 
@@ -34,6 +35,8 @@ SUBROUTINE read_input()
   REAL(KIND=8) :: dx,dy
 
   CHARACTER(LEN=500) :: word
+
+  TYPE(SCOPE_TYPE) :: caliprof
 
   test_problem=0
 
@@ -84,6 +87,8 @@ SUBROUTINE read_input()
   profiler%tile_halo_exchange=0.0
   profiler%self_halo_exchange=0.0
   profiler%mpi_halo_exchange=0.0
+
+  CALL caliprof%create("read_input")
 
   IF(parallel%boss)WRITE(g_out,*) 'Reading input file'
   IF(parallel%boss)WRITE(g_out,*)

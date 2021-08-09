@@ -34,6 +34,7 @@ CONTAINS
     USE calc_dt_module
     USE ideal_gas_module
     USE definitions_module
+    USE caliscope_module
 
     IMPLICIT NONE
 
@@ -51,11 +52,14 @@ CONTAINS
 
     INTEGER :: fields(NUM_FIELDS)
 
+    TYPE(SCOPE_TYPE) :: caliprof
+
     !$ INTEGER :: OMP_GET_THREAD_NUM
 
     dt    = g_big
     small=0
 
+    CALL caliprof%create("timestep")
     IF(profiler_on) kernel_time=timer()
     DO tile = 1, tiles_per_chunk
       CALL ideal_gas(tile,.FALSE.)

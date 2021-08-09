@@ -29,12 +29,15 @@ CONTAINS
     USE clover_module
     USE update_tile_halo_module
     USE update_halo_kernel_module
+    USE caliscope_module
 
     IMPLICIT NONE
 
     INTEGER :: tile,fields(NUM_FIELDS),depth
     REAL(KIND=8) :: kernel_time,timer
+    TYPE(SCOPE_TYPE) :: caliprof
 
+    CALL caliprof%create("update_halo")
       !TODO: fix the chunk comms phase
     IF(profiler_on) kernel_time=timer()
     CALL update_tile_halo(fields,depth)
