@@ -64,8 +64,10 @@ ifndef COMPILER
   MESSAGE=select a compiler to compile in OpenMP, e.g. make COMPILER=INTEL
 endif
 
+CALIPER_DIR=$(CALIPER_ROOT)
+
 OMP_AOCC      = -fopenmp
-OMP_INTEL     = -openmp
+OMP_INTEL     = -qopenmp
 OMP_SUN       = -xopenmp=parallel -vpara
 OMP_GNU       = -fopenmp
 OMP_CRAY      =
@@ -132,13 +134,14 @@ ifdef IEEE
   I3E=$(I3E_$(COMPILER))
 endif
 
-FLAGS=$(FLAGS_$(COMPILER)) $(OMP) $(I3E) $(OPTIONS)
-CFLAGS=$(CFLAGS_$(COMPILER)) $(OMP) $(I3E) $(C_OPTIONS) -c
+FLAGS=$(FLAGS_$(COMPILER)) $(OMP) $(I3E) $(OPTIONS) -I$(CALIPER_DIR)/include/caliper/fortran 
+CFLAGS=$(CFLAGS_$(COMPILER)) $(OMP) $(I3E) $(C_OPTIONS) -I$(CALIPER_DIR)/include  -c
 MPI_COMPILER=mpif90
 C_MPI_COMPILER=mpicc
 
 clover_leaf: c_lover *.f90 Makefile
 	$(MPI_COMPILER) $(FLAGS)	\
+	caliscope.f90		\
 	data.f90			\
 	definitions.f90			\
 	kernels/pack_kernel.f90		\
@@ -201,6 +204,7 @@ clover_leaf: c_lover *.f90 Makefile
 	pack_kernel_c.o			\
 	generate_chunk_kernel_c.o	\
 	initialise_chunk_kernel_c.o	\
+	-L$(CALIPER_DIR)/lib64 -lcaliper \
 	-o clover_leaf; echo $(MESSAGE)
 
 c_lover: *.c Makefile
