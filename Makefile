@@ -65,7 +65,7 @@ ifndef COMPILER
 endif
 
 OMP_AOCC      = -fopenmp
-OMP_INTEL     = -openmp
+OMP_INTEL     = -qopenmp
 OMP_SUN       = -xopenmp=parallel -vpara
 OMP_GNU       = -fopenmp
 OMP_CRAY      =
