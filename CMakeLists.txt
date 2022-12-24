@@ -20,67 +20,67 @@ set(CMAKE_MODULE_PATH  ${PROJECT_SOURCE_DIR}/cmake)
 
 set(CLOVERLEAF_SRC
     ${PROJECT_SOURCE_DIR}/src/parse.f90
-    ${PROJECT_SOURCE_DIR}/src/update_halo_kernel.f90
+    ${PROJECT_SOURCE_DIR}/src/kernels/update_halo_kernel.f90
     ${PROJECT_SOURCE_DIR}/src/hydro.f90
     ${PROJECT_SOURCE_DIR}/src/ideal_gas.f90
-    ${PROJECT_SOURCE_DIR}/src/ideal_gas_kernel.f90
+    ${PROJECT_SOURCE_DIR}/src/kernels/ideal_gas_kernel.f90
     ${PROJECT_SOURCE_DIR}/src/initialise_chunk.f90
-    ${PROJECT_SOURCE_DIR}/src/initialise_chunk_kernel.f90
+    ${PROJECT_SOURCE_DIR}/src/kernels/initialise_chunk_kernel.f90
     ${PROJECT_SOURCE_DIR}/src/initialise.f90
-    ${PROJECT_SOURCE_DIR}/src/pack_kernel.f90
+    ${PROJECT_SOURCE_DIR}/src/kernels/pack_kernel.f90
     ${PROJECT_SOURCE_DIR}/src/read_input.f90
     ${PROJECT_SOURCE_DIR}/src/report.f90
     ${PROJECT_SOURCE_DIR}/src/reset_field.f90
-    ${PROJECT_SOURCE_DIR}/src/reset_field_kernel.f90
+    ${PROJECT_SOURCE_DIR}/src/kernels/reset_field_kernel.f90
     ${PROJECT_SOURCE_DIR}/src/revert.f90
-    ${PROJECT_SOURCE_DIR}/src/revert_kernel.f90
+    ${PROJECT_SOURCE_DIR}/src/kernels/revert_kernel.f90
     ${PROJECT_SOURCE_DIR}/src/start.f90
     ${PROJECT_SOURCE_DIR}/src/timer.f90
     ${PROJECT_SOURCE_DIR}/src/timestep.f90
     ${PROJECT_SOURCE_DIR}/src/update_halo.f90
     ${PROJECT_SOURCE_DIR}/src/update_tile_halo.f90
-    ${PROJECT_SOURCE_DIR}/src/update_tile_halo_kernel.f90
+    ${PROJECT_SOURCE_DIR}/src/kernels/update_tile_halo_kernel.f90
     ${PROJECT_SOURCE_DIR}/src/viscosity.f90
-    ${PROJECT_SOURCE_DIR}/src/viscosity_kernel.f90
+    ${PROJECT_SOURCE_DIR}/src/kernels/viscosity_kernel.f90
     ${PROJECT_SOURCE_DIR}/src/visit.f90
-    ${PROJECT_SOURCE_DIR}/src/calc_dt_kernel.f90
+    ${PROJECT_SOURCE_DIR}/src/kernels/calc_dt_kernel.f90
     ${PROJECT_SOURCE_DIR}/src/clover.f90
     ${PROJECT_SOURCE_DIR}/src/clover_leaf.f90
     ${PROJECT_SOURCE_DIR}/src/data.f90
     ${PROJECT_SOURCE_DIR}/src/definitions.f90
     ${PROJECT_SOURCE_DIR}/src/field_summary.f90
-    ${PROJECT_SOURCE_DIR}/src/field_summary_kernel.f90
+    ${PROJECT_SOURCE_DIR}/src/kernels/field_summary_kernel.f90
     ${PROJECT_SOURCE_DIR}/src/flux_calc.f90
-    ${PROJECT_SOURCE_DIR}/src/flux_calc_kernel.f90
+    ${PROJECT_SOURCE_DIR}/src/kernels/flux_calc_kernel.f90
     ${PROJECT_SOURCE_DIR}/src/generate_chunk.f90
-    ${PROJECT_SOURCE_DIR}/src/generate_chunk_kernel.f90
+    ${PROJECT_SOURCE_DIR}/src/kernels/generate_chunk_kernel.f90
     ${PROJECT_SOURCE_DIR}/src/accelerate.f90
-    ${PROJECT_SOURCE_DIR}/src/accelerate_kernel.f90
+    ${PROJECT_SOURCE_DIR}/src/kernels/accelerate_kernel.f90
     ${PROJECT_SOURCE_DIR}/src/advec_cell_driver.f90
-    ${PROJECT_SOURCE_DIR}/src/advec_cell_kernel.f90
+    ${PROJECT_SOURCE_DIR}/src/kernels/advec_cell_kernel.f90
     ${PROJECT_SOURCE_DIR}/src/advec_mom_driver.f90
-    ${PROJECT_SOURCE_DIR}/src/advec_mom_kernel.f90
+    ${PROJECT_SOURCE_DIR}/src/kernels/advec_mom_kernel.f90
     ${PROJECT_SOURCE_DIR}/src/advection.f90
     ${PROJECT_SOURCE_DIR}/src/build_field.f90
     ${PROJECT_SOURCE_DIR}/src/calc_dt.f90
-    ${PROJECT_SOURCE_DIR}/src/PdV_kernel.f90
+    ${PROJECT_SOURCE_DIR}/src/kernels/PdV_kernel.f90
     ${PROJECT_SOURCE_DIR}/src/PdV.f90
-    ${PROJECT_SOURCE_DIR}/src/ideal_gas_kernel_c.c
-    ${PROJECT_SOURCE_DIR}/src/initialise_chunk_kernel_c.c
-    ${PROJECT_SOURCE_DIR}/src/pack_kernel_c.c
-    ${PROJECT_SOURCE_DIR}/src/reset_field_kernel_c.c
-    ${PROJECT_SOURCE_DIR}/src/revert_kernel_c.c
+    ${PROJECT_SOURCE_DIR}/src/kernels/ideal_gas_kernel_c.c
+    ${PROJECT_SOURCE_DIR}/src/kernels/initialise_chunk_kernel_c.c
+    ${PROJECT_SOURCE_DIR}/src/kernels/pack_kernel_c.c
+    ${PROJECT_SOURCE_DIR}/src/kernels/reset_field_kernel_c.c
+    ${PROJECT_SOURCE_DIR}/src/kernels/revert_kernel_c.c
     ${PROJECT_SOURCE_DIR}/src/timer_c.c
-    ${PROJECT_SOURCE_DIR}/src/update_halo_kernel_c.c
-    ${PROJECT_SOURCE_DIR}/src/viscosity_kernel_c.c
-    ${PROJECT_SOURCE_DIR}/src/calc_dt_kernel_c.c
-    ${PROJECT_SOURCE_DIR}/src/field_summary_kernel_c.c
-    ${PROJECT_SOURCE_DIR}/src/flux_calc_kernel_c.c
-    ${PROJECT_SOURCE_DIR}/src/generate_chunk_kernel_c.c
-    ${PROJECT_SOURCE_DIR}/src/accelerate_kernel_c.c
-    ${PROJECT_SOURCE_DIR}/src/advec_cell_kernel_c.c
-    ${PROJECT_SOURCE_DIR}/src/advec_mom_kernel_c.c
-    ${PROJECT_SOURCE_DIR}/src/PdV_kernel_c.c)
+    ${PROJECT_SOURCE_DIR}/src/kernels/update_halo_kernel_c.c
+    ${PROJECT_SOURCE_DIR}/src/kernels/viscosity_kernel_c.c
+    ${PROJECT_SOURCE_DIR}/src/kernels/calc_dt_kernel_c.c
+    ${PROJECT_SOURCE_DIR}/src/kernels/field_summary_kernel_c.c
+    ${PROJECT_SOURCE_DIR}/src/kernels/flux_calc_kernel_c.c
+    ${PROJECT_SOURCE_DIR}/src/kernels/generate_chunk_kernel_c.c
+    ${PROJECT_SOURCE_DIR}/src/kernels/accelerate_kernel_c.c
+    ${PROJECT_SOURCE_DIR}/src/kernels/advec_cell_kernel_c.c
+    ${PROJECT_SOURCE_DIR}/src/kernels/advec_mom_kernel_c.c
+    ${PROJECT_SOURCE_DIR}/src/kernels/PdV_kernel_c.c)
 
 add_executable(clover_leaf ${CLOVERLEAF_SRC})
 

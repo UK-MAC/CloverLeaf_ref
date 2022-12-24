@@ -12,3 +12,4 @@ clover_leaf
 clover.in.tmp
 results
 build
+build*/
